@@ -7,5 +7,10 @@ description = " A program to render 3D effects on a Christmas tree in real time.
 repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
 license = "GPL-3.0"
 
+[[bin]]
+name = "winter-wonderlights"
+path = "src/main.rs"
+
 [dependencies]
 tracing = "0.1.37"
+tracing-subscriber = "0.3.16"

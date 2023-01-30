@@ -13,10 +13,10 @@ pub mod drivers;
 pub mod effects;
 pub mod frame;
 
-use std::time::Duration;
-
 /// A point in 3D space with f64 values.
 pub type PointF = (f64, f64, f64);
+
+use std::time::Duration;
 
 /// Sleep for the duration, except when testing. When testing, we don't sleep at all.
 #[cfg_attr(test, allow(unused_variables))]

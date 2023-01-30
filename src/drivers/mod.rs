@@ -18,7 +18,9 @@ pub trait Driver {
 }
 
 /// A simple debug driver that just logs all its input with tracing at the info level.
-pub struct DebugDriver;
+pub struct DebugDriver {
+    pub lights_num: usize,
+}
 
 impl Driver for DebugDriver {
     fn display_frame(&mut self, frame: FrameType) {
@@ -26,7 +28,7 @@ impl Driver for DebugDriver {
     }
 
     fn get_lights_count(&self) -> usize {
-        100
+        self.lights_num
     }
 }
 
