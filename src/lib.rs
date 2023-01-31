@@ -19,8 +19,8 @@ pub type PointF = (f64, f64, f64);
 use std::time::Duration;
 
 /// Sleep for the duration, except when testing. When testing, we don't sleep at all.
-#[cfg_attr(test, allow(unused_variables))]
+#[cfg_attr(any(test, feature = "bench"), allow(unused_variables))]
 fn sleep(dur: Duration) {
-    #[cfg(not(test))]
+    #[cfg(not(any(test, feature = "bench")))]
     std::thread::sleep(dur);
 }
