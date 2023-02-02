@@ -3,6 +3,7 @@ name = "winter-wonderlights"
 version = "0.1.0"
 authors = ["Dyson Dyson <dyson.dyson@icloud.com>"]
 edition = "2021"
+rust-version = "1.65"
 description = " A program to render 3D effects on a Christmas tree in real time."
 repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
 license = "GPL-3.0"

@@ -12,7 +12,7 @@ use std::time::Duration;
 pub struct DebugOneByOne;
 
 impl Effect for DebugOneByOne {
-    fn run(self, driver: &mut dyn Driver) {
+    fn run(&mut self, driver: &mut dyn Driver) {
         driver.clear();
 
         let count = driver.get_lights_count();
@@ -35,7 +35,7 @@ impl Effect for DebugOneByOne {
 pub struct DebugBinaryIndex;
 
 impl Effect for DebugBinaryIndex {
-    fn run(self, driver: &mut dyn Driver) {
+    fn run(&mut self, driver: &mut dyn Driver) {
         driver.clear();
 
         // Get the simple binary versions of the index of each number in the range
