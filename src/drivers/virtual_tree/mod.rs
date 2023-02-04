@@ -14,6 +14,7 @@ use tracing::{debug, instrument};
 static FRAME_RW_LOCK: RwLock<FrameType> = RwLock::new(FrameType::Off);
 
 lazy_static! {
+    /// The GIFTCoords loaded from `coords.gift`.
     static ref COORDS: GIFTCoords =
         GIFTCoords::from_file("coords.gift").expect("We need the coordinates to build the tree");
 }
@@ -60,7 +61,7 @@ struct VirtualTreeDriver {}
 impl Driver for VirtualTreeDriver {
     #[instrument(skip_all)]
     fn display_frame(&mut self, frame: FrameType) {
-        debug!(?frame);
+        info!(?frame);
         *FRAME_RW_LOCK.write().unwrap() = frame;
     }
 
@@ -118,7 +119,7 @@ fn setup(
         ..default()
     });
 
-    // One sphere
+    // One sphere mesh for the lights
     let mesh = meshes.add(Mesh::from(shape::UVSphere {
         sectors: 64,
         stacks: 32,
@@ -154,7 +155,7 @@ fn update_lights(
         return;
     };
     let frame = frame.clone();
-    info!("Updating lights, frame = {frame:?}");
+    debug!("Updating lights, frame = {frame:?}");
 
     match frame {
         FrameType::Off => {
