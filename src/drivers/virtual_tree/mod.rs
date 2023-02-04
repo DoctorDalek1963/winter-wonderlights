@@ -3,6 +3,10 @@
 use crate::{drivers::Driver, effects::Effect, frame::FrameType, gift_coords::GIFTCoords};
 use bevy::{log::LogPlugin, prelude::*, DefaultPlugins};
 use lazy_static::lazy_static;
+use smooth_bevy_cameras::{
+    controllers::orbit::{OrbitCameraBundle, OrbitCameraController, OrbitCameraPlugin},
+    LookTransformPlugin,
+};
 use std::{sync::RwLock, thread, time::Duration};
 use tracing::{debug, instrument};
 
@@ -37,7 +41,10 @@ pub fn run_effect_on_virtual_tree(mut effect: Box<dyn Effect + Send>) -> ! {
     // Create a new Bevy app with the default plugins (except logging, since we initialize that
     // ourselves) and the required systems
     App::new()
+        .insert_resource(Msaa { samples: 4 })
         .add_plugins(DefaultPlugins.build().disable::<LogPlugin>())
+        .add_plugin(LookTransformPlugin)
+        .add_plugin(OrbitCameraPlugin::default())
         .add_startup_system(setup)
         .add_system(update_lights)
         .run();
@@ -72,18 +79,21 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(5., 2.5, 5.).looking_at(
-            Vec3 {
-                x: 0.,
-                y: COORDS.max_z() as f32 / 2.,
-                z: 0.,
+    // Hold LControl to orbit the camera
+    commands
+        .spawn(Camera3dBundle::default())
+        .insert(OrbitCameraBundle::new(
+            OrbitCameraController {
+                mouse_rotate_sensitivity: Vec2::splat(0.25),
+                smoothing_weight: 0.1,
+                ..default()
             },
+            Vec3::new(5., 2.5, 5.),
+            Vec3::new(0., COORDS.max_z() as f32 / 2., 0.),
             Vec3::Y,
-        ),
-        ..default()
-    });
+        ));
 
+    // Plane
     commands.spawn(PbrBundle {
         mesh: meshes.add(Mesh::from(shape::Plane {
             size: COORDS.coords().len() as f32 * 10.0,
@@ -97,12 +107,14 @@ fn setup(
         ..default()
     });
 
+    // One sphere
     let mesh = meshes.add(Mesh::from(shape::UVSphere {
         sectors: 64,
         stacks: 32,
         radius: 0.025,
     }));
 
+    // All the lights
     for (index, &(x, z, y)) in COORDS.coords().iter().enumerate() {
         commands
             .spawn(PbrBundle {
