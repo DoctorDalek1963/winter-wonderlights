@@ -1,15 +1,18 @@
 //! This module provides implementation for the virtual tree driver.
 
-use crate::{drivers::Driver, effects::Effect, frame::FrameType};
+use crate::{drivers::Driver, effects::Effect, frame::FrameType, gift_coords::GIFTCoords};
 use bevy::{log::LogPlugin, prelude::*, DefaultPlugins};
+use lazy_static::lazy_static;
 use std::{sync::RwLock, thread, time::Duration};
 use tracing::{debug, instrument};
 
-/// This is a temporary constant until coordinates are implemented.
-const LIGHTS_NUM: usize = 32;
-
 /// A global `RwLock` to record what the most recently sent frame is.
 static FRAME_RW_LOCK: RwLock<FrameType> = RwLock::new(FrameType::Off);
+
+lazy_static! {
+    static ref COORDS: GIFTCoords =
+        GIFTCoords::from_file("coords.gift").expect("We need the coordinates to build the tree");
+}
 
 /// Run the given effect on the virtual tree.
 ///
@@ -55,7 +58,7 @@ impl Driver for VirtualTreeDriver {
     }
 
     fn get_lights_count(&self) -> usize {
-        LIGHTS_NUM
+        COORDS.coords().len()
     }
 }
 
@@ -70,10 +73,10 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(LIGHTS_NUM as f32 / 2., 2.5, 30.).looking_at(
+        transform: Transform::from_xyz(5., 2.5, 5.).looking_at(
             Vec3 {
-                x: LIGHTS_NUM as f32 / 2.,
-                y: 0.,
+                x: 0.,
+                y: COORDS.max_z() as f32 / 2.,
                 z: 0.,
             },
             Vec3::Y,
@@ -83,10 +86,10 @@ fn setup(
 
     commands.spawn(PbrBundle {
         mesh: meshes.add(Mesh::from(shape::Plane {
-            size: LIGHTS_NUM as f32 * 10.0,
+            size: COORDS.coords().len() as f32 * 10.0,
         })),
         material: materials.add(StandardMaterial {
-            base_color: Color::rgb(0.2, 0.2, 0.2),
+            base_color: Color::rgb(0.7, 0.7, 0.7),
             perceptual_roughness: 0.08,
             ..default()
         }),
@@ -95,12 +98,12 @@ fn setup(
     });
 
     let mesh = meshes.add(Mesh::from(shape::UVSphere {
-        sectors: 128,
-        stacks: 64,
-        radius: 0.1,
+        sectors: 64,
+        stacks: 32,
+        radius: 0.025,
     }));
 
-    for index in 0..LIGHTS_NUM {
+    for (index, &(x, z, y)) in COORDS.coords().iter().enumerate() {
         commands
             .spawn(PbrBundle {
                 mesh: mesh.clone(),
@@ -109,14 +112,14 @@ fn setup(
                     unlit: true,
                     ..default()
                 }),
-                transform: Transform::from_xyz(index as f32, 0., 0.),
+                transform: Transform::from_xyz(x as f32, y as f32, z as f32),
                 ..default()
             })
             .with_children(|children| {
                 children.spawn((
                     PointLightBundle {
                         point_light: PointLight {
-                            color: Color::rgb(0.2, 0.2, 1.0),
+                            color: Color::rgb(0., 0., 0.),
                             intensity: 1500.0,
                             radius: 0.2,
                             range: 2.,
