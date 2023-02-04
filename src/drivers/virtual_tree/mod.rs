@@ -8,7 +8,7 @@ use tracing::{debug, instrument};
 /// This is a temporary constant until coordinates are implemented.
 const LIGHTS_NUM: usize = 32;
 
-/// A global RwLock to record what the most recently sent frame is.
+/// A global `RwLock` to record what the most recently sent frame is.
 static FRAME_RW_LOCK: RwLock<FrameType> = RwLock::new(FrameType::Off);
 
 /// Run the given effect on the virtual tree.
@@ -44,7 +44,7 @@ pub fn run_effect_on_virtual_tree(mut effect: Box<dyn Effect + Send>) -> ! {
     std::process::exit(0);
 }
 
-/// A simple driver that uses a global RwLock to communicate with Bevy to render a virtual tree.
+/// A simple driver that uses a global [`RwLock`] to communicate with Bevy to render a virtual tree.
 struct VirtualTreeDriver {}
 
 impl Driver for VirtualTreeDriver {
@@ -130,7 +130,7 @@ fn setup(
     }
 }
 
-/// Update the lights by reading from the RwLock and setting the colours of all the lights.
+/// Update the lights by reading from the [`RwLock`] and setting the colours of all the lights.
 #[instrument(skip_all)]
 fn update_lights(mut query: Query<(&mut PointLight, &LightIndex)>) {
     let Ok(frame) = FRAME_RW_LOCK.try_read() else {
