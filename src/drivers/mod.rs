@@ -3,6 +3,12 @@
 use crate::frame::FrameType;
 use tracing::info;
 
+#[cfg(feature = "virtual-tree")]
+mod virtual_tree;
+
+#[cfg(feature = "virtual-tree")]
+pub use self::virtual_tree::run_effect_on_virtual_tree;
+
 /// The trait implemented by all drivers.
 pub trait Driver {
     /// Display the given frame using this driver.

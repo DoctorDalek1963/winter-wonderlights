@@ -14,20 +14,19 @@ repos:
     rev: v1.0
     hooks:
       - id: fmt
-      - id: cargo-check
 
   - repo: local
     hooks:
-      - id: cargo-test
-        name: cargo test
-        entry: cargo test
+      - id: just-test
+        name: just test
+        entry: just test
         language: system
         types: [rust]
         pass_filenames: false
 
-      - id: cargo-test-release
-        name: cargo test release
-        entry: cargo test --release
+      - id: just-check
+        name: just check
+        entry: just check
         language: system
         types: [rust]
         pass_filenames: false
