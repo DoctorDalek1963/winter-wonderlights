@@ -27,7 +27,7 @@ lazy_static! {
 /// Bevy app on the main thread.
 pub fn run_effect_on_virtual_tree(mut effect: Box<dyn Effect + Send>) -> ! {
     thread::spawn(move || {
-        thread::sleep(Duration::from_millis(500));
+        thread::sleep(Duration::from_millis(1000));
 
         loop {
             let mut driver = VirtualTreeDriver {};
@@ -171,7 +171,7 @@ fn update_lights(
     match frame {
         FrameType::Off => {
             for (handle, idx) in query.iter() {
-                let mut mat = materials.get(&handle).unwrap().clone();
+                let mut mat = materials.get(handle).unwrap().clone();
                 debug!(?idx, "Before, color = {:?}", mat.emissive);
 
                 mat.emissive = Color::rgb(0., 0., 0.).as_rgba_linear();
@@ -181,7 +181,7 @@ fn update_lights(
         }
         FrameType::RawData(vec) => {
             for (handle, idx) in query.iter() {
-                let mut mat = materials.get(&handle).unwrap().clone();
+                let mut mat = materials.get(handle).unwrap().clone();
                 debug!(?idx, "Before, color = {:?}", mat.emissive);
 
                 let (r, g, b) = vec[idx.0];
