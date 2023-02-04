@@ -23,11 +23,11 @@ fn debug_effects(c: &mut Criterion) {
     let mut driver = BenchDriver {};
 
     c.bench_function("DebugOneByOne", |b| {
-        b.iter(|| effects::DebugOneByOne {}.run(&mut driver));
+        b.iter(|| effects::DebugOneByOne::default().run(&mut driver));
     });
 
     c.bench_function("DebugBinaryIndex", |b| {
-        b.iter(|| effects::DebugBinaryIndex {}.run(&mut driver));
+        b.iter(|| effects::DebugBinaryIndex::default().run(&mut driver));
     });
 }
 

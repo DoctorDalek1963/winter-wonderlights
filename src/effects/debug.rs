@@ -1,5 +1,7 @@
 //! This module provides some simple debug effects.
 
+use serde::{Deserialize, Serialize};
+
 use crate::{
     drivers::Driver,
     effects::Effect,
@@ -9,32 +11,80 @@ use crate::{
 use std::time::Duration;
 
 /// Light up each light individually, one-by-one.
-pub struct DebugOneByOne;
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct DebugOneByOne {
+    /// The number of milliseconds that the light is on for.
+    light_time_ms: u64,
+
+    /// The number of milliseconds to wait after turning off all the lights.
+    dark_time_ms: u64,
+
+    /// The color for the current light.
+    color: RGBTuple,
+}
 
 impl Effect for DebugOneByOne {
+    fn effect_name() -> &'static str {
+        "DebugOneByOne"
+    }
+
+    fn default() -> Self {
+        Self {
+            light_time_ms: 1000,
+            dark_time_ms: 100,
+            color: (255, 255, 255),
+        }
+    }
+
     fn run(&mut self, driver: &mut dyn Driver) {
         driver.clear();
 
         let count = driver.get_lights_count();
         let mut data = vec![(0, 0, 0); count];
 
-        // Display #FFFFFF on each LED, then blank it, pausing between each one.
+        // Display the color on each LED, then blank it, pausing between each one.
         for i in 0..count {
-            data[i] = (255, 255, 255);
+            data[i] = self.color;
             driver.display_frame(FrameType::RawData(data.clone()));
             data[i] = (0, 0, 0);
-            sleep(Duration::from_millis(100));
+            sleep(Duration::from_millis(self.light_time_ms));
 
             driver.clear();
-            sleep(Duration::from_millis(0));
+            sleep(Duration::from_millis(self.dark_time_ms));
         }
     }
 }
 
 /// Make each light flash its index in binary, using blue for 1 and red for 0.
-pub struct DebugBinaryIndex;
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct DebugBinaryIndex {
+    /// The number of milliseconds that the lights are on for.
+    light_time_ms: u64,
+
+    /// The number of milliseconds to wait after turning off all the lights.
+    dark_time_ms: u64,
+
+    /// The color to illuminate lights representing 0.
+    zero_color: RGBTuple,
+
+    /// The color to illuminate lights representing 1.
+    one_color: RGBTuple,
+}
 
 impl Effect for DebugBinaryIndex {
+    fn effect_name() -> &'static str {
+        "DebugBinaryIndex"
+    }
+
+    fn default() -> Self {
+        Self {
+            light_time_ms: 1500,
+            dark_time_ms: 500,
+            zero_color: (255, 0, 0),
+            one_color: (0, 0, 255),
+        }
+    }
+
     fn run(&mut self, driver: &mut dyn Driver) {
         driver.clear();
 
@@ -61,8 +111,8 @@ impl Effect for DebugBinaryIndex {
                 // Now map each number char to a colour
                 v.into_iter()
                     .map(|c| match c {
-                        '0' => (255, 0, 0), // Red
-                        '1' => (0, 0, 255), // Blue
+                        '0' => self.zero_color,
+                        '1' => self.one_color,
                         _ => unreachable!("Binary numbers should only contain '0' and '1'"),
                     })
                     .collect()
@@ -83,10 +133,10 @@ impl Effect for DebugBinaryIndex {
                 colours_for_each_light.iter().map(|cols| cols[i]).collect();
 
             driver.display_frame(FrameType::RawData(colours_at_idx.clone()));
-            sleep(Duration::from_millis(1500));
+            sleep(Duration::from_millis(self.light_time_ms));
 
             driver.clear();
-            sleep(Duration::from_millis(500));
+            sleep(Duration::from_millis(self.dark_time_ms));
         }
     }
 }
@@ -99,7 +149,7 @@ mod tests {
     #[test]
     fn debug_one_by_one_test() {
         let mut driver = TestDriver::new(5);
-        DebugOneByOne {}.run(&mut driver);
+        DebugOneByOne::default().run(&mut driver);
 
         #[rustfmt::skip]
         assert_eq!(
@@ -123,7 +173,7 @@ mod tests {
     #[test]
     fn debug_binary_index_test() {
         let mut driver = TestDriver::new(8);
-        DebugBinaryIndex {}.run(&mut driver);
+        DebugBinaryIndex::default().run(&mut driver);
 
         #[rustfmt::skip]
         assert_eq!(
