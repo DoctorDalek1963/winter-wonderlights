@@ -43,7 +43,18 @@ pub fn run_effect_on_virtual_tree(mut effect: Box<dyn Effect + Send>) -> ! {
     // ourselves) and the required systems
     App::new()
         .insert_resource(Msaa { samples: 4 })
-        .add_plugins(DefaultPlugins.build().disable::<LogPlugin>())
+        .add_plugins(
+            DefaultPlugins
+                .build()
+                .disable::<LogPlugin>()
+                .set(WindowPlugin {
+                    window: WindowDescriptor {
+                        title: "Winter WonderLights".to_string(),
+                        ..default()
+                    },
+                    ..default()
+                }),
+        )
         .add_plugin(LookTransformPlugin)
         .add_plugin(OrbitCameraPlugin::default())
         .add_startup_system(setup)
