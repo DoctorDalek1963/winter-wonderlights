@@ -10,8 +10,12 @@
 //! x and y values. This means th minimum z values is 0, and the maximum z value depends on the
 //! other coordinates.
 
+use color_eyre::Result;
+use serde::{Deserialize, Serialize};
+use std::fs;
+
 /// A simple struct to hold and manage GIFT coordinates. See the module documentation for details.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct GIFTCoords {
     /// The coordinates of the lights themselves.
     coords: Vec<(f64, f64, f64)>,
@@ -61,6 +65,16 @@ impl GIFTCoords {
         Some(Self { coords, max_z })
     }
 
+    /// Read the coordinate list from a file.
+    ///
+    /// The file should be a `Vec<(f64, f64, f64)>` encoded with `bincode`.
+    pub fn from_file(filename: &str) -> Result<Self> {
+        let coords: Vec<(f64, f64, f64)> = bincode::deserialize(&fs::read(filename)?)?;
+        let max_z = coords.iter().fold(0.0, |acc, &(_, _, z)| f64::max(acc, z));
+
+        Ok(Self { coords, max_z })
+    }
+
     /// The vec of coordinates themselves.
     pub fn coords(&self) -> &Vec<(f64, f64, f64)> {
         &self.coords
@@ -96,20 +110,23 @@ mod tests {
     use super::*;
     use float_cmp::approx_eq;
 
+    #[inline]
+    fn gift_coords() -> GIFTCoords {
+        GIFTCoords {
+            coords: include!("float_coords.txt"),
+            max_z: 3.592079207920792,
+        }
+    }
+
     #[test]
     fn from_int_coords_test() {
         let int_coords: Vec<(i32, i32, i32)> = include!("int_coords.txt");
-        let float_coords: Vec<(f64, f64, f64)> = include!("float_coords.txt");
-        let max_z = 3.592079207920792;
 
         assert!(
             approx_eq!(
                 GIFTCoords,
                 GIFTCoords::from_int_coords(&int_coords).unwrap(),
-                GIFTCoords {
-                    coords: float_coords.clone(),
-                    max_z
-                }
+                gift_coords()
             ),
             "Testing no translation"
         );
@@ -123,10 +140,7 @@ mod tests {
                         .collect()
                 )
                 .unwrap(),
-                GIFTCoords {
-                    coords: float_coords.clone(),
-                    max_z
-                }
+                gift_coords()
             ),
             "Testing simple translation in x"
         );
@@ -140,12 +154,14 @@ mod tests {
                         .collect()
                 )
                 .unwrap(),
-                GIFTCoords {
-                    coords: float_coords.clone(),
-                    max_z
-                }
+                gift_coords()
             ),
             "Testing multiple translations"
         );
+    }
+
+    #[test]
+    fn from_file_test() {
+        assert_eq!(GIFTCoords::from_file("coords.gift").unwrap(), gift_coords());
     }
 }
