@@ -20,7 +20,7 @@ lazy_static = "1.4.0"
 serde = { version = "1.0.152", features = ["derive"] }
 smooth-bevy-cameras = { version = "0.7.0", optional = true }
 tracing = "0.1.37"
-tracing-subscriber = "0.3.16"
+tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
 
 [dev-dependencies]
 criterion = "0.4.0"

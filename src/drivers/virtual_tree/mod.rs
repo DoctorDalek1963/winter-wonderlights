@@ -1,7 +1,7 @@
 //! This module provides implementation for the virtual tree driver.
 
 use crate::{drivers::Driver, effects::Effect, frame::FrameType, gift_coords::GIFTCoords};
-use bevy::{log::LogPlugin, prelude::*, DefaultPlugins};
+use bevy::{core_pipeline::bloom::BloomSettings, log::LogPlugin, prelude::*, DefaultPlugins};
 use lazy_static::lazy_static;
 use smooth_bevy_cameras::{
     controllers::orbit::{OrbitCameraBundle, OrbitCameraController, OrbitCameraPlugin},
@@ -81,7 +81,20 @@ fn setup(
 ) {
     // Hold LControl to orbit the camera
     commands
-        .spawn(Camera3dBundle::default())
+        .spawn((
+            Camera3dBundle {
+                camera: Camera {
+                    hdr: true,
+                    ..default()
+                },
+                ..default()
+            },
+            BloomSettings {
+                intensity: 1.4,
+                threshold: 0.6,
+                ..default()
+            },
+        ))
         .insert(OrbitCameraBundle::new(
             OrbitCameraController {
                 mouse_rotate_sensitivity: Vec2::splat(0.25),
@@ -95,9 +108,7 @@ fn setup(
 
     // Plane
     commands.spawn(PbrBundle {
-        mesh: meshes.add(Mesh::from(shape::Plane {
-            size: COORDS.coords().len() as f32 * 10.0,
-        })),
+        mesh: meshes.add(Mesh::from(shape::Plane { size: 1000. })),
         material: materials.add(StandardMaterial {
             base_color: Color::rgb(0.7, 0.7, 0.7),
             perceptual_roughness: 0.08,
@@ -111,61 +122,60 @@ fn setup(
     let mesh = meshes.add(Mesh::from(shape::UVSphere {
         sectors: 64,
         stacks: 32,
-        radius: 0.025,
+        radius: 0.015,
     }));
 
     // All the lights
     for (index, &(x, z, y)) in COORDS.coords().iter().enumerate() {
-        commands
-            .spawn(PbrBundle {
+        commands.spawn((
+            PbrBundle {
                 mesh: mesh.clone(),
                 material: materials.add(StandardMaterial {
                     base_color: Color::rgba(0.1, 0.1, 0.1, 0.5),
-                    unlit: true,
+                    unlit: false,
+                    emissive: Color::rgb_linear(0.1, 0.1, 0.1),
                     ..default()
                 }),
                 transform: Transform::from_xyz(x as f32, y as f32, z as f32),
                 ..default()
-            })
-            .with_children(|children| {
-                children.spawn((
-                    PointLightBundle {
-                        point_light: PointLight {
-                            color: Color::rgb(0., 0., 0.),
-                            intensity: 1500.0,
-                            radius: 0.2,
-                            range: 2.,
-                            ..default()
-                        },
-                        ..default()
-                    },
-                    LightIndex(index),
-                ));
-            });
+            },
+            LightIndex(index),
+        ));
     }
 }
 
 /// Update the lights by reading from the [`RwLock`] and setting the colours of all the lights.
 #[instrument(skip_all)]
-fn update_lights(mut query: Query<(&mut PointLight, &LightIndex)>) {
+fn update_lights(
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    query: Query<(&Handle<StandardMaterial>, &LightIndex)>,
+) {
     let Ok(frame) = FRAME_RW_LOCK.try_read() else {
         return;
     };
     let frame = frame.clone();
-    debug!(?frame, ?query, "Updating lights");
+    info!("Updating lights, frame = {frame:?}");
 
     match frame {
         FrameType::Off => {
-            for (mut light, _idx) in query.iter_mut() {
-                light.color = Color::rgb(0., 0., 0.);
+            for (handle, idx) in query.iter() {
+                let mut mat = materials.get(&handle).unwrap().clone();
+                debug!(?idx, "Before, color = {:?}", mat.emissive);
+
+                mat.emissive = Color::rgb(0., 0., 0.).as_rgba_linear();
+                debug!(?idx, "After, color = {:?}", mat.emissive);
+                let _ = materials.set(handle, mat);
             }
         }
         FrameType::RawData(vec) => {
-            for (mut light, idx) in query.iter_mut() {
-                debug!(?light, ?idx, "Before");
+            for (handle, idx) in query.iter() {
+                let mut mat = materials.get(&handle).unwrap().clone();
+                debug!(?idx, "Before, color = {:?}", mat.emissive);
+
                 let (r, g, b) = vec[idx.0];
-                light.color = Color::rgb_u8(r, g, b);
-                debug!(?light, ?idx, "After");
+                mat.emissive = Color::rgb_u8(r, g, b).as_rgba_linear();
+                debug!(?idx, "After, color = {:?}", mat.emissive);
+                let _ = materials.set(handle, mat);
             }
         }
         FrameType::Frame3D(_) => unimplemented!(),

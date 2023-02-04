@@ -11,7 +11,7 @@ use winter_wonderlights::effects::DebugBinaryIndex;
 use winter_wonderlights::effects::Effect;
 
 fn main() {
-    tracing_subscriber::fmt().init();
+    tracing_subscriber::fmt::init();
 
     #[cfg(feature = "virtual-tree")]
     run_effect_on_virtual_tree(Box::new(DebugBinaryIndex {}));
