@@ -2,6 +2,8 @@
 
 use crate::{drivers::Driver, effects::Effect, frame::FrameType, gift_coords::GIFTCoords};
 use bevy::{core_pipeline::bloom::BloomSettings, log::LogPlugin, prelude::*, DefaultPlugins};
+use bevy_egui::{EguiContext, EguiPlugin};
+use egui::RichText;
 use lazy_static::lazy_static;
 use smooth_bevy_cameras::{
     controllers::orbit::{OrbitCameraBundle, OrbitCameraController, OrbitCameraPlugin},
@@ -11,7 +13,12 @@ use std::{sync::RwLock, thread, time::Duration};
 use tracing::{debug, instrument};
 
 /// A global `RwLock` to record what the most recently sent frame is.
-static FRAME_RW_LOCK: RwLock<FrameType> = RwLock::new(FrameType::Off);
+static CURRENT_FRAME: RwLock<FrameType> = RwLock::new(FrameType::Off);
+
+/// The amount of time to pause between loops of the effect.
+static mut LOOP_PAUSE_TIME: u64 = 1500;
+
+static mut EFFECT: Option<Box<dyn Effect>> = None;
 
 lazy_static! {
     /// The GIFTCoords loaded from `coords.gift`.
@@ -25,17 +32,18 @@ lazy_static! {
 /// Bevy to render everything. Bevy uses Winit for its windows, but Winit needs to run on the main
 /// thread. This function just spawns a background thread to run the effect itself and then runs a
 /// Bevy app on the main thread.
-pub fn run_effect_on_virtual_tree(mut effect: Box<dyn Effect + Send>) -> ! {
+pub fn run_effect_on_virtual_tree(effect: Box<dyn Effect + Send>) -> ! {
+    unsafe { EFFECT = Some(effect) };
     thread::spawn(move || {
         thread::sleep(Duration::from_millis(1000));
 
         loop {
             let mut driver = VirtualTreeDriver {};
-            effect.run(&mut driver);
+            unsafe { EFFECT.as_deref_mut().unwrap().run(&mut driver) };
             driver.display_frame(FrameType::Off);
 
             // Pause for 1.5 seconds before looping the effect
-            thread::sleep(Duration::from_millis(1500));
+            thread::sleep(Duration::from_millis(unsafe { LOOP_PAUSE_TIME }));
         }
     });
 
@@ -57,8 +65,10 @@ pub fn run_effect_on_virtual_tree(mut effect: Box<dyn Effect + Send>) -> ! {
         )
         .add_plugin(LookTransformPlugin)
         .add_plugin(OrbitCameraPlugin::default())
+        .add_plugin(EguiPlugin)
         .add_startup_system(setup)
         .add_system(update_lights)
+        .add_system(render_gui)
         .run();
 
     // Winit terminates the program after the event loop ends, so we should never get here. If we
@@ -73,7 +83,7 @@ impl Driver for VirtualTreeDriver {
     #[instrument(skip_all)]
     fn display_frame(&mut self, frame: FrameType) {
         info!(?frame);
-        *FRAME_RW_LOCK.write().unwrap() = frame;
+        *CURRENT_FRAME.write().unwrap() = frame;
     }
 
     fn get_lights_count(&self) -> usize {
@@ -162,7 +172,7 @@ fn update_lights(
     mut materials: ResMut<Assets<StandardMaterial>>,
     query: Query<(&Handle<StandardMaterial>, &LightIndex)>,
 ) {
-    let Ok(frame) = FRAME_RW_LOCK.try_read() else {
+    let Ok(frame) = CURRENT_FRAME.try_read() else {
         return;
     };
     let frame = frame.clone();
@@ -184,7 +194,7 @@ fn update_lights(
                 let mut mat = materials.get(handle).unwrap().clone();
                 debug!(?idx, "Before, color = {:?}", mat.emissive);
 
-                let (r, g, b) = vec[idx.0];
+                let [r, g, b] = vec[idx.0];
                 mat.emissive = Color::rgb_u8(r, g, b).as_rgba_linear();
                 debug!(?idx, "After, color = {:?}", mat.emissive);
                 let _ = materials.set(handle, mat);
@@ -192,4 +202,22 @@ fn update_lights(
         }
         FrameType::Frame3D(_) => unimplemented!(),
     }
+}
+
+/// Render the configuration GUI, which has config options for this virtual tree, as well as a
+/// section for the config of the current effect.
+fn render_gui(mut ctx: ResMut<EguiContext>) {
+    let ctx = ctx.ctx_mut();
+    egui::Window::new("Config").show(ctx, |ui| {
+        ui.label(RichText::new("Virtual tree confing").heading());
+        ui.add(
+            egui::Slider::new(unsafe { &mut LOOP_PAUSE_TIME }, 0..=3000)
+                .suffix("ms")
+                .text("Loop pause time"),
+        );
+
+        if let Some(x) = unsafe { &mut EFFECT } {
+            x.render_options_gui(ctx, ui);
+        }
+    });
 }

@@ -3,7 +3,7 @@
 use crate::PointF;
 
 /// An RGB colour.
-pub type RGBTuple = (u8, u8, u8);
+pub type RGBArray = [u8; 3];
 
 /// A type of frame data.
 #[derive(Clone, Debug, PartialEq)]
@@ -16,7 +16,7 @@ pub enum FrameType {
     /// The driver is expected to handle the cases where the Vec is too long or too short and
     /// doesn't corespond one-to-one to the lights, but this behaviour is specific to individual
     /// drivers and should not be relied on.
-    RawData(Vec<RGBTuple>),
+    RawData(Vec<RGBArray>),
 
     /// A sophisticated 3D frame, made of several objects.
     Frame3D(Frame3D),

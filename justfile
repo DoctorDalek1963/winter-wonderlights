@@ -10,6 +10,11 @@ bench filter='':
 check:
 	cargo check --all-features
 
+# build the docs and optionally open them
+doc-build open='':
+	cargo doc --all-features --no-deps --document-private-items --workspace --release --target-dir target {{open}}
+
+# run the virtual tree with info level logs
 run-virtual:
 	RUST_LOG=none,winter_wonderlights=info cargo run --release --features virtual-tree
 

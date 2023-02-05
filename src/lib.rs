@@ -17,11 +17,16 @@ pub mod gift_coords;
 /// A point in 3D space with f64 values.
 pub type PointF = (f64, f64, f64);
 
-use std::time::Duration;
+cfg_if::cfg_if! {
+    if #[cfg(any(test, feature = "bench"))] {
+        /// This version of [`sleep`] is only used for tests and benchmarks. It is no-op.
+        fn sleep<T>(_: T) {}
+    } else {
+        use std::time::Duration;
 
-/// Sleep for the duration, except when testing. When testing, we don't sleep at all.
-#[cfg_attr(any(test, feature = "bench"), allow(unused_variables))]
-fn sleep(dur: Duration) {
-    #[cfg(not(any(test, feature = "bench")))]
-    std::thread::sleep(dur);
+        /// Sleep for the given duration.
+        fn sleep(dur: Duration) {
+            std::thread::sleep(dur);
+        }
+    }
 }

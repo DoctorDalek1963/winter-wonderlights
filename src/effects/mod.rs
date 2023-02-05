@@ -1,6 +1,7 @@
 //! This module provides lots of effects.
 
 use crate::drivers::Driver;
+use egui::{Context, Ui};
 use heck::ToSnakeCase;
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -70,6 +71,36 @@ pub trait Effect {
     {
         save_effect_config_to_file(self);
     }
+
+    /// Render the GUI to edit the config of this effect. The default implementation does nothing.
+    ///
+    /// If you implement this for an effect, the implementation should look something like this:
+    ///
+    /// ```
+    /// # use egui::{Context, RichText, Ui};
+    /// # use winter_wonderlights::{drivers::Driver, effects::Effect};
+    /// # #[derive(serde::Serialize)]
+    /// # struct Dummy;
+    /// # impl Effect for Dummy {
+    /// # fn effect_name() -> &'static str { "Dummy" }
+    /// # fn default() -> Self { Self {} }
+    /// # fn run(&mut self, driver: &mut dyn Driver) {}
+    /// fn render_options_gui(&mut self, _ctx: &Context, ui: &mut Ui) {
+    ///     ui.separator();
+    ///     ui.label(RichText::new(Self::effect_name().to_string() + " config").heading());
+    ///
+    ///     // Implementation here...
+    ///
+    ///     if ui.button("Reset to defaults").clicked() {
+    ///         *self = Self::default();
+    ///     }
+    ///
+    ///     self.save_effect_config_to_file();
+    /// }
+    /// # }
+    /// ```
+    #[allow(unused_variables)]
+    fn render_options_gui(&mut self, _ctx: &Context, ui: &mut Ui) {}
 
     /// Run the effect with the given driver.
     fn run(&mut self, driver: &mut dyn Driver);
