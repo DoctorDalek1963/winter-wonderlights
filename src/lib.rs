@@ -8,6 +8,8 @@
 //! behind crate features.
 
 #![feature(stmt_expr_attributes)]
+// Duration is imported and unused for tests and benchmarks because of the sleep macro
+#![cfg_attr(any(test, feature = "bench"), allow(unused_imports))]
 
 pub mod drivers;
 pub mod effects;
@@ -17,16 +19,14 @@ pub mod gift_coords;
 /// A point in 3D space with f64 values.
 pub type PointF = (f64, f64, f64);
 
-cfg_if::cfg_if! {
-    if #[cfg(any(test, feature = "bench"))] {
-        /// This version of [`sleep`] is only used for tests and benchmarks. It is no-op.
-        fn sleep<T>(_: T) {}
-    } else {
-        use std::time::Duration;
-
-        /// Sleep for the given duration.
-        fn sleep(dur: Duration) {
-            std::thread::sleep(dur);
-        }
-    }
+/// Asynchronously sleep for the specified duration and await it when running normally.
+///
+/// The sleep call gets completely removed for test and bench builds.
+macro_rules! sleep {
+    ( $dur:expr ) => {
+        #[cfg(not(any(test, feature = "bench")))]
+        ::tokio::time::sleep($dur).await
+    };
 }
+
+pub(crate) use sleep;

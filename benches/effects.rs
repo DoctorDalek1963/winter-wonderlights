@@ -1,13 +1,11 @@
 #![cfg(feature = "bench")]
 
 use criterion::{criterion_group, criterion_main, Criterion};
-use winter_wonderlights::{
-    drivers::Driver,
-    effects::{self, Effect},
-    frame::FrameType,
-};
+use winter_wonderlights::{drivers::Driver, effects::EffectList, frame::FrameType};
 
 const LIGHTS_NUM: usize = 500;
+
+static mut DRIVER: BenchDriver = BenchDriver {};
 
 struct BenchDriver;
 
@@ -20,15 +18,23 @@ impl Driver for BenchDriver {
 }
 
 fn debug_effects(c: &mut Criterion) {
-    let mut driver = BenchDriver {};
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_time()
+        .build()
+        .unwrap();
 
-    c.bench_function("DebugOneByOne", |b| {
-        b.iter(|| effects::DebugOneByOne::default().run(&mut driver));
-    });
+    macro_rules! benchmark_methods {
+        ( $( $name:ident ),* ) => {
+            $(
+                let method = EffectList::$name.create_run_method();
+                c.bench_function(stringify!($name), |b| {
+                    b.to_async(&runtime).iter(|| method(unsafe { &mut DRIVER }));
+                });
+            )*
+        };
+    }
 
-    c.bench_function("DebugBinaryIndex", |b| {
-        b.iter(|| effects::DebugBinaryIndex::default().run(&mut driver));
-    });
+    benchmark_methods!(DebugOneByOne, DebugBinaryIndex);
 }
 
 criterion_group!(effects, debug_effects);
