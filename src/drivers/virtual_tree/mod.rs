@@ -10,6 +10,8 @@ use smooth_bevy_cameras::{
     LookTransformPlugin,
 };
 use std::{sync::RwLock, thread, time::Duration};
+use strum::IntoEnumIterator;
+use tokio::sync::broadcast;
 use tracing::{debug, instrument};
 
 /// A global `RwLock` to record what the most recently sent frame is.
@@ -25,6 +27,19 @@ lazy_static! {
     /// The GIFTCoords loaded from `coords.gift`.
     static ref COORDS: GIFTCoords =
         GIFTCoords::from_file("coords.gift").expect("We need the coordinates to build the tree");
+
+    /// The broadcast sender which lets you send messages to the calculation thread, which is
+    /// running the effect itself.
+    static ref SEND_MESSAGE_TO_THREAD: broadcast::Sender<ThreadMessage> = broadcast::channel(10).0;
+}
+
+/// Possible messages to send to the effect thread.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum ThreadMessage {
+    /// Restart the effect rendering, typically because a new effect has been selected.
+    ///
+    /// See [`EFFECT`].
+    Restart,
 }
 
 /// Run the given effect on the virtual tree.
@@ -44,14 +59,40 @@ pub fn run_effect_on_virtual_tree(effect: EffectList) -> ! {
 
         thread::sleep(Duration::from_millis(1000));
         let mut driver = VirtualTreeDriver {};
+        let mut rx = SEND_MESSAGE_TO_THREAD.subscribe();
 
         local.block_on(&runtime, async move {
             loop {
-                unsafe { EFFECT }.unwrap().create_run_method()(&mut driver).await;
-                driver.display_frame(FrameType::Off);
+                // We always want to be selecting between two thing
+                tokio::select! {
+                    biased;
 
-                // Pause for 1.5 seconds before looping the effect
-                tokio::time::sleep(Duration::from_millis(unsafe { LOOP_PAUSE_TIME })).await;
+                    // First, we check if we've received a message on the channel and respond to it if so
+                    msg = rx.recv() => {
+                        match msg.expect("There should not be an error in receiving from the channel") {
+                            ThreadMessage::Restart => continue,
+                        };
+                    }
+
+                    // Then, we run the effect in a loop. Most of the effect time is awaiting
+                    // sleeps, and control gets yielded back to `select!` while that's happening,
+                    // so it can respond to messages quickly
+                    _ = async { loop {
+                        if let Some(effect) = unsafe { EFFECT } {
+                            effect.create_run_method()(&mut driver).await;
+                            driver.display_frame(FrameType::Off);
+
+                            // Pause before looping the effect
+                            tokio::time::sleep(Duration::from_millis(unsafe { LOOP_PAUSE_TIME })).await;
+                        } else {
+                            driver.display_frame(FrameType::Off);
+
+                            // Don't send `FrameType::Off` constantly. `select!` takes control
+                            // while we're awaiting anyway, so responding to a message will be fast
+                            tokio::time::sleep(Duration::from_secs(1)).await;
+                        }
+                    }} => {}
+                };
             }
         });
     });
@@ -225,7 +266,38 @@ fn render_gui(mut ctx: ResMut<EguiContext>) {
                 .text("Loop pause time"),
         );
 
-        // TODO: Fix this
+        if egui::ComboBox::from_label("Effect")
+            .selected_text(unsafe { EFFECT.map(|effect| effect.name()).unwrap_or("None") })
+            .show_ui(ui, |ui| {
+                let selected_none = ui
+                    .selectable_value(unsafe { &mut EFFECT }, None, "None")
+                    .clicked();
+
+                // Iterate over all the effects and see if a new effect has been clicked
+                let selected_new_effect = EffectList::iter().any(|effect| {
+                    // We remember which value was initially selected and whether this value is a
+                    // new one
+                    let different = Some(effect) != unsafe { EFFECT };
+                    let resp =
+                        ui.selectable_value(unsafe { &mut EFFECT }, Some(effect), effect.name());
+
+                    // If the value is different from the old and has been clicked, then we care
+                    resp.clicked() && different
+                });
+
+                selected_new_effect || selected_none
+            })
+            .inner
+            .is_some_and(|x| x)
+        {
+            SEND_MESSAGE_TO_THREAD
+                .send(ThreadMessage::Restart)
+                .expect("There should not be an error sending the restart message");
+        }
+
+        // FIXME: We can't get a mutable reference into the effect instance or it's config instance
+        // anymore. What do we do?
+
         //if let Some(x) = unsafe { &mut EFFECT } {
         //x.render_options_gui(ctx, ui);
         //}

@@ -13,7 +13,7 @@ pub use self::debug::{DebugBinaryIndex, DebugOneByOne};
 
 /// An enum to list all the usable effects. If an effect is not accessible via this enum, then it
 /// should not be used.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, strum::EnumIter)]
 pub enum EffectList {
     /// See [`debug::DebugOneByOne`].
     DebugOneByOne,
@@ -37,7 +37,20 @@ impl EffectList {
                 }
             };
         }
+
         match_return_closures!(DebugOneByOne, DebugBinaryIndex)
+    }
+
+    pub fn name(&self) -> &'static str {
+        macro_rules! match_return_names {
+            ( $( $name:ident ),* ) => {
+                match *self {
+                    $( EffectList::$name => $name::effect_name(), )*
+                }
+            };
+        }
+
+        match_return_names!(DebugOneByOne, DebugBinaryIndex)
     }
 }
 

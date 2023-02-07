@@ -7,6 +7,7 @@
 //! on a virtual tree, and a driver for real lights. All drivers except the debug one are locked
 //! behind crate features.
 
+#![feature(is_some_and)]
 #![feature(stmt_expr_attributes)]
 // Duration is imported and unused for tests and benchmarks because of the sleep macro
 #![cfg_attr(any(test, feature = "bench"), allow(unused_imports))]
