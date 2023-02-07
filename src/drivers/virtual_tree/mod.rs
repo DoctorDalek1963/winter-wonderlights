@@ -1,6 +1,11 @@
 //! This module provides implementation for the virtual tree driver.
 
-use crate::{drivers::Driver, effects::EffectList, frame::FrameType, gift_coords::GIFTCoords};
+use crate::{
+    drivers::Driver,
+    effects::{EffectConfig, EffectList},
+    frame::FrameType,
+    gift_coords::GIFTCoords,
+};
 use bevy::{core_pipeline::bloom::BloomSettings, log::LogPlugin, prelude::*, DefaultPlugins};
 use bevy_egui::{EguiContext, EguiPlugin};
 use egui::RichText;
@@ -23,6 +28,9 @@ static mut LOOP_PAUSE_TIME: u64 = 1500;
 /// The item in the effect enum that's currently being rendered.
 static mut EFFECT: Option<EffectList> = None;
 
+/// The trait object for the config of the current effect.
+static mut EFFECT_CONFIG: Option<Box<dyn EffectConfig>> = None;
+
 lazy_static! {
     /// The GIFTCoords loaded from `coords.gift`.
     static ref COORDS: GIFTCoords =
@@ -36,10 +44,19 @@ lazy_static! {
 /// Possible messages to send to the effect thread.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum ThreadMessage {
-    /// Restart the effect rendering, typically because a new effect has been selected.
+    /// Restart the effect rendering because a new effect has been selected.
     ///
     /// See [`EFFECT`].
-    Restart,
+    RestartNew,
+
+    /// Restart the effect rendering with the current effect.
+    RestartCurrent,
+}
+
+/// Set the global effect config. This method should be called after every time [`EFFECT`] is
+/// updated.
+fn set_global_effect_config() {
+    unsafe { EFFECT_CONFIG = EFFECT.map(|effect| effect.config()) };
 }
 
 /// Run the given effect on the virtual tree.
@@ -50,6 +67,8 @@ enum ThreadMessage {
 /// Bevy app on the main thread.
 pub fn run_effect_on_virtual_tree(effect: EffectList) -> ! {
     unsafe { EFFECT = Some(effect) };
+    set_global_effect_config();
+
     thread::spawn(move || {
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_time()
@@ -70,7 +89,11 @@ pub fn run_effect_on_virtual_tree(effect: EffectList) -> ! {
                     // First, we check if we've received a message on the channel and respond to it if so
                     msg = rx.recv() => {
                         match msg.expect("There should not be an error in receiving from the channel") {
-                            ThreadMessage::Restart => continue,
+                            ThreadMessage::RestartNew => {
+                                set_global_effect_config();
+                                continue;
+                            }
+                            ThreadMessage::RestartCurrent => continue,
                         };
                     }
 
@@ -266,7 +289,7 @@ fn render_gui(mut ctx: ResMut<EguiContext>) {
                 .text("Loop pause time"),
         );
 
-        if egui::ComboBox::from_label("Effect")
+        if egui::ComboBox::from_label("Current effect")
             .selected_text(unsafe { EFFECT.map(|effect| effect.name()).unwrap_or("None") })
             .show_ui(ui, |ui| {
                 let selected_none = ui
@@ -291,15 +314,20 @@ fn render_gui(mut ctx: ResMut<EguiContext>) {
             .is_some_and(|x| x)
         {
             SEND_MESSAGE_TO_THREAD
-                .send(ThreadMessage::Restart)
+                .send(ThreadMessage::RestartNew)
                 .expect("There should not be an error sending the restart message");
         }
 
-        // FIXME: We can't get a mutable reference into the effect instance or it's config instance
-        // anymore. What do we do?
+        if ui.button("Restart current effect").clicked() {
+            SEND_MESSAGE_TO_THREAD
+                .send(ThreadMessage::RestartCurrent)
+                .expect("There should not be an error sending the restart message");
+        }
 
-        //if let Some(x) = unsafe { &mut EFFECT } {
-        //x.render_options_gui(ctx, ui);
-        //}
+        if let Some(config) = unsafe { &mut EFFECT_CONFIG } {
+            config.render_options_gui(ctx, ui);
+            // TODO: Find a good way to save the config. Currently, the `render_gui_options` method
+            // for each EffectConfig has to do it, but this isn't very good
+        }
     });
 }

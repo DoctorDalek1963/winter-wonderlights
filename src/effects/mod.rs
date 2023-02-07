@@ -52,10 +52,25 @@ impl EffectList {
 
         match_return_names!(DebugOneByOne, DebugBinaryIndex)
     }
+
+    pub fn config(&self) -> Box<dyn EffectConfig> {
+        macro_rules! match_return_configs {
+            ( $( $name:ident ),* ) => {
+                match self {
+                    $( EffectList::$name => Box::new($name::config()), )*
+                }
+            };
+        }
+
+        match_return_configs!(DebugOneByOne, DebugBinaryIndex)
+    }
 }
 
 /// Save the given effect config to its appropriate config file.
-pub fn save_effect_config_to_file(filename: &str, config: &impl EffectConfig) {
+pub fn save_effect_config_to_file<T>(filename: &str, config: &T)
+where
+    T: EffectConfig + Serialize,
+{
     let _ = fs::write(
         filename,
         ron::ser::to_string_pretty(config, ron::ser::PrettyConfig::default().struct_names(true))
@@ -64,7 +79,7 @@ pub fn save_effect_config_to_file(filename: &str, config: &impl EffectConfig) {
 }
 
 /// This trait is needed by all structs that want to act as configuration for effects.
-pub trait EffectConfig: Clone + Default + Serialize + for<'a> Deserialize<'a> {
+pub trait EffectConfig {
     /// Render the GUI to edit the config of this effect. The default implementation does nothing.
     ///
     /// If you implement this for an effect, the implementation should look something like this:
@@ -92,7 +107,10 @@ pub trait EffectConfig: Clone + Default + Serialize + for<'a> Deserialize<'a> {
 
     /// Load the effect configuration from the config file, or use the default if the file is
     /// unavailable. Also save the default to the file for future editing.
-    fn from_file(filename: &str) -> Self {
+    fn from_file(filename: &str) -> Self
+    where
+        Self: Default + Serialize + for<'a> Deserialize<'a>,
+    {
         let _ = fs::DirBuilder::new().recursive(true).create("config");
 
         let write_and_return_default = || -> Self {
@@ -107,13 +125,21 @@ pub trait EffectConfig: Clone + Default + Serialize + for<'a> Deserialize<'a> {
 
         ron::from_str(&text).unwrap_or_else(|_| write_and_return_default())
     }
+
+    /// Save the config to the given filename, which should be from the parent effect.
+    fn save_to_file(&self, filename: &str)
+    where
+        Self: Sized + Serialize,
+    {
+        save_effect_config_to_file(filename, self);
+    }
 }
 
 /// The trait implemented by all effects, which primarily defines how to run them.
 #[async_trait]
 pub trait Effect: Default {
     /// The type of this effect's config.
-    type Config: EffectConfig;
+    type Config: EffectConfig + Default + Serialize + for<'a> Deserialize<'a>;
 
     /// The name of the effect, used for config files and GUI editting.
     fn effect_name() -> &'static str
@@ -128,6 +154,11 @@ pub trait Effect: Default {
         format!("config/{}.ron", Self::effect_name().to_snake_case())
     }
 
+    /// Return a copy of this effect's config.
+    fn config() -> Self::Config {
+        Self::Config::from_file(&Self::config_filename())
+    }
+
     /// Run the effect with the given driver.
     async fn run(self, driver: &mut dyn Driver);
 
@@ -138,8 +169,6 @@ pub trait Effect: Default {
     ///
     /// ```
     /// # use winter_wonderlights::{drivers::Driver, effects::{Effect, EffectConfig}};
-    /// use winter_wonderlights::effects::save_effect_config_to_file;
-    ///
     /// # #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
     /// # struct DummyConfig;
     /// # impl EffectConfig for DummyConfig {}
@@ -152,7 +181,7 @@ pub trait Effect: Default {
     /// # async fn run(self, driver: &mut dyn Driver) {}
     /// # fn from_file() -> Self { Self::default() }
     /// fn save_to_file(&self) {
-    ///     save_effect_config_to_file(&Self::config_filename(), &self.config);
+    ///     self.config.save_to_file(&Self::config_filename())
     /// }
     /// # }
     fn save_to_file(&self);

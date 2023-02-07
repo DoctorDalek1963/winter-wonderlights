@@ -1,6 +1,6 @@
 //! This module provides some simple debug effects.
 
-use super::{save_effect_config_to_file, EffectConfig};
+use super::EffectConfig;
 use crate::{
     drivers::Driver,
     effects::Effect,
@@ -63,6 +63,8 @@ impl EffectConfig for DebugOneByOneConfig {
         if ui.button("Reset to defaults").clicked() {
             *self = Self::default();
         }
+
+        self.save_to_file(&DebugOneByOne::config_filename());
     }
 }
 
@@ -100,7 +102,7 @@ impl Effect for DebugOneByOne {
     }
 
     fn save_to_file(&self) {
-        save_effect_config_to_file(&Self::config_filename(), &self.config);
+        self.config.save_to_file(&Self::config_filename())
     }
 
     fn from_file() -> Self {
@@ -168,6 +170,8 @@ impl EffectConfig for DebugBinaryIndexConfig {
         if ui.button("Reset to defaults").clicked() {
             *self = Self::default();
         }
+
+        self.save_to_file(&DebugBinaryIndex::config_filename());
     }
 }
 
@@ -252,7 +256,7 @@ impl Effect for DebugBinaryIndex {
     }
 
     fn save_to_file(&self) {
-        save_effect_config_to_file(&Self::config_filename(), &self.config);
+        self.config.save_to_file(&Self::config_filename())
     }
 
     fn from_file() -> Self {
