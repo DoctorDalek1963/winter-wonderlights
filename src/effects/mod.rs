@@ -82,11 +82,15 @@ where
 pub trait EffectConfig {
     /// Render the GUI to edit the config of this effect. The default implementation does nothing.
     ///
-    /// If you implement this for an effect, the implementation should look something like this:
+    /// If you implement this for an effect, the implementation should look something like the one
+    /// below. Saving the config data at the end is a necessary but unfortunate workaround. I hope
+    /// to find a better method in the future.
     ///
     /// ```
     /// # use egui::{Context, RichText, Ui};
     /// # use winter_wonderlights::effects::EffectConfig;
+    /// # struct ParentEffect;
+    /// # impl ParentEffect { fn config_filename() -> String { String::new() } }
     /// # #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
     /// # struct Dummy;
     /// # impl EffectConfig for Dummy {
@@ -94,10 +98,17 @@ pub trait EffectConfig {
     ///     ui.separator();
     ///     ui.label(RichText::new("EffectName config").heading());
     ///
+    ///     let mut config_changed = false;
+    ///
     ///     // Implementation here...
     ///
     ///     if ui.button("Reset to defaults").clicked() {
     ///         *self = Self::default();
+    ///         config_changed = true;
+    ///     }
+    ///
+    ///     if config_changed {
+    ///         self.save_to_file(&ParentEffect::config_filename());
     ///     }
     /// }
     /// # }

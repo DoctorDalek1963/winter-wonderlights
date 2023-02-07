@@ -326,8 +326,6 @@ fn render_gui(mut ctx: ResMut<EguiContext>) {
 
         if let Some(config) = unsafe { &mut EFFECT_CONFIG } {
             config.render_options_gui(ctx, ui);
-            // TODO: Find a good way to save the config. Currently, the `render_gui_options` method
-            // for each EffectConfig has to do it, but this isn't very good
         }
     });
 }

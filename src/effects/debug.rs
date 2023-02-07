@@ -40,31 +40,40 @@ impl EffectConfig for DebugOneByOneConfig {
         ui.separator();
         ui.label(RichText::new("DebugOneByOne config").heading());
 
-        ui.add(
-            egui::Slider::new(&mut self.light_time_ms, 0..=1500)
-                .suffix("ms")
-                .text("Light time"),
-        );
-        ui.add(
-            egui::Slider::new(&mut self.dark_time_ms, 0..=1500)
-                .suffix("ms")
-                .text("Dark time"),
-        );
+        let mut config_changed = false;
+
+        config_changed |= ui
+            .add(
+                egui::Slider::new(&mut self.light_time_ms, 0..=1500)
+                    .suffix("ms")
+                    .text("Light time"),
+            )
+            .changed();
+        config_changed |= ui
+            .add(
+                egui::Slider::new(&mut self.dark_time_ms, 0..=1500)
+                    .suffix("ms")
+                    .text("Dark time"),
+            )
+            .changed();
 
         ui.allocate_ui_with_layout(
             Vec2::splat(0.),
             Layout::left_to_right(Align::Center),
             |ui| {
                 ui.label("Color: ");
-                ui.color_edit_button_srgb(&mut self.color);
+                config_changed |= ui.color_edit_button_srgb(&mut self.color).changed();
             },
         );
 
         if ui.button("Reset to defaults").clicked() {
             *self = Self::default();
+            config_changed = true;
         }
 
-        self.save_to_file(&DebugOneByOne::config_filename());
+        if config_changed {
+            self.save_to_file(&DebugOneByOne::config_filename());
+        }
     }
 }
 
@@ -144,34 +153,43 @@ impl EffectConfig for DebugBinaryIndexConfig {
         ui.separator();
         ui.label(RichText::new("DebugBinaryIndex config").heading());
 
-        ui.add(
-            egui::Slider::new(&mut self.light_time_ms, 0..=1500)
-                .suffix("ms")
-                .text("Light time"),
-        );
-        ui.add(
-            egui::Slider::new(&mut self.dark_time_ms, 0..=1500)
-                .suffix("ms")
-                .text("Dark time"),
-        );
+        let mut config_changed = false;
+
+        config_changed |= ui
+            .add(
+                egui::Slider::new(&mut self.light_time_ms, 0..=1500)
+                    .suffix("ms")
+                    .text("Light time"),
+            )
+            .changed();
+        config_changed |= ui
+            .add(
+                egui::Slider::new(&mut self.dark_time_ms, 0..=1500)
+                    .suffix("ms")
+                    .text("Dark time"),
+            )
+            .changed();
 
         ui.allocate_ui_with_layout(
             Vec2::splat(0.),
             Layout::left_to_right(Align::Center),
             |ui| {
                 ui.label("Zero color: ");
-                ui.color_edit_button_srgb(&mut self.zero_color);
+                config_changed |= ui.color_edit_button_srgb(&mut self.zero_color).changed();
 
                 ui.label("One color: ");
-                ui.color_edit_button_srgb(&mut self.one_color);
+                config_changed |= ui.color_edit_button_srgb(&mut self.one_color).changed();
             },
         );
 
         if ui.button("Reset to defaults").clicked() {
             *self = Self::default();
+            config_changed = true;
         }
 
-        self.save_to_file(&DebugBinaryIndex::config_filename());
+        if config_changed {
+            self.save_to_file(&DebugBinaryIndex::config_filename());
+        }
     }
 }
 
