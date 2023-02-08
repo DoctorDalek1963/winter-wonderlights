@@ -1,5 +1,8 @@
 //! This module provides implementation for the virtual tree driver.
 
+mod config;
+
+use self::config::VirtualTreeConfig;
 use crate::{
     drivers::Driver,
     effects::{EffectConfig, EffectList},
@@ -22,11 +25,8 @@ use tracing::{debug, instrument};
 /// A global `RwLock` to record what the most recently sent frame is.
 static CURRENT_FRAME: RwLock<FrameType> = RwLock::new(FrameType::Off);
 
-/// The amount of time to pause between loops of the effect.
-static mut LOOP_PAUSE_TIME: u64 = 1500;
-
-/// The item in the effect enum that's currently being rendered.
-static mut EFFECT: Option<EffectList> = None;
+/// The config for the virtual tree.
+static mut VIRTUAL_TREE_CONFIG: VirtualTreeConfig = VirtualTreeConfig::default();
 
 /// The trait object for the config of the current effect.
 static mut EFFECT_CONFIG: Option<Box<dyn EffectConfig>> = None;
@@ -46,27 +46,22 @@ lazy_static! {
 enum ThreadMessage {
     /// Restart the effect rendering because a new effect has been selected.
     ///
-    /// See [`EFFECT`].
+    /// See [`VirtualTreeConfig.effect`].
     RestartNew,
 
     /// Restart the effect rendering with the current effect.
     RestartCurrent,
 }
 
-/// Set the global effect config. This method should be called after every time [`EFFECT`] is
-/// updated.
+/// Set the global effect config. This method should be called after every time
+/// [`VirtualTreeConfig.effect`] is updated.
 fn set_global_effect_config() {
-    unsafe { EFFECT_CONFIG = EFFECT.map(|effect| effect.config()) };
+    unsafe { EFFECT_CONFIG = VIRTUAL_TREE_CONFIG.effect.map(|effect| effect.config()) };
 }
 
-/// Run the given effect on the virtual tree.
-///
-/// This function is necessary because the [`VirtualTreeDriver`] is a bit different because it uses
-/// Bevy to render everything. Bevy uses Winit for its windows, but Winit needs to run on the main
-/// thread. This function just spawns a background thread to run the effect itself and then runs a
-/// Bevy app on the main thread.
-pub fn run_effect_on_virtual_tree(effect: EffectList) -> ! {
-    unsafe { EFFECT = Some(effect) };
+/// Run the virtual tree, using the saved or default config.
+pub fn run_virtual_tree() -> ! {
+    unsafe { VIRTUAL_TREE_CONFIG = VirtualTreeConfig::from_file() };
     set_global_effect_config();
 
     thread::spawn(move || {
@@ -101,12 +96,12 @@ pub fn run_effect_on_virtual_tree(effect: EffectList) -> ! {
                     // sleeps, and control gets yielded back to `select!` while that's happening,
                     // so it can respond to messages quickly
                     _ = async { loop {
-                        if let Some(effect) = unsafe { EFFECT } {
+                        if let Some(effect) = unsafe { VIRTUAL_TREE_CONFIG.effect } {
                             effect.create_run_method()(&mut driver).await;
                             driver.display_frame(FrameType::Off);
 
                             // Pause before looping the effect
-                            tokio::time::sleep(Duration::from_millis(unsafe { LOOP_PAUSE_TIME })).await;
+                            tokio::time::sleep(Duration::from_millis(unsafe { VIRTUAL_TREE_CONFIG.loop_pause_time })).await;
                         } else {
                             driver.display_frame(FrameType::Off);
 
@@ -283,26 +278,40 @@ fn render_gui(mut ctx: ResMut<EguiContext>) {
     let ctx = ctx.ctx_mut();
     egui::Window::new("Config").show(ctx, |ui| {
         ui.label(RichText::new("Virtual tree config").heading());
-        ui.add(
-            egui::Slider::new(unsafe { &mut LOOP_PAUSE_TIME }, 0..=3000)
+        let mut config_changed = false;
+
+        config_changed |= ui
+            .add(
+                egui::Slider::new(
+                    unsafe { &mut VIRTUAL_TREE_CONFIG.loop_pause_time },
+                    0..=3000,
+                )
                 .suffix("ms")
                 .text("Loop pause time"),
-        );
+            )
+            .changed();
 
-        if egui::ComboBox::from_label("Current effect")
-            .selected_text(unsafe { EFFECT.map(|effect| effect.name()).unwrap_or("None") })
+        let new_effect_selected = egui::ComboBox::from_label("Current effect")
+            .selected_text(unsafe {
+                VIRTUAL_TREE_CONFIG
+                    .effect
+                    .map_or("None", |effect| effect.name())
+            })
             .show_ui(ui, |ui| {
                 let selected_none = ui
-                    .selectable_value(unsafe { &mut EFFECT }, None, "None")
+                    .selectable_value(unsafe { &mut VIRTUAL_TREE_CONFIG.effect }, None, "None")
                     .clicked();
 
                 // Iterate over all the effects and see if a new effect has been clicked
                 let selected_new_effect = EffectList::iter().any(|effect| {
                     // We remember which value was initially selected and whether this value is a
                     // new one
-                    let different = Some(effect) != unsafe { EFFECT };
-                    let resp =
-                        ui.selectable_value(unsafe { &mut EFFECT }, Some(effect), effect.name());
+                    let different = Some(effect) != unsafe { VIRTUAL_TREE_CONFIG.effect };
+                    let resp = ui.selectable_value(
+                        unsafe { &mut VIRTUAL_TREE_CONFIG.effect },
+                        Some(effect),
+                        effect.name(),
+                    );
 
                     // If the value is different from the old and has been clicked, then we care
                     resp.clicked() && different
@@ -311,11 +320,19 @@ fn render_gui(mut ctx: ResMut<EguiContext>) {
                 selected_new_effect || selected_none
             })
             .inner
-            .is_some_and(|x| x)
-        {
+            .is_some_and(|x| x);
+
+        if new_effect_selected {
+            config_changed = true;
             SEND_MESSAGE_TO_THREAD
                 .send(ThreadMessage::RestartNew)
                 .expect("There should not be an error sending the restart message");
+        }
+
+        if config_changed {
+            unsafe {
+                VIRTUAL_TREE_CONFIG.save_to_file();
+            }
         }
 
         if ui.button("Restart current effect").clicked() {

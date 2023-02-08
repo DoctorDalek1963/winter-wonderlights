@@ -13,7 +13,7 @@ pub use self::debug::{DebugBinaryIndex, DebugOneByOne};
 
 /// An enum to list all the usable effects. If an effect is not accessible via this enum, then it
 /// should not be used.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, strum::EnumIter)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, strum::EnumIter, Serialize, Deserialize)]
 pub enum EffectList {
     /// See [`debug::DebugOneByOne`].
     DebugOneByOne,
@@ -74,7 +74,7 @@ where
     let _ = fs::write(
         filename,
         ron::ser::to_string_pretty(config, ron::ser::PrettyConfig::default().struct_names(true))
-            .expect("The effect should be serializable"),
+            .expect("The effect config should be serializable"),
     );
 }
 

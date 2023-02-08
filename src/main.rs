@@ -1,17 +1,16 @@
 //! This binary crate just runs the program, currently just to test features.
 
 use cfg_if::cfg_if;
-use winter_wonderlights::effects::EffectList;
 
 cfg_if! {
     if #[cfg(feature = "virtual-tree")] {
-        use winter_wonderlights::drivers::run_effect_on_virtual_tree;
+        use winter_wonderlights::drivers::run_virtual_tree;
 
         fn main() {
-            run_effect_on_virtual_tree(EffectList::DebugBinaryIndex);
+            run_virtual_tree();
         }
     } else {
-        use winter_wonderlights::drivers::DebugDriver;
+        use winter_wonderlights::{drivers::DebugDriver, effects::EffectList};
 
         #[tokio::main(flavor = "current_thread")]
         async fn main() {
