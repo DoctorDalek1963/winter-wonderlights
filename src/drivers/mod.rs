@@ -7,10 +7,10 @@ use tracing::info;
 mod virtual_tree;
 
 #[cfg(feature = "virtual-tree")]
-pub use self::virtual_tree::run_effect_on_virtual_tree;
+pub use self::virtual_tree::run_virtual_tree;
 
 /// The trait implemented by all drivers.
-pub trait Driver {
+pub trait Driver: Send {
     /// Display the given frame using this driver.
     fn display_frame(&mut self, frame: FrameType);
 

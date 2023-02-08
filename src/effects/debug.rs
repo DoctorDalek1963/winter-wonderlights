@@ -1,18 +1,20 @@
 //! This module provides some simple debug effects.
 
+use super::EffectConfig;
 use crate::{
     drivers::Driver,
     effects::Effect,
     frame::{FrameType, RGBArray},
     sleep,
 };
+use async_trait::async_trait;
 use egui::{Align, Context, Layout, RichText, Ui, Vec2};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
-/// Light up each light individually, one-by-one.
+/// The config for the one-by-one effect; includes timing and the color.
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct DebugOneByOne {
+pub struct DebugOneByOneConfig {
     /// The number of milliseconds that the light is on for.
     light_time_ms: u64,
 
@@ -23,11 +25,7 @@ pub struct DebugOneByOne {
     color: RGBArray,
 }
 
-impl Effect for DebugOneByOne {
-    fn effect_name() -> &'static str {
-        "DebugOneByOne"
-    }
-
+impl Default for DebugOneByOneConfig {
     fn default() -> Self {
         Self {
             light_time_ms: 1000,
@@ -35,8 +33,66 @@ impl Effect for DebugOneByOne {
             color: [255, 255, 255],
         }
     }
+}
 
-    fn run(&mut self, driver: &mut dyn Driver) {
+impl EffectConfig for DebugOneByOneConfig {
+    fn render_options_gui(&mut self, _ctx: &Context, ui: &mut Ui) {
+        ui.separator();
+        ui.label(RichText::new("DebugOneByOne config").heading());
+
+        let mut config_changed = false;
+
+        config_changed |= ui
+            .add(
+                egui::Slider::new(&mut self.light_time_ms, 0..=1500)
+                    .suffix("ms")
+                    .text("Light time"),
+            )
+            .changed();
+        config_changed |= ui
+            .add(
+                egui::Slider::new(&mut self.dark_time_ms, 0..=1500)
+                    .suffix("ms")
+                    .text("Dark time"),
+            )
+            .changed();
+
+        ui.allocate_ui_with_layout(
+            Vec2::splat(0.),
+            Layout::left_to_right(Align::Center),
+            |ui| {
+                ui.label("Color: ");
+                config_changed |= ui.color_edit_button_srgb(&mut self.color).changed();
+            },
+        );
+
+        if ui.button("Reset to defaults").clicked() {
+            *self = Self::default();
+            config_changed = true;
+        }
+
+        if config_changed {
+            self.save_to_file(&DebugOneByOne::config_filename());
+        }
+    }
+}
+
+/// Light up each light individually, one-by-one.
+#[derive(Default)]
+pub struct DebugOneByOne {
+    /// The config for this effect.
+    config: DebugOneByOneConfig,
+}
+
+#[async_trait]
+impl Effect for DebugOneByOne {
+    type Config = DebugOneByOneConfig;
+
+    fn effect_name() -> &'static str {
+        "DebugOneByOne"
+    }
+
+    async fn run(self, driver: &mut dyn Driver) {
         driver.clear();
 
         let count = driver.get_lights_count();
@@ -44,51 +100,30 @@ impl Effect for DebugOneByOne {
 
         // Display the color on each LED, then blank it, pausing between each one.
         for i in 0..count {
-            data[i] = self.color;
+            data[i] = self.config.color;
             driver.display_frame(FrameType::RawData(data.clone()));
             data[i] = [0, 0, 0];
-            sleep(Duration::from_millis(self.light_time_ms));
+            sleep!(Duration::from_millis(self.config.light_time_ms));
 
             driver.clear();
-            sleep(Duration::from_millis(self.dark_time_ms));
+            sleep!(Duration::from_millis(self.config.dark_time_ms));
         }
     }
 
-    fn render_options_gui(&mut self, _ctx: &Context, ui: &mut Ui) {
-        ui.separator();
-        ui.label(RichText::new(Self::effect_name().to_string() + " config").heading());
+    fn save_to_file(&self) {
+        self.config.save_to_file(&Self::config_filename());
+    }
 
-        ui.add(
-            egui::Slider::new(&mut self.light_time_ms, 0..=1500)
-                .suffix("ms")
-                .text("Light time"),
-        );
-        ui.add(
-            egui::Slider::new(&mut self.dark_time_ms, 0..=1500)
-                .suffix("ms")
-                .text("Dark time"),
-        );
-
-        ui.allocate_ui_with_layout(
-            Vec2::splat(0.),
-            Layout::left_to_right(Align::Center),
-            |ui| {
-                ui.label("Color: ");
-                ui.color_edit_button_srgb(&mut self.color);
-            },
-        );
-
-        if ui.button("Reset to defaults").clicked() {
-            *self = Self::default();
+    fn from_file() -> Self {
+        Self {
+            config: Self::Config::from_file(&Self::config_filename()),
         }
-
-        self.save_effect_config_to_file();
     }
 }
 
-/// Make each light flash its index in binary, using blue for 1 and red for 0.
+/// The config for the binary index effect; includes timing and colors.
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct DebugBinaryIndex {
+pub struct DebugBinaryIndexConfig {
     /// The number of milliseconds that the lights are on for.
     light_time_ms: u64,
 
@@ -102,11 +137,7 @@ pub struct DebugBinaryIndex {
     one_color: RGBArray,
 }
 
-impl Effect for DebugBinaryIndex {
-    fn effect_name() -> &'static str {
-        "DebugBinaryIndex"
-    }
-
+impl Default for DebugBinaryIndexConfig {
     fn default() -> Self {
         Self {
             light_time_ms: 1500,
@@ -115,8 +146,69 @@ impl Effect for DebugBinaryIndex {
             one_color: [0, 0, 255],
         }
     }
+}
 
-    fn run(&mut self, driver: &mut dyn Driver) {
+impl EffectConfig for DebugBinaryIndexConfig {
+    fn render_options_gui(&mut self, _ctx: &egui::Context, ui: &mut egui::Ui) {
+        ui.separator();
+        ui.label(RichText::new("DebugBinaryIndex config").heading());
+
+        let mut config_changed = false;
+
+        config_changed |= ui
+            .add(
+                egui::Slider::new(&mut self.light_time_ms, 0..=1500)
+                    .suffix("ms")
+                    .text("Light time"),
+            )
+            .changed();
+        config_changed |= ui
+            .add(
+                egui::Slider::new(&mut self.dark_time_ms, 0..=1500)
+                    .suffix("ms")
+                    .text("Dark time"),
+            )
+            .changed();
+
+        ui.allocate_ui_with_layout(
+            Vec2::splat(0.),
+            Layout::left_to_right(Align::Center),
+            |ui| {
+                ui.label("Zero color: ");
+                config_changed |= ui.color_edit_button_srgb(&mut self.zero_color).changed();
+
+                ui.label("One color: ");
+                config_changed |= ui.color_edit_button_srgb(&mut self.one_color).changed();
+            },
+        );
+
+        if ui.button("Reset to defaults").clicked() {
+            *self = Self::default();
+            config_changed = true;
+        }
+
+        if config_changed {
+            self.save_to_file(&DebugBinaryIndex::config_filename());
+        }
+    }
+}
+
+/// Make each light flash its index in binary.
+#[derive(Default)]
+pub struct DebugBinaryIndex {
+    /// The config for this effect.
+    config: DebugBinaryIndexConfig,
+}
+
+#[async_trait]
+impl Effect for DebugBinaryIndex {
+    type Config = DebugBinaryIndexConfig;
+
+    fn effect_name() -> &'static str {
+        "DebugBinaryIndex"
+    }
+
+    async fn run(self, driver: &mut dyn Driver) {
         enum Binary {
             Zero,
             One,
@@ -168,51 +260,27 @@ impl Effect for DebugBinaryIndex {
             let colours_at_idx: Vec<RGBArray> = binary_for_each_light
                 .iter()
                 .map(|cols| match cols[i] {
-                    Binary::Zero => self.zero_color,
-                    Binary::One => self.one_color,
+                    Binary::Zero => self.config.zero_color,
+                    Binary::One => self.config.one_color,
                 })
                 .collect();
 
             driver.display_frame(FrameType::RawData(colours_at_idx.clone()));
-            sleep(Duration::from_millis(self.light_time_ms));
+            sleep!(Duration::from_millis(self.config.light_time_ms));
 
             driver.clear();
-            sleep(Duration::from_millis(self.dark_time_ms));
+            sleep!(Duration::from_millis(self.config.dark_time_ms));
         }
     }
 
-    fn render_options_gui(&mut self, _ctx: &egui::Context, ui: &mut egui::Ui) {
-        ui.separator();
-        ui.label(RichText::new(Self::effect_name().to_string() + " config").heading());
+    fn save_to_file(&self) {
+        self.config.save_to_file(&Self::config_filename());
+    }
 
-        ui.add(
-            egui::Slider::new(&mut self.light_time_ms, 0..=1500)
-                .suffix("ms")
-                .text("Light time"),
-        );
-        ui.add(
-            egui::Slider::new(&mut self.dark_time_ms, 0..=1500)
-                .suffix("ms")
-                .text("Dark time"),
-        );
-
-        ui.allocate_ui_with_layout(
-            Vec2::splat(0.),
-            Layout::left_to_right(Align::Center),
-            |ui| {
-                ui.label("Zero color: ");
-                ui.color_edit_button_srgb(&mut self.zero_color);
-
-                ui.label("One color: ");
-                ui.color_edit_button_srgb(&mut self.one_color);
-            },
-        );
-
-        if ui.button("Reset to defaults").clicked() {
-            *self = Self::default();
+    fn from_file() -> Self {
+        Self {
+            config: Self::Config::from_file(&Self::config_filename()),
         }
-
-        self.save_effect_config_to_file();
     }
 }
 
@@ -221,10 +289,10 @@ mod tests {
     use super::*;
     use crate::drivers::TestDriver;
 
-    #[test]
-    fn debug_one_by_one_test() {
+    #[tokio::test]
+    async fn debug_one_by_one_test() {
         let mut driver = TestDriver::new(5);
-        DebugOneByOne::default().run(&mut driver);
+        DebugOneByOne::default().run(&mut driver).await;
 
         #[rustfmt::skip]
         assert_eq!(
@@ -245,10 +313,10 @@ mod tests {
         );
     }
 
-    #[test]
-    fn debug_binary_index_test() {
+    #[tokio::test]
+    async fn debug_binary_index_test() {
         let mut driver = TestDriver::new(8);
-        DebugBinaryIndex::default().run(&mut driver);
+        DebugBinaryIndex::default().run(&mut driver).await;
 
         #[rustfmt::skip]
         assert_eq!(

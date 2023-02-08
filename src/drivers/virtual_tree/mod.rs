@@ -1,6 +1,14 @@
 //! This module provides implementation for the virtual tree driver.
 
-use crate::{drivers::Driver, effects::Effect, frame::FrameType, gift_coords::GIFTCoords};
+mod config;
+
+use self::config::VirtualTreeConfig;
+use crate::{
+    drivers::Driver,
+    effects::{EffectConfig, EffectList},
+    frame::FrameType,
+    gift_coords::GIFTCoords,
+};
 use bevy::{core_pipeline::bloom::BloomSettings, log::LogPlugin, prelude::*, DefaultPlugins};
 use bevy_egui::{EguiContext, EguiPlugin};
 use egui::RichText;
@@ -10,41 +18,101 @@ use smooth_bevy_cameras::{
     LookTransformPlugin,
 };
 use std::{sync::RwLock, thread, time::Duration};
+use strum::IntoEnumIterator;
+use tokio::sync::broadcast;
 use tracing::{debug, instrument};
 
 /// A global `RwLock` to record what the most recently sent frame is.
 static CURRENT_FRAME: RwLock<FrameType> = RwLock::new(FrameType::Off);
 
-/// The amount of time to pause between loops of the effect.
-static mut LOOP_PAUSE_TIME: u64 = 1500;
+/// The config for the virtual tree.
+static mut VIRTUAL_TREE_CONFIG: VirtualTreeConfig = VirtualTreeConfig::default();
 
-static mut EFFECT: Option<Box<dyn Effect>> = None;
+/// The trait object for the config of the current effect.
+static mut EFFECT_CONFIG: Option<Box<dyn EffectConfig>> = None;
 
 lazy_static! {
     /// The GIFTCoords loaded from `coords.gift`.
     static ref COORDS: GIFTCoords =
         GIFTCoords::from_file("coords.gift").expect("We need the coordinates to build the tree");
+
+    /// The broadcast sender which lets you send messages to the calculation thread, which is
+    /// running the effect itself.
+    static ref SEND_MESSAGE_TO_THREAD: broadcast::Sender<ThreadMessage> = broadcast::channel(10).0;
 }
 
-/// Run the given effect on the virtual tree.
-///
-/// This function is necessary because the [`VirtualTreeDriver`] is a bit different because it uses
-/// Bevy to render everything. Bevy uses Winit for its windows, but Winit needs to run on the main
-/// thread. This function just spawns a background thread to run the effect itself and then runs a
-/// Bevy app on the main thread.
-pub fn run_effect_on_virtual_tree(effect: Box<dyn Effect + Send>) -> ! {
-    unsafe { EFFECT = Some(effect) };
+/// Possible messages to send to the effect thread.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum ThreadMessage {
+    /// Restart the effect rendering because a new effect has been selected.
+    ///
+    /// See [`VirtualTreeConfig.effect`].
+    RestartNew,
+
+    /// Restart the effect rendering with the current effect.
+    RestartCurrent,
+}
+
+/// Set the global effect config. This method should be called after every time
+/// [`VirtualTreeConfig.effect`] is updated.
+fn set_global_effect_config() {
+    unsafe { EFFECT_CONFIG = VIRTUAL_TREE_CONFIG.effect.map(|effect| effect.config()) };
+}
+
+/// Run the virtual tree, using the saved or default config.
+pub fn run_virtual_tree() -> ! {
+    unsafe { VIRTUAL_TREE_CONFIG = VirtualTreeConfig::from_file() };
+    set_global_effect_config();
+
     thread::spawn(move || {
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_time()
+            .build()
+            .unwrap();
+        let local = tokio::task::LocalSet::new();
+
         thread::sleep(Duration::from_millis(1000));
+        let mut driver = VirtualTreeDriver {};
+        let mut rx = SEND_MESSAGE_TO_THREAD.subscribe();
 
-        loop {
-            let mut driver = VirtualTreeDriver {};
-            unsafe { EFFECT.as_deref_mut().unwrap().run(&mut driver) };
-            driver.display_frame(FrameType::Off);
+        local.block_on(&runtime, async move {
+            loop {
+                // We always want to be selecting between two thing
+                tokio::select! {
+                    biased;
 
-            // Pause for 1.5 seconds before looping the effect
-            thread::sleep(Duration::from_millis(unsafe { LOOP_PAUSE_TIME }));
-        }
+                    // First, we check if we've received a message on the channel and respond to it if so
+                    msg = rx.recv() => {
+                        match msg.expect("There should not be an error in receiving from the channel") {
+                            ThreadMessage::RestartNew => {
+                                set_global_effect_config();
+                                continue;
+                            }
+                            ThreadMessage::RestartCurrent => continue,
+                        };
+                    }
+
+                    // Then, we run the effect in a loop. Most of the effect time is awaiting
+                    // sleeps, and control gets yielded back to `select!` while that's happening,
+                    // so it can respond to messages quickly
+                    _ = async { loop {
+                        if let Some(effect) = unsafe { VIRTUAL_TREE_CONFIG.effect } {
+                            effect.create_run_method()(&mut driver).await;
+                            driver.display_frame(FrameType::Off);
+
+                            // Pause before looping the effect
+                            tokio::time::sleep(Duration::from_millis(unsafe { VIRTUAL_TREE_CONFIG.loop_pause_time })).await;
+                        } else {
+                            driver.display_frame(FrameType::Off);
+
+                            // Don't send `FrameType::Off` constantly. `select!` takes control
+                            // while we're awaiting anyway, so responding to a message will be fast
+                            tokio::time::sleep(Duration::from_secs(1)).await;
+                        }
+                    }} => {}
+                };
+            }
+        });
     });
 
     // Create a new Bevy app with the default plugins (except logging, since we initialize that
@@ -209,15 +277,72 @@ fn update_lights(
 fn render_gui(mut ctx: ResMut<EguiContext>) {
     let ctx = ctx.ctx_mut();
     egui::Window::new("Config").show(ctx, |ui| {
-        ui.label(RichText::new("Virtual tree confing").heading());
-        ui.add(
-            egui::Slider::new(unsafe { &mut LOOP_PAUSE_TIME }, 0..=3000)
+        ui.label(RichText::new("Virtual tree config").heading());
+        let mut config_changed = false;
+
+        config_changed |= ui
+            .add(
+                egui::Slider::new(
+                    unsafe { &mut VIRTUAL_TREE_CONFIG.loop_pause_time },
+                    0..=3000,
+                )
                 .suffix("ms")
                 .text("Loop pause time"),
-        );
+            )
+            .changed();
 
-        if let Some(x) = unsafe { &mut EFFECT } {
-            x.render_options_gui(ctx, ui);
+        let new_effect_selected = egui::ComboBox::from_label("Current effect")
+            .selected_text(unsafe {
+                VIRTUAL_TREE_CONFIG
+                    .effect
+                    .map_or("None", |effect| effect.name())
+            })
+            .show_ui(ui, |ui| {
+                let selected_none = ui
+                    .selectable_value(unsafe { &mut VIRTUAL_TREE_CONFIG.effect }, None, "None")
+                    .clicked();
+
+                // Iterate over all the effects and see if a new effect has been clicked
+                let selected_new_effect = EffectList::iter().any(|effect| {
+                    // We remember which value was initially selected and whether this value is a
+                    // new one
+                    let different = Some(effect) != unsafe { VIRTUAL_TREE_CONFIG.effect };
+                    let resp = ui.selectable_value(
+                        unsafe { &mut VIRTUAL_TREE_CONFIG.effect },
+                        Some(effect),
+                        effect.name(),
+                    );
+
+                    // If the value is different from the old and has been clicked, then we care
+                    resp.clicked() && different
+                });
+
+                selected_new_effect || selected_none
+            })
+            .inner
+            .is_some_and(|x| x);
+
+        if new_effect_selected {
+            config_changed = true;
+            SEND_MESSAGE_TO_THREAD
+                .send(ThreadMessage::RestartNew)
+                .expect("There should not be an error sending the restart message");
+        }
+
+        if config_changed {
+            unsafe {
+                VIRTUAL_TREE_CONFIG.save_to_file();
+            }
+        }
+
+        if ui.button("Restart current effect").clicked() {
+            SEND_MESSAGE_TO_THREAD
+                .send(ThreadMessage::RestartCurrent)
+                .expect("There should not be an error sending the restart message");
+        }
+
+        if let Some(config) = unsafe { &mut EFFECT_CONFIG } {
+            config.render_options_gui(ctx, ui);
         }
     });
 }
