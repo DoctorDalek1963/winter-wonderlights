@@ -1,7 +1,10 @@
+//! This module handles configuration for the virtual tree.
+
 use crate::effects::EffectList;
 use serde::{Deserialize, Serialize};
 use std::fs;
 
+/// The configuration of the virtual tree.
 #[derive(Serialize, Deserialize)]
 pub struct VirtualTreeConfig {
     /// The amount of time to pause between loops of the effect.

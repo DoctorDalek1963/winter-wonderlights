@@ -111,7 +111,7 @@ impl Effect for DebugOneByOne {
     }
 
     fn save_to_file(&self) {
-        self.config.save_to_file(&Self::config_filename())
+        self.config.save_to_file(&Self::config_filename());
     }
 
     fn from_file() -> Self {
@@ -274,7 +274,7 @@ impl Effect for DebugBinaryIndex {
     }
 
     fn save_to_file(&self) {
-        self.config.save_to_file(&Self::config_filename())
+        self.config.save_to_file(&Self::config_filename());
     }
 
     fn from_file() -> Self {
