@@ -16,6 +16,7 @@ pub mod drivers;
 pub mod effects;
 pub mod frame;
 pub mod gift_coords;
+pub mod vecs;
 
 /// A point in 3D space with f64 values.
 pub type PointF = (f64, f64, f64);
