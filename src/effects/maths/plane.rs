@@ -1,4 +1,4 @@
-//! This module contains purely mathematical effects.
+//! This module contains effects that deal with planes.
 
 use crate::{
     drivers::Driver,
