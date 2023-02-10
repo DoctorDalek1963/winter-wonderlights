@@ -4,6 +4,7 @@ use crate::{
     drivers::Driver,
     effects::{
         debug::{DebugBinaryIndex, DebugOneByOne},
+        maths::MovingPlane,
         traits::{Effect, EffectConfig},
     },
 };
@@ -19,6 +20,9 @@ pub enum EffectList {
 
     /// See [`debug::DebugBinaryIndex`].
     DebugBinaryIndex,
+
+    /// See [`maths::MovingPlane`].
+    MovingPlane,
 }
 
 // NOTE: For these macros to work, we need an effect in scope with the same name as its
@@ -41,7 +45,7 @@ impl EffectList {
             };
         }
 
-        match_return_closures!(DebugOneByOne, DebugBinaryIndex)
+        match_return_closures!(DebugOneByOne, DebugBinaryIndex, MovingPlane)
     }
 
     /// Return the name of the selected effect.
@@ -57,7 +61,7 @@ impl EffectList {
             };
         }
 
-        match_return_names!(DebugOneByOne, DebugBinaryIndex)
+        match_return_names!(DebugOneByOne, DebugBinaryIndex, MovingPlane)
     }
 
     /// Return a trait object of the config for the given effect.
@@ -73,6 +77,6 @@ impl EffectList {
             };
         }
 
-        match_return_configs!(DebugOneByOne, DebugBinaryIndex)
+        match_return_configs!(DebugOneByOne, DebugBinaryIndex, MovingPlane)
     }
 }

@@ -1,9 +1,8 @@
 //! This module provides some simple debug effects.
 
-use super::EffectConfig;
 use crate::{
     drivers::Driver,
-    effects::Effect,
+    effects::{Effect, EffectConfig},
     frame::{FrameType, RGBArray},
     sleep,
 };

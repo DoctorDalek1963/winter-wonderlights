@@ -6,8 +6,8 @@ use self::config::VirtualTreeConfig;
 use crate::{
     drivers::Driver,
     effects::{EffectConfig, EffectList},
-    frame::FrameType,
-    gift_coords::GIFTCoords,
+    frame::{FrameType, RGBArray},
+    gift_coords::COORDS,
 };
 use bevy::{core_pipeline::bloom::BloomSettings, log::LogPlugin, prelude::*, DefaultPlugins};
 use bevy_egui::{EguiContext, EguiPlugin};
@@ -20,7 +20,7 @@ use smooth_bevy_cameras::{
 use std::{sync::RwLock, thread, time::Duration};
 use strum::IntoEnumIterator;
 use tokio::sync::broadcast;
-use tracing::{debug, instrument};
+use tracing::{debug, instrument, trace};
 
 /// A global `RwLock` to record what the most recently sent frame is.
 static CURRENT_FRAME: RwLock<FrameType> = RwLock::new(FrameType::Off);
@@ -32,10 +32,6 @@ static mut VIRTUAL_TREE_CONFIG: VirtualTreeConfig = VirtualTreeConfig::default()
 static mut EFFECT_CONFIG: Option<Box<dyn EffectConfig>> = None;
 
 lazy_static! {
-    /// The GIFTCoords loaded from `coords.gift`.
-    static ref COORDS: GIFTCoords =
-        GIFTCoords::from_file("coords.gift").expect("We need the coordinates to build the tree");
-
     /// The broadcast sender which lets you send messages to the calculation thread, which is
     /// running the effect itself.
     static ref SEND_MESSAGE_TO_THREAD: broadcast::Sender<ThreadMessage> = broadcast::channel(10).0;
@@ -246,29 +242,22 @@ fn update_lights(
     let frame = frame.clone();
     debug!("Updating lights, frame = {frame:?}");
 
+    let mut render_raw_data = |vec: Vec<RGBArray>| {
+        for (handle, idx) in query.iter() {
+            let mut mat = materials.get(handle).unwrap().clone();
+            trace!(?idx, "Before, color = {:?}", mat.emissive);
+
+            let [r, g, b] = vec[idx.0];
+            mat.emissive = Color::rgb_u8(r, g, b).as_rgba_linear();
+            trace!(?idx, "After, color = {:?}", mat.emissive);
+            let _ = materials.set(handle, mat);
+        }
+    };
+
     match frame {
-        FrameType::Off => {
-            for (handle, idx) in query.iter() {
-                let mut mat = materials.get(handle).unwrap().clone();
-                debug!(?idx, "Before, color = {:?}", mat.emissive);
-
-                mat.emissive = Color::rgb(0., 0., 0.).as_rgba_linear();
-                debug!(?idx, "After, color = {:?}", mat.emissive);
-                let _ = materials.set(handle, mat);
-            }
-        }
-        FrameType::RawData(vec) => {
-            for (handle, idx) in query.iter() {
-                let mut mat = materials.get(handle).unwrap().clone();
-                debug!(?idx, "Before, color = {:?}", mat.emissive);
-
-                let [r, g, b] = vec[idx.0];
-                mat.emissive = Color::rgb_u8(r, g, b).as_rgba_linear();
-                debug!(?idx, "After, color = {:?}", mat.emissive);
-                let _ = materials.set(handle, mat);
-            }
-        }
-        FrameType::Frame3D(_) => unimplemented!(),
+        FrameType::Off => render_raw_data(vec![[0, 0, 0]; COORDS.lights_num()]),
+        FrameType::RawData(vec) => render_raw_data(vec),
+        FrameType::Frame3D(frame) => render_raw_data(frame.to_raw_data()),
     }
 }
 
