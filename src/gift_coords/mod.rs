@@ -160,11 +160,13 @@ mod tests {
     use super::*;
     use float_cmp::approx_eq;
 
+    const MAX_Z: f64 = 3.592079207920792;
+
     #[inline]
     fn gift_coords() -> GIFTCoords {
         GIFTCoords {
             coords: include!("float_coords.txt"),
-            max_z: 3.592079207920792,
+            max_z: MAX_Z,
             lights_num: 500,
         }
     }
@@ -214,5 +216,55 @@ mod tests {
     #[test]
     fn from_file_test() {
         assert_eq!(GIFTCoords::from_file("coords.gift").unwrap(), gift_coords());
+    }
+
+    #[test]
+    fn within_bounding_box_test() {
+        for p in [
+            (0., 0., 0.),
+            (0.5, 0.5, 1.),
+            (0.5, -1., 1.83),
+            (-0.59, 0.22, 2.454),
+        ] {
+            assert!(COORDS.is_within_bounding_box(p));
+        }
+
+        for p in [(1.01, 0., 0.5), (0., 0., 5.), (-1.4, 2.63, 5.)] {
+            assert!(!COORDS.is_within_bounding_box(p));
+        }
+    }
+
+    #[test]
+    fn distance_from_bounding_box_test() {
+        for p in [
+            (0., 0., 0.),
+            (0.5, 0.5, 1.),
+            (0.5, -1., 1.83),
+            (-0.59, 0.22, 2.454),
+        ] {
+            assert!(approx_eq!(f64, COORDS.distance_from_bounding_box(p), 0.));
+        }
+
+        assert!(approx_eq!(
+            f64,
+            COORDS.distance_from_bounding_box((1.5, 0., 0.)),
+            0.5
+        ));
+        assert!(approx_eq!(
+            f64,
+            COORDS.distance_from_bounding_box((0., 0., 5.)),
+            5. - MAX_Z
+        ));
+        assert!(approx_eq!(
+            f64,
+            COORDS.distance_from_bounding_box((0., 1.5, 4.)),
+            0.6452901460665026 // Hypotenuse
+        ));
+        dbg!(COORDS.distance_from_bounding_box((-2.1, 1.5, 4.)));
+        assert!(approx_eq!(
+            f64,
+            COORDS.distance_from_bounding_box((-2.1, 1.5, 4.)),
+            1.2753036393779047 // Hypotenuse
+        ));
     }
 }

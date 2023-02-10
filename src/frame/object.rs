@@ -2,10 +2,11 @@
 
 use super::RGBArray;
 use crate::{gift_coords::COORDS, vecs::Vec3};
+use serde::{Deserialize, Serialize};
 use tracing::{debug, instrument};
 
 /// A single object in the frame, with associated colour and fadeoff.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct FrameObject {
     /// The object itself.
     pub object: Object,
@@ -65,7 +66,7 @@ impl FrameObject {
 }
 
 /// An object in a 3D frame.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Object {
     /// A plane defined in terms of normal vector and dot product result.
     Plane {

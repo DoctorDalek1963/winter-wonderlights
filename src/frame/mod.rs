@@ -1,6 +1,7 @@
 //! This module provides functionality for specifiying and using 3D frames.
 
 use crate::gift_coords::COORDS;
+use serde::{Deserialize, Serialize};
 use tracing::debug;
 
 mod object;
@@ -11,7 +12,7 @@ pub use self::object::{FrameObject, Object};
 pub type RGBArray = [u8; 3];
 
 /// A type of frame data.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum FrameType {
     /// A frame indicating that all the lights are off.
     Off,
@@ -28,7 +29,7 @@ pub enum FrameType {
 }
 
 /// A 3D frame, made of several objects.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Frame3D {
     /// The vec of objects in the frame.
     ///
@@ -49,5 +50,36 @@ impl Frame3D {
 
         debug!(?data);
         data
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::vecs::Vec3;
+
+    #[test]
+    fn to_raw_data_test() {
+        let green_plane = FrameObject {
+            object: Object::Plane {
+                normal: Vec3::new(1., 0.5, -3.5).normalise(),
+                k: -1.2354,
+                threshold: 0.15,
+            },
+            colour: [25, 200, 16],
+            fadeoff: 0.14,
+        };
+
+        let single_plane = Frame3D {
+            objects: vec![green_plane],
+        };
+
+        insta::with_settings!({
+            info => &single_plane,
+            description => "Rendering a single plane to raw data",
+            omit_expression => true,
+        }, {
+            insta::assert_ron_snapshot!(single_plane.to_raw_data());
+        });
     }
 }

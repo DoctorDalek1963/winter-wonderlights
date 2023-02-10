@@ -20,5 +20,5 @@ run-virtual log_level='info':
 
 # run the tests in debug and release mode
 test:
-	cargo test --all-features
-	cargo test --all-features --release
+	cargo insta test --unreferenced warn --all-features
+	cargo insta test --unreferenced warn --all-features --release

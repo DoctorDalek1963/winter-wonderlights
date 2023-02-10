@@ -1,12 +1,14 @@
 //! This module handles everything to do with 3D vectors and points (position vectors).
 
+use serde::{Deserialize, Serialize};
+
 mod ops;
 mod traits;
 
 /// A 3D vector with f64 values.
 ///
 /// This type can also represent a point, interpreted as a position vector. The vertical axis is z.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Vec3 {
     /// The x component.
     x: f64,

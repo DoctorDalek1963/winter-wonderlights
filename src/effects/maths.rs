@@ -89,7 +89,7 @@ impl Default for MovingPlane {
     fn default() -> Self {
         Self {
             config: MovingPlaneConfig::default(),
-            rng: StdRng::seed_from_u64(1234567890),
+            rng: StdRng::seed_from_u64(12345),
         }
     }
 
@@ -160,5 +160,21 @@ impl Effect for MovingPlane {
             config: Self::Config::from_file(&Self::config_filename()),
             ..Self::default()
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::drivers::TestDriver;
+
+    #[tokio::test]
+    async fn moving_plane_test() {
+        let mut driver = TestDriver::new(10);
+        MovingPlane::default().run(&mut driver).await;
+
+        // The frame moves through the whole tree, and that results in thousands of individual
+        // frames, which is far too many to inline here
+        insta::assert_ron_snapshot!(driver.data);
     }
 }
