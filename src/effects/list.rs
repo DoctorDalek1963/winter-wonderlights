@@ -15,13 +15,13 @@ use std::{future::Future, pin::Pin};
 /// should not be used.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, strum::EnumIter, Serialize, Deserialize)]
 pub enum EffectList {
-    /// See [`debug::DebugOneByOne`].
+    /// See [`DebugOneByOne`].
     DebugOneByOne,
 
-    /// See [`debug::DebugBinaryIndex`].
+    /// See [`DebugBinaryIndex`].
     DebugBinaryIndex,
 
-    /// See [`maths::MovingPlane`].
+    /// See [`MovingPlane`].
     MovingPlane,
 }
 

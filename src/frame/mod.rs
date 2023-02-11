@@ -39,7 +39,7 @@ pub struct Frame3D {
 }
 
 impl Frame3D {
-    /// Convert the frame to a raw data vec, using [`COORDS`] to know where the lights are.
+    /// Convert the frame to a raw data vec, using [`struct@COORDS`] to know where the lights are.
     pub fn to_raw_data(&self) -> Vec<RGBArray> {
         let mut data: Vec<RGBArray> = vec![[0, 0, 0]; COORDS.lights_num()];
         debug!(?data);
