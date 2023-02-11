@@ -12,7 +12,7 @@ check:
 
 # build the docs and optionally open them
 doc-build open='':
-	cargo doc --all-features --no-deps --document-private-items --workspace --release --target-dir target {{open}}
+	RUSTDOCFLAGS="-D warnings" cargo doc --all-features --no-deps --document-private-items --workspace --release --target-dir target {{open}}
 
 # run the virtual tree with info level logs
 run-virtual log_level='info':
