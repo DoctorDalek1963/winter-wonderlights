@@ -14,8 +14,6 @@ pub(super) fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    // TODO: Generate mesh for tree, maybe hash GIFT coords to cache tree mesh
-
     // Hold LControl to orbit the camera
     commands
         .spawn((
@@ -55,23 +53,11 @@ pub(super) fn setup(
         ..default()
     });
 
-    // Tree
-    commands.spawn(PbrBundle {
-        mesh: meshes.add(generate_tree_mesh()),
-        material: materials.add(StandardMaterial {
-            base_color: Color::rgb_u8(39, 13, 13),
-            perceptual_roughness: 0.8,
-            ..default()
-        }),
-        transform: Transform::from_xyz(0., COORDS.max_z() as f32 / 2. - 0.2, 0.),
-        ..default()
-    });
-
     // One sphere mesh for the lights
     let mesh = meshes.add(Mesh::from(shape::UVSphere {
         sectors: 64,
         stacks: 32,
-        radius: 0.015,
+        radius: 0.012,
     }));
 
     // All the lights
@@ -107,15 +93,51 @@ pub(super) fn setup(
     }
 }
 
-/// Generate the mesh to use for the Christmas tree itself
-fn generate_tree_mesh() -> Mesh {
-    //let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
-
-    shape::Capsule {
-        radius: 0.06,
-        rings: 100,
-        depth: COORDS.max_z() as f32 * 0.88,
+/// Add the Christmas tree to the world.
+pub(super) fn add_tree_to_world(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    let material = materials.add(StandardMaterial {
+        base_color: Color::rgb_u8(39, 13, 13),
+        perceptual_roughness: 0.8,
         ..default()
+    });
+
+    // Trunk
+    commands.spawn(PbrBundle {
+        mesh: meshes.add(Mesh::from(shape::Capsule {
+            radius: 0.06,
+            rings: 100,
+            depth: COORDS.max_z() as f32 * 0.88,
+            ..default()
+        })),
+        material: material.clone(),
+        transform: Transform::from_xyz(0., COORDS.max_z() as f32 / 2. - 0.2, 0.),
+        ..default()
+    });
+
+    // Leaves
+    let initial_y: f32 = 0.3;
+    let max_y: f32 = COORDS.max_z() as f32 - 0.4;
+    let mut y = initial_y;
+
+    while y < max_y {
+        let scale = 1. - (y - initial_y) / (max_y - initial_y);
+        assert!(scale >= 0. && scale <= 1., "Scale must be in [0, 1]");
+
+        commands.spawn(PbrBundle {
+            mesh: meshes.add(Mesh::from(shape::Torus {
+                radius: scale * 0.9,
+                ring_radius: 0.05,
+                ..default()
+            })),
+            material: material.clone(),
+            transform: Transform::from_xyz(0., y as f32, 0.),
+            ..default()
+        });
+
+        y += 0.2;
     }
-    .into()
 }

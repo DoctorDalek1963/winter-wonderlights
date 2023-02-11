@@ -4,7 +4,7 @@ mod bevy_setup;
 mod config;
 
 use self::{
-    bevy_setup::{setup, LightIndex},
+    bevy_setup::{add_tree_to_world, setup, LightIndex},
     config::VirtualTreeConfig,
 };
 use crate::{
@@ -139,6 +139,7 @@ pub fn run_virtual_tree() -> ! {
         .add_plugin(OrbitCameraPlugin::default())
         .add_plugin(EguiPlugin)
         .add_startup_system(setup)
+        .add_startup_system(add_tree_to_world)
         .add_system(update_lights)
         .add_system(render_gui)
         .run();
