@@ -1,22 +1,23 @@
 //! This module provides implementation for the virtual tree driver.
 
+mod bevy_setup;
 mod config;
 
-use self::config::VirtualTreeConfig;
+use self::{
+    bevy_setup::{setup, LightIndex},
+    config::VirtualTreeConfig,
+};
 use crate::{
     drivers::Driver,
     effects::{EffectConfig, EffectList},
     frame::{FrameType, RGBArray},
     gift_coords::COORDS,
 };
-use bevy::{core_pipeline::bloom::BloomSettings, log::LogPlugin, prelude::*, DefaultPlugins};
+use bevy::{log::LogPlugin, prelude::*, DefaultPlugins};
 use bevy_egui::{EguiContext, EguiPlugin};
 use egui::RichText;
 use lazy_static::lazy_static;
-use smooth_bevy_cameras::{
-    controllers::orbit::{OrbitCameraBundle, OrbitCameraController, OrbitCameraPlugin},
-    LookTransformPlugin,
-};
+use smooth_bevy_cameras::{controllers::orbit::OrbitCameraPlugin, LookTransformPlugin};
 use std::{sync::RwLock, thread, time::Duration};
 use strum::IntoEnumIterator;
 use tokio::sync::broadcast;
@@ -97,7 +98,9 @@ pub fn run_virtual_tree() -> ! {
                             driver.display_frame(FrameType::Off);
 
                             // Pause before looping the effect
-                            tokio::time::sleep(Duration::from_millis(unsafe { VIRTUAL_TREE_CONFIG.loop_pause_time })).await;
+                            tokio::time::sleep(
+                                Duration::from_millis(unsafe { VIRTUAL_TREE_CONFIG.loop_pause_time })
+                            ).await;
                         } else {
                             driver.display_frame(FrameType::Off);
 
@@ -152,81 +155,6 @@ impl Driver for VirtualTreeDriver {
 
     fn get_lights_count(&self) -> usize {
         COORDS.coords().len()
-    }
-}
-
-/// A simple Bevy component to record the index of this light along the chain of lights.
-#[derive(Component, Clone, Copy, Debug)]
-struct LightIndex(usize);
-
-/// Setup the Bevy world with a camera, plane, and lights.
-fn setup(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    // Hold LControl to orbit the camera
-    commands
-        .spawn((
-            Camera3dBundle {
-                camera: Camera {
-                    hdr: true,
-                    ..default()
-                },
-                ..default()
-            },
-            BloomSettings {
-                intensity: 1.4,
-                threshold: 0.6,
-                ..default()
-            },
-        ))
-        .insert(OrbitCameraBundle::new(
-            OrbitCameraController {
-                mouse_rotate_sensitivity: Vec2::splat(0.25),
-                smoothing_weight: 0.1,
-                ..default()
-            },
-            Vec3::new(5., 2.5, 5.),
-            Vec3::new(0., COORDS.max_z() as f32 / 2., 0.),
-            Vec3::Y,
-        ));
-
-    // Plane
-    commands.spawn(PbrBundle {
-        mesh: meshes.add(Mesh::from(shape::Plane { size: 1000. })),
-        material: materials.add(StandardMaterial {
-            base_color: Color::rgb(0.7, 0.7, 0.7),
-            perceptual_roughness: 0.08,
-            ..default()
-        }),
-        transform: Transform::from_xyz(0., -0.1, 0.),
-        ..default()
-    });
-
-    // One sphere mesh for the lights
-    let mesh = meshes.add(Mesh::from(shape::UVSphere {
-        sectors: 64,
-        stacks: 32,
-        radius: 0.015,
-    }));
-
-    // All the lights
-    for (index, &(x, z, y)) in COORDS.coords().iter().enumerate() {
-        commands.spawn((
-            PbrBundle {
-                mesh: mesh.clone(),
-                material: materials.add(StandardMaterial {
-                    base_color: Color::rgba(0.1, 0.1, 0.1, 0.5),
-                    unlit: false,
-                    emissive: Color::rgb_linear(0.1, 0.1, 0.1),
-                    ..default()
-                }),
-                transform: Transform::from_xyz(x as f32, y as f32, z as f32),
-                ..default()
-            },
-            LightIndex(index),
-        ));
     }
 }
 
