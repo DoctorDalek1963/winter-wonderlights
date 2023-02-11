@@ -14,8 +14,7 @@ pub(super) fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    // TODO: Make lights actually emit light, generate mesh for tree, maybe hash GIFT coords to
-    // cache tree mesh
+    // TODO: Generate mesh for tree, maybe hash GIFT coords to cache tree mesh
 
     // Hold LControl to orbit the camera
     commands
@@ -48,11 +47,23 @@ pub(super) fn setup(
     commands.spawn(PbrBundle {
         mesh: meshes.add(Mesh::from(shape::Plane { size: 1000. })),
         material: materials.add(StandardMaterial {
-            base_color: Color::rgb(0.7, 0.7, 0.7),
-            perceptual_roughness: 0.08,
+            base_color: Color::rgb(0.9, 0.9, 0.9),
+            perceptual_roughness: 0.8,
             ..default()
         }),
-        transform: Transform::from_xyz(0., -0.1, 0.),
+        transform: Transform::from_xyz(0., -0.3, 0.),
+        ..default()
+    });
+
+    // Tree
+    commands.spawn(PbrBundle {
+        mesh: meshes.add(generate_tree_mesh()),
+        material: materials.add(StandardMaterial {
+            base_color: Color::rgb_u8(39, 13, 13),
+            perceptual_roughness: 0.8,
+            ..default()
+        }),
+        transform: Transform::from_xyz(0., COORDS.max_z() as f32 / 2. - 0.2, 0.),
         ..default()
     });
 
@@ -65,19 +76,46 @@ pub(super) fn setup(
 
     // All the lights
     for (index, &(x, z, y)) in COORDS.coords().iter().enumerate() {
-        commands.spawn((
-            PbrBundle {
-                mesh: mesh.clone(),
-                material: materials.add(StandardMaterial {
-                    base_color: Color::rgba(0.1, 0.1, 0.1, 0.5),
-                    unlit: false,
-                    emissive: Color::rgb_linear(0.1, 0.1, 0.1),
+        commands
+            .spawn((
+                PbrBundle {
+                    mesh: mesh.clone(),
+                    material: materials.add(StandardMaterial {
+                        base_color: Color::rgba(0.1, 0.1, 0.1, 0.5),
+                        unlit: false,
+                        emissive: Color::rgb_linear(0.1, 0.1, 0.1),
+                        perceptual_roughness: 0.8,
+                        ..default()
+                    }),
+                    transform: Transform::from_xyz(x as f32, y as f32, z as f32),
                     ..default()
-                }),
-                transform: Transform::from_xyz(x as f32, y as f32, z as f32),
-                ..default()
-            },
-            LightIndex(index),
-        ));
+                },
+                LightIndex(index),
+            ))
+            .with_children(|builder| {
+                builder.spawn(PointLightBundle {
+                    point_light: PointLight {
+                        color: Color::rgb(0., 0., 0.),
+                        intensity: 1.5,
+                        range: 0.8,
+                        shadows_enabled: false,
+                        ..default()
+                    },
+                    ..default()
+                });
+            });
     }
+}
+
+/// Generate the mesh to use for the Christmas tree itself
+fn generate_tree_mesh() -> Mesh {
+    //let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
+
+    shape::Capsule {
+        radius: 0.06,
+        rings: 100,
+        depth: COORDS.max_z() as f32 * 0.88,
+        ..default()
+    }
+    .into()
 }

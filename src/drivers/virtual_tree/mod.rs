@@ -56,63 +56,68 @@ fn set_global_effect_config() {
     unsafe { EFFECT_CONFIG = VIRTUAL_TREE_CONFIG.effect.map(|effect| effect.config()) };
 }
 
+/// Listen to messages on [`SEND_MESSAGE_TO_THREAD`] and run the effect in [`VIRTUAL_TREE_CONFIG`].
+///
+/// Intended to be run in a background thread.
+fn listen_and_run_effect() {
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_time()
+        .build()
+        .unwrap();
+    let local = tokio::task::LocalSet::new();
+
+    thread::sleep(Duration::from_millis(1000));
+    let mut driver = VirtualTreeDriver {};
+    let mut rx = SEND_MESSAGE_TO_THREAD.subscribe();
+
+    local.block_on(&runtime, async move {
+        loop {
+            // We always want to be selecting between two thing
+            tokio::select! {
+                biased;
+
+                // First, we check if we've received a message on the channel and respond to it if so
+                msg = rx.recv() => {
+                    match msg.expect("There should not be an error in receiving from the channel") {
+                        ThreadMessage::RestartNew => {
+                            set_global_effect_config();
+                            continue;
+                        }
+                        ThreadMessage::RestartCurrent => continue,
+                    };
+                }
+
+                // Then, we run the effect in a loop. Most of the effect time is awaiting
+                // sleeps, and control gets yielded back to `select!` while that's happening,
+                // so it can respond to messages quickly
+                _ = async { loop {
+                    if let Some(effect) = unsafe { VIRTUAL_TREE_CONFIG.effect } {
+                        effect.create_run_method()(&mut driver).await;
+                        driver.display_frame(FrameType::Off);
+
+                        // Pause before looping the effect
+                        tokio::time::sleep(
+                            Duration::from_millis(unsafe { VIRTUAL_TREE_CONFIG.loop_pause_time })
+                        ).await;
+                    } else {
+                        driver.display_frame(FrameType::Off);
+
+                        // Don't send `FrameType::Off` constantly. `select!` takes control
+                        // while we're awaiting anyway, so responding to a message will be fast
+                        tokio::time::sleep(Duration::from_secs(1)).await;
+                    }
+                }} => {}
+            };
+        }
+    });
+}
+
 /// Run the virtual tree, using the saved or default config.
 pub fn run_virtual_tree() -> ! {
     unsafe { VIRTUAL_TREE_CONFIG = VirtualTreeConfig::from_file() };
     set_global_effect_config();
 
-    thread::spawn(move || {
-        let runtime = tokio::runtime::Builder::new_current_thread()
-            .enable_time()
-            .build()
-            .unwrap();
-        let local = tokio::task::LocalSet::new();
-
-        thread::sleep(Duration::from_millis(1000));
-        let mut driver = VirtualTreeDriver {};
-        let mut rx = SEND_MESSAGE_TO_THREAD.subscribe();
-
-        local.block_on(&runtime, async move {
-            loop {
-                // We always want to be selecting between two thing
-                tokio::select! {
-                    biased;
-
-                    // First, we check if we've received a message on the channel and respond to it if so
-                    msg = rx.recv() => {
-                        match msg.expect("There should not be an error in receiving from the channel") {
-                            ThreadMessage::RestartNew => {
-                                set_global_effect_config();
-                                continue;
-                            }
-                            ThreadMessage::RestartCurrent => continue,
-                        };
-                    }
-
-                    // Then, we run the effect in a loop. Most of the effect time is awaiting
-                    // sleeps, and control gets yielded back to `select!` while that's happening,
-                    // so it can respond to messages quickly
-                    _ = async { loop {
-                        if let Some(effect) = unsafe { VIRTUAL_TREE_CONFIG.effect } {
-                            effect.create_run_method()(&mut driver).await;
-                            driver.display_frame(FrameType::Off);
-
-                            // Pause before looping the effect
-                            tokio::time::sleep(
-                                Duration::from_millis(unsafe { VIRTUAL_TREE_CONFIG.loop_pause_time })
-                            ).await;
-                        } else {
-                            driver.display_frame(FrameType::Off);
-
-                            // Don't send `FrameType::Off` constantly. `select!` takes control
-                            // while we're awaiting anyway, so responding to a message will be fast
-                            tokio::time::sleep(Duration::from_secs(1)).await;
-                        }
-                    }} => {}
-                };
-            }
-        });
-    });
+    thread::spawn(listen_and_run_effect);
 
     // Create a new Bevy app with the default plugins (except logging, since we initialize that
     // ourselves) and the required systems
@@ -162,7 +167,8 @@ impl Driver for VirtualTreeDriver {
 #[instrument(skip_all)]
 fn update_lights(
     mut materials: ResMut<Assets<StandardMaterial>>,
-    query: Query<(&Handle<StandardMaterial>, &LightIndex)>,
+    parent_query: Query<(&Handle<StandardMaterial>, &LightIndex, &Children)>,
+    mut child_query: Query<&mut PointLight>,
 ) {
     let Ok(frame) = CURRENT_FRAME.try_read() else {
         return;
@@ -171,14 +177,23 @@ fn update_lights(
     debug!("Updating lights, frame = {frame:?}");
 
     let mut render_raw_data = |vec: Vec<RGBArray>| {
-        for (handle, idx) in query.iter() {
+        for (handle, idx, children) in parent_query.iter() {
+            // Set emissive colour
             let mut mat = materials.get(handle).unwrap().clone();
             trace!(?idx, "Before, color = {:?}", mat.emissive);
 
             let [r, g, b] = vec[idx.0];
-            mat.emissive = Color::rgb_u8(r, g, b).as_rgba_linear();
+            let new_colour = Color::rgb_u8(r, g, b).as_rgba_linear();
+
+            mat.emissive = new_colour;
             trace!(?idx, "After, color = {:?}", mat.emissive);
             let _ = materials.set(handle, mat);
+
+            for &child in children.iter() {
+                // Set colour of light
+                let mut point_light = child_query.get_mut(child).unwrap();
+                point_light.color = new_colour;
+            }
         }
     };
 
