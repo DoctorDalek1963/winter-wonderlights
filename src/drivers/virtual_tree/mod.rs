@@ -1,22 +1,23 @@
 //! This module provides implementation for the virtual tree driver.
 
+mod bevy_setup;
 mod config;
 
-use self::config::VirtualTreeConfig;
+use self::{
+    bevy_setup::{add_tree_to_world, setup, LightIndex, TreeComponent},
+    config::VirtualTreeConfig,
+};
 use crate::{
     drivers::Driver,
     effects::{EffectConfig, EffectList},
     frame::{FrameType, RGBArray},
     gift_coords::COORDS,
 };
-use bevy::{core_pipeline::bloom::BloomSettings, log::LogPlugin, prelude::*, DefaultPlugins};
+use bevy::{log::LogPlugin, prelude::*, DefaultPlugins};
 use bevy_egui::{EguiContext, EguiPlugin};
 use egui::RichText;
 use lazy_static::lazy_static;
-use smooth_bevy_cameras::{
-    controllers::orbit::{OrbitCameraBundle, OrbitCameraController, OrbitCameraPlugin},
-    LookTransformPlugin,
-};
+use smooth_bevy_cameras::{controllers::orbit::OrbitCameraPlugin, LookTransformPlugin};
 use std::{sync::RwLock, thread, time::Duration};
 use strum::IntoEnumIterator;
 use tokio::sync::broadcast;
@@ -55,61 +56,68 @@ fn set_global_effect_config() {
     unsafe { EFFECT_CONFIG = VIRTUAL_TREE_CONFIG.effect.map(|effect| effect.config()) };
 }
 
+/// Listen to messages on [`SEND_MESSAGE_TO_THREAD`] and run the effect in [`VIRTUAL_TREE_CONFIG`].
+///
+/// Intended to be run in a background thread.
+fn listen_and_run_effect() {
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_time()
+        .build()
+        .unwrap();
+    let local = tokio::task::LocalSet::new();
+
+    thread::sleep(Duration::from_millis(1000));
+    let mut driver = VirtualTreeDriver {};
+    let mut rx = SEND_MESSAGE_TO_THREAD.subscribe();
+
+    local.block_on(&runtime, async move {
+        loop {
+            // We always want to be selecting between two thing
+            tokio::select! {
+                biased;
+
+                // First, we check if we've received a message on the channel and respond to it if so
+                msg = rx.recv() => {
+                    match msg.expect("There should not be an error in receiving from the channel") {
+                        ThreadMessage::RestartNew => {
+                            set_global_effect_config();
+                            continue;
+                        }
+                        ThreadMessage::RestartCurrent => continue,
+                    };
+                }
+
+                // Then, we run the effect in a loop. Most of the effect time is awaiting
+                // sleeps, and control gets yielded back to `select!` while that's happening,
+                // so it can respond to messages quickly
+                _ = async { loop {
+                    if let Some(effect) = unsafe { VIRTUAL_TREE_CONFIG.effect } {
+                        effect.create_run_method()(&mut driver).await;
+                        driver.display_frame(FrameType::Off);
+
+                        // Pause before looping the effect
+                        tokio::time::sleep(
+                            Duration::from_millis(unsafe { VIRTUAL_TREE_CONFIG.loop_pause_time })
+                        ).await;
+                    } else {
+                        driver.display_frame(FrameType::Off);
+
+                        // Don't send `FrameType::Off` constantly. `select!` takes control
+                        // while we're awaiting anyway, so responding to a message will be fast
+                        tokio::time::sleep(Duration::from_secs(1)).await;
+                    }
+                }} => {}
+            };
+        }
+    });
+}
+
 /// Run the virtual tree, using the saved or default config.
 pub fn run_virtual_tree() -> ! {
     unsafe { VIRTUAL_TREE_CONFIG = VirtualTreeConfig::from_file() };
     set_global_effect_config();
 
-    thread::spawn(move || {
-        let runtime = tokio::runtime::Builder::new_current_thread()
-            .enable_time()
-            .build()
-            .unwrap();
-        let local = tokio::task::LocalSet::new();
-
-        thread::sleep(Duration::from_millis(1000));
-        let mut driver = VirtualTreeDriver {};
-        let mut rx = SEND_MESSAGE_TO_THREAD.subscribe();
-
-        local.block_on(&runtime, async move {
-            loop {
-                // We always want to be selecting between two thing
-                tokio::select! {
-                    biased;
-
-                    // First, we check if we've received a message on the channel and respond to it if so
-                    msg = rx.recv() => {
-                        match msg.expect("There should not be an error in receiving from the channel") {
-                            ThreadMessage::RestartNew => {
-                                set_global_effect_config();
-                                continue;
-                            }
-                            ThreadMessage::RestartCurrent => continue,
-                        };
-                    }
-
-                    // Then, we run the effect in a loop. Most of the effect time is awaiting
-                    // sleeps, and control gets yielded back to `select!` while that's happening,
-                    // so it can respond to messages quickly
-                    _ = async { loop {
-                        if let Some(effect) = unsafe { VIRTUAL_TREE_CONFIG.effect } {
-                            effect.create_run_method()(&mut driver).await;
-                            driver.display_frame(FrameType::Off);
-
-                            // Pause before looping the effect
-                            tokio::time::sleep(Duration::from_millis(unsafe { VIRTUAL_TREE_CONFIG.loop_pause_time })).await;
-                        } else {
-                            driver.display_frame(FrameType::Off);
-
-                            // Don't send `FrameType::Off` constantly. `select!` takes control
-                            // while we're awaiting anyway, so responding to a message will be fast
-                            tokio::time::sleep(Duration::from_secs(1)).await;
-                        }
-                    }} => {}
-                };
-            }
-        });
-    });
+    thread::spawn(listen_and_run_effect);
 
     // Create a new Bevy app with the default plugins (except logging, since we initialize that
     // ourselves) and the required systems
@@ -131,8 +139,10 @@ pub fn run_virtual_tree() -> ! {
         .add_plugin(OrbitCameraPlugin::default())
         .add_plugin(EguiPlugin)
         .add_startup_system(setup)
+        .add_startup_system(add_tree_to_world)
         .add_system(update_lights)
         .add_system(render_gui)
+        .add_system(show_hide_tree)
         .run();
 
     // Winit terminates the program after the event loop ends, so we should never get here. If we
@@ -155,86 +165,12 @@ impl Driver for VirtualTreeDriver {
     }
 }
 
-/// A simple Bevy component to record the index of this light along the chain of lights.
-#[derive(Component, Clone, Copy, Debug)]
-struct LightIndex(usize);
-
-/// Setup the Bevy world with a camera, plane, and lights.
-fn setup(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    // Hold LControl to orbit the camera
-    commands
-        .spawn((
-            Camera3dBundle {
-                camera: Camera {
-                    hdr: true,
-                    ..default()
-                },
-                ..default()
-            },
-            BloomSettings {
-                intensity: 1.4,
-                threshold: 0.6,
-                ..default()
-            },
-        ))
-        .insert(OrbitCameraBundle::new(
-            OrbitCameraController {
-                mouse_rotate_sensitivity: Vec2::splat(0.25),
-                smoothing_weight: 0.1,
-                ..default()
-            },
-            Vec3::new(5., 2.5, 5.),
-            Vec3::new(0., COORDS.max_z() as f32 / 2., 0.),
-            Vec3::Y,
-        ));
-
-    // Plane
-    commands.spawn(PbrBundle {
-        mesh: meshes.add(Mesh::from(shape::Plane { size: 1000. })),
-        material: materials.add(StandardMaterial {
-            base_color: Color::rgb(0.7, 0.7, 0.7),
-            perceptual_roughness: 0.08,
-            ..default()
-        }),
-        transform: Transform::from_xyz(0., -0.1, 0.),
-        ..default()
-    });
-
-    // One sphere mesh for the lights
-    let mesh = meshes.add(Mesh::from(shape::UVSphere {
-        sectors: 64,
-        stacks: 32,
-        radius: 0.015,
-    }));
-
-    // All the lights
-    for (index, &(x, z, y)) in COORDS.coords().iter().enumerate() {
-        commands.spawn((
-            PbrBundle {
-                mesh: mesh.clone(),
-                material: materials.add(StandardMaterial {
-                    base_color: Color::rgba(0.1, 0.1, 0.1, 0.5),
-                    unlit: false,
-                    emissive: Color::rgb_linear(0.1, 0.1, 0.1),
-                    ..default()
-                }),
-                transform: Transform::from_xyz(x as f32, y as f32, z as f32),
-                ..default()
-            },
-            LightIndex(index),
-        ));
-    }
-}
-
 /// Update the lights by reading from the [`RwLock`] and setting the colours of all the lights.
 #[instrument(skip_all)]
 fn update_lights(
     mut materials: ResMut<Assets<StandardMaterial>>,
-    query: Query<(&Handle<StandardMaterial>, &LightIndex)>,
+    parent_query: Query<(&Handle<StandardMaterial>, &LightIndex, &Children)>,
+    mut child_query: Query<&mut PointLight>,
 ) {
     let Ok(frame) = CURRENT_FRAME.try_read() else {
         return;
@@ -243,14 +179,23 @@ fn update_lights(
     debug!("Updating lights, frame = {frame:?}");
 
     let mut render_raw_data = |vec: Vec<RGBArray>| {
-        for (handle, idx) in query.iter() {
+        for (handle, idx, children) in parent_query.iter() {
+            // Set emissive colour
             let mut mat = materials.get(handle).unwrap().clone();
             trace!(?idx, "Before, color = {:?}", mat.emissive);
 
             let [r, g, b] = vec[idx.0];
-            mat.emissive = Color::rgb_u8(r, g, b).as_rgba_linear();
+            let new_colour = Color::rgb_u8(r, g, b).as_rgba_linear();
+
+            mat.emissive = new_colour;
             trace!(?idx, "After, color = {:?}", mat.emissive);
             let _ = materials.set(handle, mat);
+
+            for &child in children.iter() {
+                // Set colour of light
+                let mut point_light = child_query.get_mut(child).unwrap();
+                point_light.color = new_colour;
+            }
         }
     };
 
@@ -277,6 +222,13 @@ fn render_gui(mut ctx: ResMut<EguiContext>) {
                 )
                 .suffix("ms")
                 .text("Loop pause time"),
+            )
+            .changed();
+
+        config_changed |= ui
+            .checkbox(
+                unsafe { &mut VIRTUAL_TREE_CONFIG.is_tree_enabled },
+                "Show tree",
             )
             .changed();
 
@@ -334,4 +286,11 @@ fn render_gui(mut ctx: ResMut<EguiContext>) {
             config.render_options_gui(ctx, ui);
         }
     });
+}
+
+/// Show or hide the tree depending on the value of [`VirtualTreeConfig::is_tree_enabled`].
+fn show_hide_tree(mut query: Query<&mut Visibility, With<TreeComponent>>) {
+    for mut entity in query.iter_mut() {
+        entity.is_visible = unsafe { VIRTUAL_TREE_CONFIG.is_tree_enabled };
+    }
 }

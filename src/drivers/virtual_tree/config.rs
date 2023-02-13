@@ -12,6 +12,9 @@ pub struct VirtualTreeConfig {
 
     /// The item in the effects enum that's currently being run.
     pub effect: Option<EffectList>,
+
+    /// Is the tree enabled?
+    pub is_tree_enabled: bool,
 }
 
 impl VirtualTreeConfig {
@@ -20,6 +23,7 @@ impl VirtualTreeConfig {
         Self {
             loop_pause_time: 1500,
             effect: None,
+            is_tree_enabled: true,
         }
     }
 

@@ -30,6 +30,28 @@ impl From<Vec3> for PointF {
     }
 }
 
+#[cfg(feature = "virtual-tree")]
+impl From<bevy::math::Vec3> for Vec3 {
+    fn from(value: bevy::math::Vec3) -> Self {
+        Self {
+            x: value.x as f64,
+            y: value.y as f64,
+            z: value.z as f64,
+        }
+    }
+}
+
+#[cfg(feature = "virtual-tree")]
+impl From<Vec3> for bevy::math::Vec3 {
+    fn from(value: Vec3) -> Self {
+        Self {
+            x: value.x as f32,
+            y: value.y as f32,
+            z: value.z as f32,
+        }
+    }
+}
+
 #[cfg(test)]
 impl float_cmp::ApproxEq for Vec3 {
     type Margin = float_cmp::F64Margin;
