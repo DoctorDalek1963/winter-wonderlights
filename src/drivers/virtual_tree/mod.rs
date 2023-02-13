@@ -56,7 +56,7 @@ fn set_global_effect_config() {
     unsafe { EFFECT_CONFIG = VIRTUAL_TREE_CONFIG.effect.map(|effect| effect.config()) };
 }
 
-/// Listen to messages on [`SEND_MESSAGE_TO_THREAD`] and run the effect in [`VIRTUAL_TREE_CONFIG`].
+/// Listen to messages on [`struct@SEND_MESSAGE_TO_THREAD`] and run the effect in [`VIRTUAL_TREE_CONFIG`].
 ///
 /// Intended to be run in a background thread.
 fn listen_and_run_effect() {
