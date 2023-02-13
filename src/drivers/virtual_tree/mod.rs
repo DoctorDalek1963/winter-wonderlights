@@ -4,7 +4,7 @@ mod bevy_setup;
 mod config;
 
 use self::{
-    bevy_setup::{add_tree_to_world, setup, LightIndex},
+    bevy_setup::{add_tree_to_world, setup, LightIndex, TreeComponent},
     config::VirtualTreeConfig,
 };
 use crate::{
@@ -142,6 +142,7 @@ pub fn run_virtual_tree() -> ! {
         .add_startup_system(add_tree_to_world)
         .add_system(update_lights)
         .add_system(render_gui)
+        .add_system(show_hide_tree)
         .run();
 
     // Winit terminates the program after the event loop ends, so we should never get here. If we
@@ -224,6 +225,13 @@ fn render_gui(mut ctx: ResMut<EguiContext>) {
             )
             .changed();
 
+        config_changed |= ui
+            .checkbox(
+                unsafe { &mut VIRTUAL_TREE_CONFIG.is_tree_enabled },
+                "Show tree",
+            )
+            .changed();
+
         let new_effect_selected = egui::ComboBox::from_label("Current effect")
             .selected_text(unsafe {
                 VIRTUAL_TREE_CONFIG
@@ -278,4 +286,11 @@ fn render_gui(mut ctx: ResMut<EguiContext>) {
             config.render_options_gui(ctx, ui);
         }
     });
+}
+
+/// Show or hide the tree depending on the value of [`VirtualTreeConfig::is_tree_enabled`].
+fn show_hide_tree(mut query: Query<&mut Visibility, With<TreeComponent>>) {
+    for mut entity in query.iter_mut() {
+        entity.is_visible = unsafe { VIRTUAL_TREE_CONFIG.is_tree_enabled };
+    }
 }

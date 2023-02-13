@@ -2,11 +2,17 @@
 
 use crate::gift_coords::COORDS;
 use bevy::{core_pipeline::bloom::BloomSettings, prelude::*};
+use rand::{thread_rng, Rng};
 use smooth_bevy_cameras::controllers::orbit::{OrbitCameraBundle, OrbitCameraController};
+use std::f32::consts::PI;
 
 /// A simple Bevy component to record the index of this light along the chain of lights.
 #[derive(Component, Clone, Copy, Debug)]
 pub(super) struct LightIndex(pub(super) usize);
+
+/// A simple Bevy marker component to indicate that an entity is part of the tree.
+#[derive(Component, Clone, Copy, Debug)]
+pub(super) struct TreeComponent;
 
 /// Setup the Bevy world with a camera, plane, and lights.
 pub(super) fn setup(
@@ -99,45 +105,106 @@ pub(super) fn add_tree_to_world(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let material = materials.add(StandardMaterial {
-        base_color: Color::rgb_u8(39, 13, 13),
-        perceptual_roughness: 0.8,
-        ..default()
-    });
-
     // Trunk
-    commands.spawn(PbrBundle {
-        mesh: meshes.add(Mesh::from(shape::Capsule {
-            radius: 0.06,
-            rings: 100,
-            depth: COORDS.max_z() as f32 * 0.88,
+    commands
+        .spawn(PbrBundle {
+            mesh: meshes.add(Mesh::from(shape::Capsule {
+                radius: 0.06,
+                rings: 100,
+                depth: COORDS.max_z() as f32 * 0.88,
+                ..default()
+            })),
+            material: materials.add(StandardMaterial {
+                base_color: Color::rgb_u8(39, 13, 13),
+                perceptual_roughness: 0.8,
+                ..default()
+            }),
+            transform: Transform::from_xyz(0., COORDS.max_z() as f32 / 2. - 0.2, 0.),
             ..default()
-        })),
-        material: material.clone(),
-        transform: Transform::from_xyz(0., COORDS.max_z() as f32 / 2. - 0.2, 0.),
-        ..default()
-    });
+        })
+        .insert(TreeComponent);
 
     // Leaves
     let initial_y: f32 = 0.3;
-    let max_y: f32 = COORDS.max_z() as f32 - 0.4;
+    let max_y: f32 = COORDS.max_z() as f32 - 0.3;
     let mut y = initial_y;
 
+    let mut rng = thread_rng();
+    let leaf_material = materials.add(StandardMaterial {
+        base_color: Color::rgb_u8(12, 96, 29),
+        perceptual_roughness: 0.85,
+        ..default()
+    });
+
     while y < max_y {
-        let scale = 1. - (y - initial_y) / (max_y - initial_y);
-        assert!(scale >= 0. && scale <= 1., "Scale must be in [0, 1]");
+        let scale = (1. - (y - initial_y) / (max_y - initial_y))
+            .min(1.)
+            .max(0.1);
 
-        commands.spawn(PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Torus {
-                radius: scale * 0.9,
-                ring_radius: 0.05,
-                ..default()
-            })),
-            material: material.clone(),
-            transform: Transform::from_xyz(0., y as f32, 0.),
-            ..default()
-        });
+        // We want a random number of branches equally spaced around the trunk. Giving them a
+        // random starting offset makes them less predictable
+        let num_branches_proportion = 360 / rng.gen_range(10..=16);
+        for theta in (0..360)
+            .skip(rng.gen_range(0..=num_branches_proportion))
+            .step_by(num_branches_proportion)
+        {
+            // Create a capsule shape connecting the core of the trunk to a point away from the
+            // trunk at `theta` degrees around
 
-        y += 0.2;
+            let theta_rad = theta as f32 / 180. * PI;
+            let point = (theta_rad.sin() * scale, y, theta_rad.cos() * scale);
+            let (mesh, transform) =
+                create_tree_branch((0., y, 0.), point, (scale * 0.03).max(0.015), &mut rng);
+
+            commands
+                .spawn(PbrBundle {
+                    mesh: meshes.add(mesh),
+                    transform,
+                    material: leaf_material.clone(),
+                    ..default()
+                })
+                .insert(TreeComponent);
+        }
+
+        y += 0.15;
     }
+}
+
+/// Create a tree branch connecting the two given points with the given radius, using the given RNG
+/// to add variety to the branch rotations.
+fn create_tree_branch(
+    p: (f32, f32, f32),
+    q: (f32, f32, f32),
+    radius: f32,
+    rng: &mut impl Rng,
+) -> (Mesh, Transform) {
+    let (px, py, pz) = p;
+    let (qx, qy, qz) = q;
+
+    let length = {
+        let dx = (px - qx).abs();
+        let dy = (py - qy).abs();
+        let dz = (pz - qz).abs();
+
+        f32::sqrt(dx * dx + dy * dy + dz * dz)
+    };
+    let midpoint = ((px + qx) / 2., (py + qy) / 2., (pz + qz) / 2.);
+
+    let mesh = shape::Capsule {
+        radius,
+        rings: 50,
+        depth: length,
+        ..default()
+    }
+    .into();
+
+    let p_to_q = Vec3 {
+        x: px - qx + rng.gen_range(-0.1..=0.1),
+        y: py - qy + rng.gen_range(-0.1..=0.1),
+        z: pz - qz + rng.gen_range(-0.1..=0.1),
+    };
+    let transform = Transform::from_xyz(midpoint.0, midpoint.1, midpoint.2)
+        .with_rotation(Quat::from_rotation_arc(Vec3::Y, p_to_q.normalize()));
+
+    (mesh, transform)
 }
