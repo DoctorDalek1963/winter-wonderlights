@@ -8,7 +8,8 @@ bench filter='':
 
 # cargo check the whole project
 check:
-	cargo check --all-features
+	cargo check
+	cargo check --features virtual-tree
 
 # build the docs and optionally open them
 doc-build open='':
