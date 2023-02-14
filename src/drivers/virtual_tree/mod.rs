@@ -59,6 +59,7 @@ fn set_global_effect_config() {
 /// Listen to messages on [`struct@SEND_MESSAGE_TO_THREAD`] and run the effect in [`VIRTUAL_TREE_CONFIG`].
 ///
 /// Intended to be run in a background thread.
+#[instrument]
 fn listen_and_run_effect() {
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_time()
@@ -70,6 +71,7 @@ fn listen_and_run_effect() {
     let mut driver = VirtualTreeDriver {};
     let mut rx = SEND_MESSAGE_TO_THREAD.subscribe();
 
+    info!("Beginning tokio listen and run loop");
     local.block_on(&runtime, async move {
         loop {
             // We always want to be selecting between two thing
@@ -113,6 +115,7 @@ fn listen_and_run_effect() {
 }
 
 /// Run the virtual tree, using the saved or default config.
+#[instrument]
 pub fn run_virtual_tree() -> ! {
     unsafe { VIRTUAL_TREE_CONFIG = VirtualTreeConfig::from_file() };
     set_global_effect_config();
@@ -121,6 +124,7 @@ pub fn run_virtual_tree() -> ! {
 
     // Create a new Bevy app with the default plugins (except logging, since we initialize that
     // ourselves) and the required systems
+    info!("Starting bevy app");
     App::new()
         .insert_resource(Msaa { samples: 4 })
         .add_plugins(
@@ -147,6 +151,10 @@ pub fn run_virtual_tree() -> ! {
 
     // Winit terminates the program after the event loop ends, so we should never get here. If we
     // do, then we want to terminate the program manually. We also want this function to return `!`
+    tracing::error!(concat!(
+        "Winit should terminate the program when the eventloop ends, but it hasn't.",
+        "Now terminating the program."
+    ));
     std::process::exit(0);
 }
 
@@ -156,7 +164,7 @@ struct VirtualTreeDriver {}
 impl Driver for VirtualTreeDriver {
     #[instrument(skip_all)]
     fn display_frame(&mut self, frame: FrameType) {
-        info!(?frame);
+        debug!(?frame);
         *CURRENT_FRAME.write().unwrap() = frame;
     }
 
@@ -176,7 +184,7 @@ fn update_lights(
         return;
     };
     let frame = frame.clone();
-    debug!("Updating lights, frame = {frame:?}");
+    trace!(?frame);
 
     let mut render_raw_data = |vec: Vec<RGBArray>| {
         for (handle, idx, children) in parent_query.iter() {

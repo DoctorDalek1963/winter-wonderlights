@@ -14,7 +14,6 @@ use egui::RichText;
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
-use tracing::debug;
 
 /// The config for the moving plane effect; includes speed.
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -146,7 +145,6 @@ impl Effect for MovingPlane {
             // We're going to sleep for 20ms every loop, which gives 50 fps. This means we want to
             // move 1/50th of the units per second
             point += (self.config.units_per_second / 50.) * normal;
-            debug!(?point);
             sleep!(Duration::from_millis(20));
         }
     }

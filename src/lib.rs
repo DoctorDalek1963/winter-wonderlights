@@ -8,6 +8,7 @@
 //! behind crate features.
 
 #![feature(is_some_and)]
+#![feature(never_type)]
 #![feature(stmt_expr_attributes)]
 // Duration is imported and unused for tests and benchmarks because of the sleep macro
 #![cfg_attr(any(test, feature = "bench"), allow(unused_imports))]

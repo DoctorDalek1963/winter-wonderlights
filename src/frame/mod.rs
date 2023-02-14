@@ -2,7 +2,7 @@
 
 use crate::gift_coords::COORDS;
 use serde::{Deserialize, Serialize};
-use tracing::debug;
+use tracing::trace;
 
 mod object;
 
@@ -42,13 +42,13 @@ impl Frame3D {
     /// Convert the frame to a raw data vec, using [`struct@COORDS`] to know where the lights are.
     pub fn to_raw_data(&self) -> Vec<RGBArray> {
         let mut data: Vec<RGBArray> = vec![[0, 0, 0]; COORDS.lights_num()];
-        debug!(?data);
+        trace!(?data, "Before");
 
         for frame_object in &self.objects {
             frame_object.render_into_vec(&mut data);
         }
 
-        debug!(?data);
+        trace!(?data, "After");
         data
     }
 }

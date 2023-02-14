@@ -3,7 +3,7 @@
 use super::RGBArray;
 use crate::{gift_coords::COORDS, vecs::Vec3};
 use serde::{Deserialize, Serialize};
-use tracing::{debug, instrument};
+use tracing::{instrument, trace};
 
 /// A single object in the frame, with associated colour and fadeoff.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -40,7 +40,7 @@ impl FrameObject {
                         dist >= 0.,
                         "Distance from the point to the plane should never be negative"
                     );
-                    debug!(?point, ?dist, "Distance from point to plane");
+                    trace!(?point, ?dist, "Distance from point to plane");
 
                     // If distance is less than the threshold, then it's part of the plane
                     if dist <= threshold {
