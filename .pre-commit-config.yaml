@@ -22,19 +22,19 @@ repos:
         name: just test
         entry: just test
         language: system
-        types: [rust]
+        files: '.*\.rs|Cargo.(toml|lock)$'
         pass_filenames: false
 
       - id: just-check
         name: just check
         entry: just check
         language: system
-        types: [rust]
+        files: '.*\.rs|Cargo.(toml|lock)$'
         pass_filenames: false
 
       - id: just-doc-build
         name: just doc-build
         entry: just doc-build
         language: system
-        types: [rust]
+        files: '.*\.rs|Cargo.(toml|lock)$'
         pass_filenames: false
