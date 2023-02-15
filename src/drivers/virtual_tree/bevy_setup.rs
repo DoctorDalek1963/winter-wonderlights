@@ -43,7 +43,7 @@ pub(super) fn setup(
                 ..default()
             },
             Vec3::new(5., 2.5, 5.),
-            Vec3::new(0., COORDS.max_z() as f32 / 2., 0.),
+            Vec3::new(0., COORDS.max_z() / 2., 0.),
             Vec3::Y,
         ));
 
@@ -67,6 +67,7 @@ pub(super) fn setup(
     }));
 
     // All the lights
+    debug!("Adding lights to tree");
     for (index, &(x, z, y)) in COORDS.coords().iter().enumerate() {
         commands
             .spawn((
@@ -79,7 +80,7 @@ pub(super) fn setup(
                         perceptual_roughness: 0.8,
                         ..default()
                     }),
-                    transform: Transform::from_xyz(x as f32, y as f32, z as f32),
+                    transform: Transform::from_xyz(x, y, z),
                     ..default()
                 },
                 LightIndex(index),
@@ -97,6 +98,7 @@ pub(super) fn setup(
                 });
             });
     }
+    debug!("Finished adding lights to tree");
 }
 
 /// Add the Christmas tree to the world.
@@ -111,7 +113,7 @@ pub(super) fn add_tree_to_world(
             mesh: meshes.add(Mesh::from(shape::Capsule {
                 radius: 0.06,
                 rings: 100,
-                depth: COORDS.max_z() as f32 * 0.88,
+                depth: COORDS.max_z() * 0.88,
                 ..default()
             })),
             material: materials.add(StandardMaterial {
@@ -119,14 +121,14 @@ pub(super) fn add_tree_to_world(
                 perceptual_roughness: 0.8,
                 ..default()
             }),
-            transform: Transform::from_xyz(0., COORDS.max_z() as f32 / 2. - 0.2, 0.),
+            transform: Transform::from_xyz(0., COORDS.max_z() / 2. - 0.2, 0.),
             ..default()
         })
         .insert(TreeComponent);
 
     // Leaves
     let initial_y: f32 = 0.3;
-    let max_y: f32 = COORDS.max_z() as f32 - 0.3;
+    let max_y: f32 = COORDS.max_z() - 0.3;
     let mut y = initial_y;
 
     let mut rng = thread_rng();
@@ -137,9 +139,7 @@ pub(super) fn add_tree_to_world(
     });
 
     while y < max_y {
-        let scale = (1. - (y - initial_y) / (max_y - initial_y))
-            .min(1.)
-            .max(0.1);
+        let scale = (1. - (y - initial_y) / (max_y - initial_y)).clamp(0.1, 1.);
 
         // We want a random number of branches equally spaced around the trunk. Giving them a
         // random starting offset makes them less predictable

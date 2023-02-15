@@ -3,14 +3,13 @@
 use crate::{
     drivers::Driver,
     effects::{Effect, EffectConfig},
-    frame::RGBArray,
-    frame::{Frame3D, FrameObject, Object},
+    frame::{random_vector, Frame3D, FrameObject, Object, RGBArray},
     gift_coords::COORDS,
     sleep,
-    vecs::Vec3,
 };
 use async_trait::async_trait;
 use egui::RichText;
+use glam::Vec3;
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
@@ -19,15 +18,15 @@ use std::time::Duration;
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MovingPlaneConfig {
     /// How many units (in GIFT coords) that the plane moves in one second.
-    units_per_second: f64,
+    units_per_second: f32,
 
     /// The thickness of the plane.
-    thickness: f64,
+    thickness: f32,
 
     /// The maximum distance where colour drops to zero.
     ///
     /// See [`crate::frame::FrameObject::fadeoff`].
-    fadeoff: f64,
+    fadeoff: f32,
 }
 
 impl Default for MovingPlaneConfig {
@@ -114,7 +113,7 @@ impl Effect for MovingPlane {
 
     async fn run(mut self, driver: &mut dyn Driver) {
         let colour: RGBArray = self.rng.gen();
-        let normal: Vec3 = self.rng.gen::<Vec3>(); // Random Vec3s are already normalised
+        let normal: Vec3 = random_vector(&mut self.rng);
 
         let threshold = self.config.thickness;
         let fadeoff = self.config.fadeoff;
@@ -134,7 +133,7 @@ impl Effect for MovingPlane {
                 objects: vec![FrameObject {
                     object: Object::Plane {
                         normal,
-                        k: normal.dot(&point),
+                        k: normal.dot(point),
                         threshold,
                     },
                     colour,

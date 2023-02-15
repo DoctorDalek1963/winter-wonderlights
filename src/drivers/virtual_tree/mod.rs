@@ -82,10 +82,20 @@ fn listen_and_run_effect() {
                 msg = rx.recv() => {
                     match msg.expect("There should not be an error in receiving from the channel") {
                         ThreadMessage::RestartNew => {
+                            info!(
+                                "Restarting with new effect {:?}",
+                                unsafe { VIRTUAL_TREE_CONFIG.effect.map_or("None", |x| x.name()) }
+                            );
                             set_global_effect_config();
                             continue;
                         }
-                        ThreadMessage::RestartCurrent => continue,
+                        ThreadMessage::RestartCurrent => {
+                            info!(
+                                "Restarting current effect {:?}",
+                                unsafe { VIRTUAL_TREE_CONFIG.effect.map_or("None", |x| x.name()) }
+                            );
+                            continue;
+                        },
                     };
                 }
 
@@ -101,6 +111,8 @@ fn listen_and_run_effect() {
                         tokio::time::sleep(
                             Duration::from_millis(unsafe { VIRTUAL_TREE_CONFIG.loop_pause_time })
                         ).await;
+
+                        info!("Looping effect");
                     } else {
                         driver.display_frame(FrameType::Off);
 

@@ -1,7 +1,8 @@
 //! This module handles the inidividual objects in frames.
 
 use super::RGBArray;
-use crate::{gift_coords::COORDS, vecs::Vec3};
+use crate::gift_coords::COORDS;
+use glam::Vec3;
 use serde::{Deserialize, Serialize};
 use tracing::{instrument, trace};
 
@@ -21,12 +22,12 @@ pub struct FrameObject {
     /// than that will have a colour faded to the correct level.
     ///
     /// A negative fadeoff doesn't make any sense.
-    pub fadeoff: f64,
+    pub fadeoff: f32,
 }
 
 impl FrameObject {
     #[instrument(skip_all)]
-    pub(super) fn render_into_vec(&self, data: &mut Vec<RGBArray>) {
+    pub(super) fn render_into_vec(&self, data: &mut [RGBArray]) {
         match self.object {
             Object::Plane {
                 normal,
@@ -35,7 +36,7 @@ impl FrameObject {
             } => {
                 for (light, &point) in data.iter_mut().zip(COORDS.coords()) {
                     // Get the distance from this point to the plane
-                    let dist = f64::abs(normal.dot(&point.into()) - k) / normal.length();
+                    let dist = f32::abs(normal.dot(point.into()) - k) / normal.length();
                     assert!(
                         dist >= 0.,
                         "Distance from the point to the plane should never be negative"
@@ -54,9 +55,9 @@ impl FrameObject {
 
                         let [r, g, b] = self.colour;
                         *light = [
-                            (r as f64 * fade) as u8,
-                            (g as f64 * fade) as u8,
-                            (b as f64 * fade) as u8,
+                            (r as f32 * fade) as u8,
+                            (g as f32 * fade) as u8,
+                            (b as f32 * fade) as u8,
                         ];
                     }
                 }
@@ -74,10 +75,10 @@ pub enum Object {
         normal: Vec3,
 
         /// The result of dotting the direction vector with any point on the plane.
-        k: f64,
+        k: f32,
 
         /// The maximum distance from this object where lights will be counted as part of the
         /// object.
-        threshold: f64,
+        threshold: f32,
     },
 }

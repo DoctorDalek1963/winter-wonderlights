@@ -1,6 +1,8 @@
 //! This module provides functionality for specifiying and using 3D frames.
 
 use crate::gift_coords::COORDS;
+use glam::Vec3;
+use rand::Rng;
 use serde::{Deserialize, Serialize};
 use tracing::trace;
 
@@ -10,6 +12,11 @@ pub use self::object::{FrameObject, Object};
 
 /// An RGB colour.
 pub type RGBArray = [u8; 3];
+
+/// Generate a random `Vec3` with positive or negative elements, and normalize it.
+pub fn random_vector<R: Rng + ?Sized>(rng: &mut R) -> Vec3 {
+    (rng.gen::<Vec3>() - Vec3::new(0.5, 0.5, 0.5)).normalize()
+}
 
 /// A type of frame data.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -56,13 +63,12 @@ impl Frame3D {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::vecs::Vec3;
 
     #[test]
     fn to_raw_data_test() {
         let green_plane = FrameObject {
             object: Object::Plane {
-                normal: Vec3::new(1., 0.5, -3.5).normalise(),
+                normal: Vec3::new(1., 0.5, -3.5).normalize(),
                 k: -1.2354,
                 threshold: 0.15,
             },

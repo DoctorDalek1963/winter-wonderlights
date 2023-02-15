@@ -6,6 +6,9 @@
 //! and just write all the data to a log with tracing, as well as a driver to display the effects
 //! on a virtual tree, and a driver for real lights. All drivers except the debug one are locked
 //! behind crate features.
+//!
+//! For effect math and tree coordinates, the vertical axis is z. Bevy uses y as the vertical axis,
+//! but the conversion is handled in `drivers::virtual_tree`.
 
 #![feature(is_some_and)]
 #![feature(never_type)]
@@ -17,10 +20,9 @@ pub mod drivers;
 pub mod effects;
 pub mod frame;
 pub mod gift_coords;
-pub mod vecs;
 
-/// A point in 3D space with f64 values.
-pub type PointF = (f64, f64, f64);
+/// A point in 3D space with f32 values.
+pub type PointF = (f32, f32, f32);
 
 /// Asynchronously sleep for the specified duration and await it when running normally.
 ///
