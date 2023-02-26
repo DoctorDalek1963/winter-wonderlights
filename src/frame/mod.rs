@@ -43,6 +43,9 @@ pub struct Frame3D {
     /// An object later in the vec will override any object previous in the list. No blending of
     /// colours is performed.
     pub objects: Vec<FrameObject>,
+
+    /// Whether to blend objects together.
+    pub blend: bool,
 }
 
 impl Frame3D {
@@ -51,8 +54,43 @@ impl Frame3D {
         let mut data: Vec<RGBArray> = vec![[0, 0, 0]; COORDS.lights_num()];
         trace!(?data, "Before");
 
-        for frame_object in &self.objects {
-            frame_object.render_into_vec(&mut data);
+        if self.blend {
+            let total = self.objects.len() as f32;
+
+            data = self
+                .objects
+                .iter()
+
+                // Render the data into its own slice and convert all the u8s to f32s for later
+                .map(|f_obj| {
+                    let mut new_data = data.clone();
+                    f_obj.render_into_slice(&mut new_data);
+                    new_data
+                        .into_iter()
+                        // Divide by the total here to make the mean easier to calculate
+                        .map(|[r, g, b]| [r as f32 / total, g as f32 / total, b as f32 / total])
+                        .collect::<Vec<_>>()
+                })
+
+                // Sum all the data to get one Vec<[f32; 3]> where each element is the mean colour
+                // for that light
+                .fold(vec![[0., 0., 0.]; COORDS.lights_num()], |mut acc, v| {
+                    for i in 0..COORDS.lights_num() {
+                        acc[i][0] += v[i][0];
+                        acc[i][1] += v[i][1];
+                        acc[i][2] += v[i][2];
+                    }
+                    acc
+                })
+                .into_iter()
+
+                // Convert everything back to u8s
+                .map(|[r, g, b]| [r as u8, g as u8, b as u8])
+                .collect();
+        } else {
+            for frame_object in &self.objects {
+                frame_object.render_into_slice(&mut data);
+            }
         }
 
         trace!(?data, "After");
@@ -78,11 +116,12 @@ mod tests {
 
         let single_plane = Frame3D {
             objects: vec![green_plane],
+            blend: false,
         };
 
         insta::with_settings!({
             info => &single_plane,
-            description => "Rendering a single plane to raw data",
+            description => "Rendering a single plane to raw data with no blend",
             omit_expression => true,
         }, {
             insta::assert_ron_snapshot!(single_plane.to_raw_data());

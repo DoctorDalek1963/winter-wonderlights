@@ -139,6 +139,7 @@ impl Effect for MovingPlane {
                     colour,
                     fadeoff,
                 }],
+                blend: false,
             }));
 
             // We're going to sleep for 20ms every loop, which gives 50 fps. This means we want to

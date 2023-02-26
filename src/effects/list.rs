@@ -3,6 +3,7 @@
 use crate::{
     drivers::Driver,
     effects::{
+        aesthetic::LavaLamp,
         debug::{DebugBinaryIndex, DebugOneByOne},
         maths::MovingPlane,
         traits::{Effect, EffectConfig},
@@ -23,6 +24,15 @@ pub enum EffectList {
 
     /// See [`MovingPlane`].
     MovingPlane,
+
+    /// See [`LavaLamp`].
+    LavaLamp,
+}
+
+macro_rules! do_thing_on_effects {
+    ( $thing:ident ) => {
+        $thing!(DebugOneByOne, DebugBinaryIndex, MovingPlane, LavaLamp)
+    };
 }
 
 // NOTE: For these macros to work, we need an effect in scope with the same name as its
@@ -45,7 +55,7 @@ impl EffectList {
             };
         }
 
-        match_return_closures!(DebugOneByOne, DebugBinaryIndex, MovingPlane)
+        do_thing_on_effects!(match_return_closures)
     }
 
     /// Return the name of the selected effect.
@@ -61,7 +71,7 @@ impl EffectList {
             };
         }
 
-        match_return_names!(DebugOneByOne, DebugBinaryIndex, MovingPlane)
+        do_thing_on_effects!(match_return_names)
     }
 
     /// Return a trait object of the config for the given effect.
@@ -77,6 +87,6 @@ impl EffectList {
             };
         }
 
-        match_return_configs!(DebugOneByOne, DebugBinaryIndex, MovingPlane)
+        do_thing_on_effects!(match_return_configs)
     }
 }

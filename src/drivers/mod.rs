@@ -1,7 +1,7 @@
 //! This module provides functionality and implementations for different drivers.
 
 use crate::frame::FrameType;
-use tracing::info;
+use tracing::{info, instrument};
 
 #[cfg(feature = "virtual-tree")]
 mod virtual_tree;

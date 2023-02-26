@@ -1,0 +1,225 @@
+//! This module contains the lava lamp effect.
+
+use crate::{
+    drivers::Driver,
+    effects::{Effect, EffectConfig},
+    frame::{Frame3D, FrameObject, FrameType, Object, RGBArray},
+    gift_coords::COORDS,
+    sleep,
+};
+use async_trait::async_trait;
+use egui::{Align, Layout, RichText, Vec2};
+use glam::{IVec3, Vec3};
+use rand::{rngs::StdRng, Rng, SeedableRng};
+use serde::{Deserialize, Serialize};
+use std::time::Duration;
+use tracing::{debug, instrument};
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct Sphere {
+    centre: Vec3,
+    radius: f32,
+    colour_offset: IVec3,
+}
+
+impl Sphere {
+    fn get_colour(&self, base_colour: RGBArray) -> RGBArray {
+        let [r, g, b] = base_colour;
+        [
+            (r as i32 + self.colour_offset.x).clamp(0, 255) as u8,
+            (g as i32 + self.colour_offset.y).clamp(0, 255) as u8,
+            (b as i32 + self.colour_offset.z).clamp(0, 255) as u8,
+        ]
+    }
+
+    fn into_frame_object(self, base_colour: RGBArray, fadeoff: f32) -> FrameObject {
+        FrameObject {
+            object: Object::Sphere {
+                center: self.centre,
+                radius: self.radius,
+            },
+            colour: self.get_colour(base_colour),
+            fadeoff,
+        }
+    }
+}
+
+/// The config for the lava lamp effect.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct LavaLampConfig {
+    /// The base colour of the spheres.
+    base_colour: RGBArray,
+
+    /// The maximum RBG colour deviation from the base.
+    deviation: u8,
+
+    /// The maximum distance where colour drops to zero.
+    ///
+    /// See [`crate::frame::FrameObject::fadeoff`].
+    fadeoff: f32,
+}
+
+impl Default for LavaLampConfig {
+    fn default() -> Self {
+        Self {
+            base_colour: [91, 6, 226],
+            deviation: 10,
+            fadeoff: 0.5,
+        }
+    }
+}
+
+impl EffectConfig for LavaLampConfig {
+    fn render_options_gui(&mut self, _ctx: &egui::Context, ui: &mut egui::Ui) {
+        ui.separator();
+        ui.label(RichText::new("LavaLamp config").heading());
+
+        let mut config_changed = false;
+
+        config_changed |= ui
+            .add(egui::Slider::new(&mut self.fadeoff, 0.0..=2.5).text("Fadeoff"))
+            .changed();
+        config_changed |= ui
+            .add(egui::Slider::new(&mut self.deviation, 1..=255).text("Colour deviation"))
+            .changed();
+
+        ui.allocate_ui_with_layout(
+            Vec2::splat(0.),
+            Layout::left_to_right(Align::Center),
+            |ui| {
+                ui.label("Base colour: ");
+                config_changed |= ui.color_edit_button_srgb(&mut self.base_colour).changed();
+            },
+        );
+
+        if ui.button("Reset to defaults").clicked() {
+            *self = Self::default();
+            config_changed = true;
+        }
+
+        if config_changed {
+            self.save_to_file(&LavaLamp::config_filename());
+        }
+    }
+}
+
+/// Display a lava lamp-like effect on the tree.
+pub struct LavaLamp {
+    /// The config for this effect.
+    config: LavaLampConfig,
+
+    /// The RNG generator to use for randomness.
+    ///
+    /// This is seeded with a known value for testing purposes.
+    rng: StdRng,
+}
+
+impl Default for LavaLamp {
+    #[cfg(test)]
+    fn default() -> Self {
+        Self {
+            config: LavaLampConfig::default(),
+            rng: StdRng::seed_from_u64(12345),
+        }
+    }
+
+    #[cfg(not(test))]
+    fn default() -> Self {
+        Self {
+            config: LavaLampConfig::default(),
+            rng: StdRng::from_entropy(),
+        }
+    }
+}
+
+#[async_trait]
+impl Effect for LavaLamp {
+    type Config = LavaLampConfig;
+
+    fn effect_name() -> &'static str
+    where
+        Self: Sized,
+    {
+        "LavaLamp"
+    }
+
+    #[instrument(skip_all)]
+    async fn run(mut self, driver: &mut dyn Driver) {
+        // Spawn some spheres (number in config?) and gradually change their sizes and colours over
+        // time while moving them all up and down at random speeds
+
+        let mut spheres: Vec<Sphere> = vec![];
+        for _ in 0..5 {
+            spheres.push(Sphere {
+                centre: Vec3 {
+                    x: self.rng.gen_range(-1.0..1.0),
+                    y: self.rng.gen_range(-1.0..1.0),
+                    z: self.rng.gen_range(0.0..COORDS.max_z()),
+                },
+                radius: self.rng.gen_range(0.5..2.0),
+                colour_offset: {
+                    let range = -(self.config.deviation as i32)..(self.config.deviation as i32);
+                    IVec3 {
+                        x: self.rng.gen_range(range.clone()),
+                        y: self.rng.gen_range(range.clone()),
+                        z: self.rng.gen_range(range),
+                    }
+                },
+            });
+        }
+        debug!(?spheres);
+
+        #[cfg(any(test, feature = "bench"))]
+        let mut counter: u8 = 0;
+
+        loop {
+            let sphere_frame_objects = spheres
+                .iter()
+                .map(|&sphere| {
+                    sphere.into_frame_object(self.config.base_colour, self.config.fadeoff)
+                })
+                .collect();
+
+            driver.display_frame(FrameType::Frame3D(Frame3D {
+                objects: sphere_frame_objects,
+                blend: true,
+            }));
+
+            sleep!(Duration::from_millis(50));
+
+            #[cfg(any(test, feature = "bench"))]
+            {
+                counter += 1;
+                if counter > 100 {
+                    break;
+                }
+            }
+        }
+    }
+
+    fn save_to_file(&self) {
+        self.config.save_to_file(&Self::config_filename());
+    }
+
+    fn from_file() -> Self {
+        Self {
+            config: Self::Config::from_file(&Self::config_filename()),
+            ..Self::default()
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::drivers::TestDriver;
+
+    #[tokio::test]
+    #[ignore = "TODO: Moving the spheres has not been implemented yet"]
+    async fn lava_lamp_test() {
+        let mut driver = TestDriver::new(10);
+        LavaLamp::default().run(&mut driver).await;
+
+        insta::assert_ron_snapshot!(driver.data);
+    }
+}
