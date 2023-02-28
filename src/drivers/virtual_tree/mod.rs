@@ -164,7 +164,7 @@ pub fn run_virtual_tree() -> ! {
     // Winit terminates the program after the event loop ends, so we should never get here. If we
     // do, then we want to terminate the program manually. We also want this function to return `!`
     tracing::error!(concat!(
-        "Winit should terminate the program when the eventloop ends, but it hasn't.",
+        "Winit should terminate the program when the eventloop ends, but it hasn't. ",
         "Now terminating the program."
     ));
     std::process::exit(0);
