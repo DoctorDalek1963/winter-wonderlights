@@ -3,7 +3,7 @@
 use crate::{
     drivers::Driver,
     effects::{Effect, EffectConfig},
-    frame::{Frame3D, FrameObject, FrameType, Object, RGBArray},
+    frame::{random_vector, Frame3D, FrameObject, FrameType, Object, RGBArray},
     gift_coords::COORDS,
     sleep,
 };
@@ -15,14 +15,23 @@ use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use tracing::{debug, instrument};
 
+/// A simple sphere used to keep track of the spheres in the lava lamp.
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct Sphere {
+    /// The position of the centre of the sphere.
     centre: Vec3,
+
+    // The radius of the sphere.
     radius: f32,
+
+    /// The colour offset of this sphere. Added to the base colour to get the colour of the sphere.
     colour_offset: IVec3,
+
+    movement_direction: Vec3,
 }
 
 impl Sphere {
+    /// Compute the colour of the sphere from its colour offset and the given base colour.
     fn get_colour(&self, base_colour: RGBArray) -> RGBArray {
         let [r, g, b] = base_colour;
         [
@@ -32,6 +41,7 @@ impl Sphere {
         ]
     }
 
+    /// Create a frame object from the sphere.
     fn into_frame_object(self, base_colour: RGBArray, fadeoff: f32) -> FrameObject {
         FrameObject {
             object: Object::Sphere {
@@ -50,8 +60,8 @@ pub struct LavaLampConfig {
     /// The base colour of the spheres.
     base_colour: RGBArray,
 
-    /// The maximum RBG colour deviation from the base.
-    deviation: u8,
+    /// The maximum RBG colour variation from the base.
+    variation: u8,
 
     /// The maximum distance where colour drops to zero.
     ///
@@ -62,9 +72,9 @@ pub struct LavaLampConfig {
 impl Default for LavaLampConfig {
     fn default() -> Self {
         Self {
-            base_colour: [91, 6, 226],
-            deviation: 10,
-            fadeoff: 0.5,
+            base_colour: [243, 83, 255],
+            variation: 20,
+            fadeoff: 0.3,
         }
     }
 }
@@ -77,10 +87,10 @@ impl EffectConfig for LavaLampConfig {
         let mut config_changed = false;
 
         config_changed |= ui
-            .add(egui::Slider::new(&mut self.fadeoff, 0.0..=2.5).text("Fadeoff"))
+            .add(egui::Slider::new(&mut self.fadeoff, 0.0..=1.5).text("Fadeoff"))
             .changed();
         config_changed |= ui
-            .add(egui::Slider::new(&mut self.deviation, 1..=255).text("Colour deviation"))
+            .add(egui::Slider::new(&mut self.variation, 1..=255).text("Colour variation"))
             .changed();
 
         ui.allocate_ui_with_layout(
@@ -156,15 +166,16 @@ impl Effect for LavaLamp {
                     y: self.rng.gen_range(-1.0..1.0),
                     z: self.rng.gen_range(0.0..COORDS.max_z()),
                 },
-                radius: self.rng.gen_range(0.5..2.0),
+                radius: self.rng.gen_range(0.25..2.0),
                 colour_offset: {
-                    let range = -(self.config.deviation as i32)..(self.config.deviation as i32);
+                    let range = -(self.config.variation as i32)..(self.config.variation as i32);
                     IVec3 {
                         x: self.rng.gen_range(range.clone()),
                         y: self.rng.gen_range(range.clone()),
                         z: self.rng.gen_range(range),
                     }
                 },
+                movement_direction: random_vector(&mut self.rng),
             });
         }
         debug!(?spheres);
@@ -185,7 +196,20 @@ impl Effect for LavaLamp {
                 blend: true,
             }));
 
-            sleep!(Duration::from_millis(50));
+            for sphere in spheres.iter_mut() {
+                sphere.centre += 0.05 * sphere.movement_direction;
+                sphere.movement_direction =
+                    (sphere.movement_direction + 0.01 * random_vector(&mut self.rng)).normalize();
+
+                while !COORDS
+                    .is_within_bounding_box((sphere.centre + sphere.movement_direction).into())
+                {
+                    sphere.movement_direction =
+                        (sphere.movement_direction + random_vector(&mut self.rng)).normalize();
+                }
+            }
+
+            sleep!(Duration::from_millis(100));
 
             #[cfg(any(test, feature = "bench"))]
             {
@@ -215,7 +239,6 @@ mod tests {
     use crate::drivers::TestDriver;
 
     #[tokio::test]
-    #[ignore = "TODO: Moving the spheres has not been implemented yet"]
     async fn lava_lamp_test() {
         let mut driver = TestDriver::new(10);
         LavaLamp::default().run(&mut driver).await;
