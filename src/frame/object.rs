@@ -26,15 +26,15 @@ pub struct FrameObject {
 }
 
 impl FrameObject {
-    #[instrument(skip_all)]
-    pub(super) fn render_into_vec(&self, data: &mut [RGBArray]) {
+    #[instrument(skip(data))]
+    pub(super) fn render_into_slice(&self, data: &mut [RGBArray]) {
         match self.object {
             Object::Plane {
                 normal,
                 k,
                 threshold,
             } => {
-                for (light, &point) in data.iter_mut().zip(COORDS.coords()) {
+                for (light_colour, &point) in data.iter_mut().zip(COORDS.coords()) {
                     // Get the distance from this point to the plane
                     let dist = f32::abs(normal.dot(point.into()) - k) / normal.length();
                     assert!(
@@ -45,24 +45,52 @@ impl FrameObject {
 
                     // If distance is less than the threshold, then it's part of the plane
                     if dist <= threshold {
-                        *light = self.colour;
+                        *light_colour = self.colour;
 
                     // If the distance is between the threshold and the fadeoff, then it must be
                     // coloured accordingly
                     } else if dist > threshold && dist <= threshold + self.fadeoff {
-                        let fade = 1. - (dist - threshold) / self.fadeoff;
-                        assert!(fade >= 0. && fade <= 1., "Fade should always be in [0, 1]");
+                        self.set_light_colour_by_fade(dist - threshold, light_colour);
+                    }
+                }
+            }
 
-                        let [r, g, b] = self.colour;
-                        *light = [
-                            (r as f32 * fade) as u8,
-                            (g as f32 * fade) as u8,
-                            (b as f32 * fade) as u8,
-                        ];
+            Object::Sphere { center, radius } => {
+                for (light_colour, &point) in data.iter_mut().zip(COORDS.coords()) {
+                    // Distance from point to center
+                    let dist = {
+                        let dx = point.0 - center.x;
+                        let dy = point.1 - center.y;
+                        let dz = point.2 - center.z;
+                        f32::sqrt(dx * dx + dy * dy + dz * dz)
+                    };
+                    trace!(?point, ?dist, "Distance from point to center");
+
+                    if dist <= radius {
+                        *light_colour = self.colour;
+                    } else if dist > radius && dist <= radius + self.fadeoff {
+                        self.set_light_colour_by_fade(dist - radius, light_colour);
                     }
                 }
             }
         }
+    }
+
+    /// Work out the amount to fade (in [0, 1]) given a distance into the fade zone.
+    fn get_fade(&self, distance: f32) -> f32 {
+        (1. - distance / self.fadeoff).clamp(0., 1.)
+    }
+
+    /// Set the light colour according to the appropriate fade off, given a distance into the fade
+    /// zone and a mut reference to the colour to be changed.
+    fn set_light_colour_by_fade(&self, distance: f32, light_colour: &mut RGBArray) {
+        let fade = self.get_fade(distance);
+        let [r, g, b] = self.colour;
+        *light_colour = [
+            (r as f32 * fade) as u8,
+            (g as f32 * fade) as u8,
+            (b as f32 * fade) as u8,
+        ];
     }
 }
 
@@ -80,5 +108,14 @@ pub enum Object {
         /// The maximum distance from this object where lights will be counted as part of the
         /// object.
         threshold: f32,
+    },
+
+    /// A sphere with a center and radius.
+    Sphere {
+        /// The coordinates of the center of the sphere.
+        center: Vec3,
+
+        /// The radius of the sphere.
+        radius: f32,
     },
 }

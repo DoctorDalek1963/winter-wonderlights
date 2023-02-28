@@ -128,19 +128,19 @@ impl GIFTCoords {
     }
 
     /// The vec of coordinates themselves.
-    pub fn coords(&self) -> &Vec<PointF> {
+    pub const fn coords(&self) -> &Vec<PointF> {
         &self.coords
     }
 
     /// The maximum z value.
     ///
     /// The minimum z value is 0, and the minimum and maximum x and y values and -1 and 1.
-    pub fn max_z(&self) -> f32 {
+    pub const fn max_z(&self) -> f32 {
         self.max_z
     }
 
     /// The total number of lights.
-    pub fn lights_num(&self) -> usize {
+    pub const fn lights_num(&self) -> usize {
         self.lights_num
     }
 }
