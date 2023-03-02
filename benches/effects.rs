@@ -78,7 +78,7 @@ fn debug_effects(c: &mut Criterion) {
         };
     }
 
-    benchmark_effects!(DebugOneByOne, DebugBinaryIndex, MovingPlane);
+    benchmark_effects!(DebugOneByOne, DebugBinaryIndex, MovingPlane, LavaLamp);
 }
 
 criterion_group!(effects, debug_effects);
