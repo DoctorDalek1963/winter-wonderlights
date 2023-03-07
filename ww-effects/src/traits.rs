@@ -29,7 +29,7 @@ pub trait EffectConfig {
     ///
     /// ```
     /// # use egui::{Context, RichText, Ui};
-    /// # use winter_wonderlights::effects::EffectConfig;
+    /// # use ww_effects::EffectConfig;
     /// # struct ParentEffect;
     /// # impl ParentEffect { fn config_filename() -> String { String::new() } }
     /// # #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
@@ -103,7 +103,11 @@ pub trait Effect: Default {
     where
         Self: Sized,
     {
-        format!("config/{}.ron", Self::effect_name().to_snake_case())
+        format!(
+            "{}/config/{}.ron",
+            env!("DATA_DIR"),
+            Self::effect_name().to_snake_case()
+        )
     }
 
     /// Return a copy of this effect's config.
@@ -123,7 +127,8 @@ pub trait Effect: Default {
     /// `Self::config_filename()` and the internal config data.
     ///
     /// ```
-    /// # use winter_wonderlights::{drivers::Driver, effects::{Effect, EffectConfig}};
+    /// # use ww_driver_trait::Driver;
+    /// # use ww_effects::{Effect, EffectConfig};
     /// # #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
     /// # struct DummyConfig;
     /// # impl EffectConfig for DummyConfig {}
@@ -149,8 +154,8 @@ pub trait Effect: Default {
     /// The recommended implementation is shown below:
     ///
     /// ```
-    /// # use winter_wonderlights::{drivers::Driver,
-    /// #     effects::{Effect, EffectConfig, save_effect_config_to_file}};
+    /// # use ww_driver_trait::Driver;
+    /// # use ww_effects::{Effect, EffectConfig, save_effect_config_to_file};
     /// # #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
     /// # struct DummyConfig;
     /// # impl EffectConfig for DummyConfig {}

@@ -1,14 +1,14 @@
 ---
-source: src/frame/mod.rs
-description: Rendering a single plane to raw data
+source: ww-frame/src/lib.rs
+description: Rendering a single plane to raw data with no blend
 info:
   objects:
     - object:
         Plane:
           normal:
-            x: 0.2721655269759087
-            y: 0.13608276348795434
-            z: -0.9525793444156804
+            - 0.27216554
+            - 0.13608277
+            - -0.9525794
           k: -1.2354
           threshold: 0.15
       colour:
@@ -16,6 +16,7 @@ info:
         - 200
         - 16
       fadeoff: 0.14
+  blend: false
 ---
 [
   (0, 0, 0),

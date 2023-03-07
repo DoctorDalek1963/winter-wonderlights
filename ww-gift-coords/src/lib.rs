@@ -21,7 +21,7 @@ pub type PointF = (f32, f32, f32);
 lazy_static! {
     /// The GIFTCoords loaded from `coords.gift`.
     pub static ref COORDS: GIFTCoords =
-        GIFTCoords::from_file("coords.gift").expect("We need the coordinates to build the tree");
+        GIFTCoords::from_file(concat!(env!("DATA_DIR"), "/coords.gift")).expect("We need the coordinates to build the tree");
 }
 
 /// A simple struct to hold and manage GIFT coordinates. See the module documentation for details.
@@ -226,7 +226,10 @@ mod tests {
 
     #[test]
     fn from_file_test() {
-        assert_eq!(GIFTCoords::from_file("coords.gift").unwrap(), gift_coords());
+        assert_eq!(
+            GIFTCoords::from_file(concat!(env!("DATA_DIR"), "/coords.gift")).unwrap(),
+            gift_coords()
+        );
     }
 
     #[test]

@@ -1,5 +1,5 @@
 ---
-source: src/effects/aesthetic/lava_lamp.rs
+source: ww-effects/src/aesthetic/lava_lamp.rs
 expression: driver.data
 ---
 [

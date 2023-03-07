@@ -161,7 +161,7 @@ impl Effect for MovingPlane {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::drivers::TestDriver;
+    use ww_driver_impl::TestDriver;
 
     #[tokio::test]
     async fn moving_plane_test() {

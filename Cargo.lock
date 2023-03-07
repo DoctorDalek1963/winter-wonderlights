@@ -3690,12 +3690,14 @@ dependencies = [
  "egui",
  "glam",
  "heck",
+ "insta",
  "rand",
  "ron 0.8.0",
  "serde",
  "strum",
  "tokio",
  "tracing",
+ "ww-driver-impl",
  "ww-driver-trait",
  "ww-frame",
  "ww-gift-coords",
@@ -3706,6 +3708,7 @@ name = "ww-frame"
 version = "0.1.0-dev"
 dependencies = [
  "glam",
+ "insta",
  "rand",
  "serde",
  "tracing",
@@ -3718,6 +3721,7 @@ version = "0.1.0-dev"
 dependencies = [
  "bincode",
  "color-eyre",
+ "float-cmp",
  "lazy_static",
  "serde",
 ]

@@ -1,3 +1,5 @@
+set dotenv-load := true
+
 # list available recipes
 _default:
 	@just --list
@@ -22,5 +24,5 @@ run-virtual log_level='info':
 
 # run the tests in debug and release mode
 test:
-	cargo insta test --unreferenced warn --all-features
-	cargo insta test --unreferenced warn --all-features --release
+	cargo insta test --unreferenced warn --all-features --workspace
+	cargo insta test --unreferenced warn --all-features --workspace --release

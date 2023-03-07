@@ -28,3 +28,7 @@ ww-gift-coords = { path = "../ww-gift-coords", optional = true }
 [features]
 default = ["impl"]
 impl = ["dep:glam", "dep:rand", "dep:tracing", "dep:ww-frame", "dep:ww-gift-coords"]
+
+[dev-dependencies]
+insta = { version = "1.26.0", features = ["ron"] }
+ww-driver-impl = { path = "../ww-driver-impl", features = ["test"] }

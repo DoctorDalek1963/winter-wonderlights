@@ -283,7 +283,7 @@ impl Effect for DebugBinaryIndex {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::drivers::TestDriver;
+    use ww_driver_impl::TestDriver;
 
     #[tokio::test]
     async fn debug_one_by_one_test() {

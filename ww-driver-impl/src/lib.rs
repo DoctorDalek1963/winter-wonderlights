@@ -30,13 +30,13 @@ impl Driver for DebugDriver {
 }
 
 /// A test driver that stores all the frames it receives so that they can be tested.
-#[cfg(test)]
+#[cfg(feature = "test")]
 pub struct TestDriver {
     pub lights_num: usize,
     pub data: Vec<FrameType>,
 }
 
-#[cfg(test)]
+#[cfg(feature = "test")]
 impl TestDriver {
     pub fn new(lights_num: usize) -> Self {
         Self {
@@ -46,7 +46,7 @@ impl TestDriver {
     }
 }
 
-#[cfg(test)]
+#[cfg(feature = "test")]
 impl Driver for TestDriver {
     fn display_frame(&mut self, frame: FrameType) {
         self.data.push(frame);

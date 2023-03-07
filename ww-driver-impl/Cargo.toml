@@ -28,4 +28,5 @@ ww-effects = { path = "../ww-effects", optional = true }
 ww-gift-coords = { path = "../ww-gift-coords", optional = true }
 
 [features]
+test = []
 virtual-tree = ["dep:bevy", "dep:bevy_egui", "dep:egui", "dep:lazy_static", "dep:rand", "dep:ron", "dep:serde", "dep:smooth-bevy-cameras", "dep:strum", "dep:tokio", "dep:ww-effects", "dep:ww-gift-coords"]
