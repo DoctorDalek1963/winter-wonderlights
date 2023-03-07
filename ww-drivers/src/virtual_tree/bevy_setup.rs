@@ -1,10 +1,10 @@
 //! This module handles things to setup bevy for the virtual tree.
 
-use crate::gift_coords::COORDS;
 use bevy::{core_pipeline::bloom::BloomSettings, prelude::*};
 use rand::{thread_rng, Rng};
 use smooth_bevy_cameras::controllers::orbit::{OrbitCameraBundle, OrbitCameraController};
 use std::f32::consts::PI;
+use ww_gift_coords::COORDS;
 
 /// A simple Bevy component to record the index of this light along the chain of lights.
 #[derive(Component, Clone, Copy, Debug)]

@@ -1,18 +1,15 @@
 //! This module contains effects that deal with planes.
 
-use crate::{
-    drivers::Driver,
-    effects::{Effect, EffectConfig},
-    frame::{random_vector, Frame3D, FrameObject, Object, RGBArray},
-    gift_coords::COORDS,
-    sleep,
-};
+use crate::{sleep, Effect, EffectConfig};
 use async_trait::async_trait;
 use egui::RichText;
 use glam::Vec3;
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
+use ww_drivers::Driver;
+use ww_frame::{random_vector, Frame3D, FrameObject, Object, RGBArray};
+use ww_gift_coords::COORDS;
 
 /// The config for the moving plane effect; includes speed.
 #[derive(Clone, Debug, Serialize, Deserialize)]

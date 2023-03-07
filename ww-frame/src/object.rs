@@ -1,10 +1,10 @@
 //! This module handles the inidividual objects in frames.
 
 use super::RGBArray;
-use crate::gift_coords::COORDS;
 use glam::Vec3;
 use serde::{Deserialize, Serialize};
 use tracing::{instrument, trace};
+use ww_gift_coords::COORDS;
 
 /// A single object in the frame, with associated colour and fadeoff.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

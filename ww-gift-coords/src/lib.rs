@@ -10,11 +10,13 @@
 //! x and y values. This means th minimum z values is 0, and the maximum z value depends on the
 //! other coordinates.
 
-use crate::PointF;
 use color_eyre::Result;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::fs;
+
+/// A point in 3D space with f32 values.
+pub type PointF = (f32, f32, f32);
 
 lazy_static! {
     /// The GIFTCoords loaded from `coords.gift`.

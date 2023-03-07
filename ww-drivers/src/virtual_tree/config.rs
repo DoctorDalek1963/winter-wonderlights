@@ -1,8 +1,8 @@
 //! This module handles configuration for the virtual tree.
 
-use crate::effects::EffectList;
 use serde::{Deserialize, Serialize};
 use std::fs;
+use ww_effects::EffectList;
 
 /// The configuration of the virtual tree.
 #[derive(Serialize, Deserialize)]

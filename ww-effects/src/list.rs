@@ -1,16 +1,14 @@
 //! This module handles the [`EffectList`], which contains an entry for each possible effect.
 
 use crate::{
-    drivers::Driver,
-    effects::{
-        aesthetic::LavaLamp,
-        debug::{DebugBinaryIndex, DebugOneByOne},
-        maths::MovingPlane,
-        traits::{Effect, EffectConfig},
-    },
+    aesthetic::LavaLamp,
+    debug::{DebugBinaryIndex, DebugOneByOne},
+    maths::MovingPlane,
+    traits::{Effect, EffectConfig},
 };
 use serde::{Deserialize, Serialize};
 use std::{future::Future, pin::Pin};
+use ww_drivers::Driver;
 
 /// An enum to list all the usable effects. If an effect is not accessible via this enum, then it
 /// should not be used.

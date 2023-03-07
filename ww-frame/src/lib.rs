@@ -1,10 +1,10 @@
 //! This module provides functionality for specifiying and using 3D frames.
 
-use crate::gift_coords::COORDS;
 use glam::Vec3;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use tracing::trace;
+use ww_gift_coords::COORDS;
 
 mod object;
 

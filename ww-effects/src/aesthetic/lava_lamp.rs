@@ -1,12 +1,6 @@
 //! This module contains the lava lamp effect.
 
-use crate::{
-    drivers::Driver,
-    effects::{Effect, EffectConfig},
-    frame::{random_vector, Frame3D, FrameObject, FrameType, Object, RGBArray},
-    gift_coords::COORDS,
-    sleep,
-};
+use crate::{sleep, Effect, EffectConfig};
 use async_trait::async_trait;
 use egui::{Align, Layout, RichText, Vec2};
 use glam::{IVec3, Vec3};
@@ -14,6 +8,9 @@ use rand::{rngs::StdRng, Rng, SeedableRng};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use tracing::{debug, instrument};
+use ww_drivers::Driver;
+use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object, RGBArray};
+use ww_gift_coords::COORDS;
 
 /// A simple sphere used to keep track of the spheres in the lava lamp.
 #[derive(Clone, Copy, Debug, PartialEq)]
