@@ -1,4 +1,4 @@
-//! This module provides functionality for specifiying and using 3D frames.
+//! This crate provides functionality for specifiying and using 3D frames.
 
 use glam::Vec3;
 use rand::Rng;

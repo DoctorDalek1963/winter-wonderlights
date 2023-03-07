@@ -1,6 +1,11 @@
-//! This module provides functionality and implementations for different drivers.
+//! This crate implements various drivers. It has a [`DebugDriver`] available for all builds, and
+//! other drivers available behind feature flags.
 
-use tracing::{info, instrument};
+#![feature(never_type)]
+#![feature(is_some_and)]
+
+use tracing::info;
+use ww_driver_trait::Driver;
 use ww_frame::FrameType;
 
 #[cfg(feature = "virtual-tree")]
@@ -8,20 +13,6 @@ mod virtual_tree;
 
 #[cfg(feature = "virtual-tree")]
 pub use self::virtual_tree::run_virtual_tree;
-
-/// The trait implemented by all drivers.
-pub trait Driver: Send {
-    /// Display the given frame using this driver.
-    fn display_frame(&mut self, frame: FrameType);
-
-    /// Return the number of lights on the chain.
-    fn get_lights_count(&self) -> usize;
-
-    /// Clear the display by rendering [`FrameType::Off`].
-    fn clear(&mut self) {
-        self.display_frame(FrameType::Off);
-    }
-}
 
 /// A simple debug driver that just logs all its input with tracing at the info level.
 pub struct DebugDriver {

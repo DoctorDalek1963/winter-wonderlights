@@ -1,21 +1,15 @@
-//! This crate is designed to display 3D effects on a Christmas tree in real time.
+//! This crate is designed to display 3D effects on a Christmas tree in real time. All
+//! functionality is split into other crates; this one just collects them into one library.
 //!
-//! The effects are all contained in the [`effects`] module.
-//!
-//! The drivers are all contained in the [`drivers`] module. These include a driver to debug effects
-//! and just write all the data to a log with tracing, as well as a driver to display the effects
-//! on a virtual tree, and a driver for real lights. All drivers except the debug one are locked
-//! behind crate features.
-//!
-//! For effect math and tree coordinates, the vertical axis is z. Bevy uses y as the vertical axis,
-//! but the conversion is handled in `drivers::virtual_tree`.
+//! For effect maths and tree coordinates, the vertical axis is z.
 
 #![feature(is_some_and)]
 #![feature(never_type)]
 #![feature(stmt_expr_attributes)]
 
 pub mod drivers {
-    pub use ww_drivers::*;
+    pub use ww_driver_impl::*;
+    pub use ww_driver_trait::*;
 }
 pub mod effects {
     pub use ww_effects::*;

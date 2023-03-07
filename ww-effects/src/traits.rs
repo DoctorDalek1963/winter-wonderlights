@@ -5,7 +5,7 @@ use egui::{Context, Ui};
 use heck::ToSnakeCase;
 use serde::{Deserialize, Serialize};
 use std::fs;
-use ww_drivers::Driver;
+use ww_driver_trait::Driver;
 
 /// Save the given effect config to its appropriate config file.
 pub fn save_effect_config_to_file<T>(filename: &str, config: &T)

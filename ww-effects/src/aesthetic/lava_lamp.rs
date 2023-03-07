@@ -8,7 +8,7 @@ use rand::{rngs::StdRng, Rng, SeedableRng};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use tracing::{debug, instrument};
-use ww_drivers::Driver;
+use ww_driver_trait::Driver;
 use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object, RGBArray};
 use ww_gift_coords::COORDS;
 
@@ -62,7 +62,7 @@ pub struct LavaLampConfig {
 
     /// The maximum distance where colour drops to zero.
     ///
-    /// See [`crate::frame::FrameObject::fadeoff`].
+    /// See [`ww_frame::FrameObject::fadeoff`].
     fadeoff: f32,
 }
 

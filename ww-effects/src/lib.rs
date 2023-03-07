@@ -1,4 +1,5 @@
-//! This module provides effects, along with the traits and functions to go with them.
+//! This crate provides traits and implementations for various effects, as well as some utility
+//! functions.
 
 // Duration is imported and unused for tests and benchmarks because of the sleep macro
 #![cfg_attr(any(test, feature = "bench"), allow(unused_imports))]

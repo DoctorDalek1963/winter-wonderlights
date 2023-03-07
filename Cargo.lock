@@ -3644,18 +3644,23 @@ dependencies = [
 name = "winter-wonderlights"
 version = "0.1.0-dev"
 dependencies = [
- "async-trait",
+ "criterion",
+ "float-cmp",
+ "insta",
+ "ww-driver-impl",
+ "ww-driver-trait",
+ "ww-effects",
+ "ww-frame",
+ "ww-gift-coords",
+]
+
+[[package]]
+name = "ww-driver-impl"
+version = "0.1.0-dev"
+dependencies = [
  "bevy",
  "bevy_egui",
- "bincode",
- "cfg-if",
- "color-eyre",
- "criterion",
  "egui",
- "float-cmp",
- "glam",
- "heck",
- "insta",
  "lazy_static",
  "rand",
  "ron 0.8.0",
@@ -3664,7 +3669,66 @@ dependencies = [
  "strum",
  "tokio",
  "tracing",
+ "ww-driver-trait",
+ "ww-effects",
+ "ww-frame",
+ "ww-gift-coords",
+]
+
+[[package]]
+name = "ww-driver-trait"
+version = "0.1.0-dev"
+dependencies = [
+ "ww-frame",
+]
+
+[[package]]
+name = "ww-effects"
+version = "0.1.0-dev"
+dependencies = [
+ "async-trait",
+ "egui",
+ "glam",
+ "heck",
+ "rand",
+ "ron 0.8.0",
+ "serde",
+ "strum",
+ "tokio",
+ "tracing",
+ "ww-driver-trait",
+ "ww-frame",
+ "ww-gift-coords",
+]
+
+[[package]]
+name = "ww-frame"
+version = "0.1.0-dev"
+dependencies = [
+ "glam",
+ "rand",
+ "serde",
+ "tracing",
+ "ww-gift-coords",
+]
+
+[[package]]
+name = "ww-gift-coords"
+version = "0.1.0-dev"
+dependencies = [
+ "bincode",
+ "color-eyre",
+ "lazy_static",
+ "serde",
+]
+
+[[package]]
+name = "ww-server"
+version = "0.1.0-dev"
+dependencies = [
+ "cfg-if",
  "tracing-subscriber",
+ "winter-wonderlights",
 ]
 
 [[package]]

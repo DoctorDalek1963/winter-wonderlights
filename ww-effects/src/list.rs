@@ -8,7 +8,7 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 use std::{future::Future, pin::Pin};
-use ww_drivers::Driver;
+use ww_driver_trait::Driver;
 
 /// An enum to list all the usable effects. If an effect is not accessible via this enum, then it
 /// should not be used.

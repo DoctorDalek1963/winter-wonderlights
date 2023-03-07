@@ -1,4 +1,4 @@
-//! This module handles everything to do with GIFT coordinates.
+//! This crate handles everything to do with GIFT coordinates.
 //!
 //! The GIFT (short for Geographic Information For Trees) coordinate system is one in which each
 //! light on the tree is given a 3D coordinate with `f64` components. These coordinates are

@@ -17,7 +17,8 @@ doc-build open='':
 
 # run the virtual tree with info level logs
 run-virtual log_level='info':
-	RUST_LOG=none,winter_wonderlights={{log_level}} cargo run --release --features virtual-tree
+	cd {{justfile_directory()}}/ww-server && cargo build --release --features virtual-tree
+	RUST_LOG=none,winter_wonderlights={{log_level}} {{justfile_directory()}}/target/release/ww-server
 
 # run the tests in debug and release mode
 test:

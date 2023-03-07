@@ -7,8 +7,8 @@ use glam::Vec3;
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
-use ww_drivers::Driver;
-use ww_frame::{random_vector, Frame3D, FrameObject, Object, RGBArray};
+use ww_driver_trait::Driver;
+use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object, RGBArray};
 use ww_gift_coords::COORDS;
 
 /// The config for the moving plane effect; includes speed.
@@ -22,7 +22,7 @@ pub struct MovingPlaneConfig {
 
     /// The maximum distance where colour drops to zero.
     ///
-    /// See [`crate::frame::FrameObject::fadeoff`].
+    /// See [`ww_frame::FrameObject::fadeoff`].
     fadeoff: f32,
 }
 
@@ -126,7 +126,7 @@ impl Effect for MovingPlane {
         };
 
         while COORDS.distance_from_bounding_box(point.into()) < dist_from_bb {
-            driver.display_frame(crate::frame::FrameType::Frame3D(Frame3D {
+            driver.display_frame(FrameType::Frame3D(Frame3D {
                 objects: vec![FrameObject {
                     object: Object::Plane {
                         normal,

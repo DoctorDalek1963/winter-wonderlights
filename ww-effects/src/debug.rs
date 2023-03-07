@@ -5,7 +5,7 @@ use async_trait::async_trait;
 use egui::{Align, Context, Layout, RichText, Ui, Vec2};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
-use ww_drivers::Driver;
+use ww_driver_trait::Driver;
 use ww_frame::{FrameType, RGBArray};
 
 /// The config for the one-by-one effect; includes timing and the color.

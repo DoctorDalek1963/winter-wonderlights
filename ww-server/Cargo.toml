@@ -9,4 +9,9 @@ repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
 license = "GPL-3.0"
 
 [dependencies]
+cfg-if = "1.0.0"
+tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
 winter-wonderlights = { path = "../" }
+
+[features]
+virtual-tree = ["winter-wonderlights/virtual-tree"]

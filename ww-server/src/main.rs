@@ -1,4 +1,5 @@
-//! This binary crate just runs the program, currently just to test features.
+//! This binary crate just runs the server for Winter WonderLights, currently just to test
+//! features.
 
 use cfg_if::cfg_if;
 
