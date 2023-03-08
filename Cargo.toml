@@ -43,7 +43,7 @@ tokio.workspace = true
 opt-level = 3
 
 [features]
-bench = []
+bench = ["ww-effects/bench"]
 virtual-tree = ["ww-driver-impl/virtual-tree"]
 
 [[bench]]

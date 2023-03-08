@@ -27,6 +27,7 @@ ww-gift-coords = { path = "../ww-gift-coords", optional = true }
 
 [features]
 default = ["impl"]
+bench = []
 impl = ["dep:glam", "dep:rand", "dep:tracing", "dep:ww-frame", "dep:ww-gift-coords"]
 
 [dev-dependencies]
