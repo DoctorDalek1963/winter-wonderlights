@@ -3645,8 +3645,7 @@ name = "winter-wonderlights"
 version = "0.1.0-dev"
 dependencies = [
  "criterion",
- "float-cmp",
- "insta",
+ "tokio",
  "ww-driver-impl",
  "ww-driver-trait",
  "ww-effects",

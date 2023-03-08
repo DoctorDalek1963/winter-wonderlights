@@ -2,6 +2,22 @@
 members = ["ww-driver-impl", "ww-driver-trait", "ww-effects", "ww-frame", "ww-gift-coords", "ww-server"]
 exclude = ["benches"]
 
+[workspace.dependencies]
+async-trait = "0.1.64"
+egui = "0.20.1"
+glam = { version = "0.22.0", features = ["rand"] }
+lazy_static =  "1.4.0"
+rand = "0.8.5"
+ron = "0.8.0"
+serde = { version = "1.0.152", features = ["derive"] }
+strum = { version = "0.24.1", features = ["derive"] }
+tokio = { version = "1.25.0", features = ["macros", "rt", "time", "sync"] }
+tracing =  "0.1.37"
+
+# testing
+float-cmp = "0.9.0"
+insta = { version = "1.26.0", features = ["ron"] }
+
 [package]
 name = "winter-wonderlights"
 version = "0.1.0-dev"
@@ -21,8 +37,7 @@ ww-gift-coords = { path = "ww-gift-coords" }
 
 [dev-dependencies]
 criterion = { version = "0.4.0", features = ["async_tokio"] }
-float-cmp = "0.9.0"
-insta = { version = "1.26.0", features = ["ron"] }
+tokio.workspace = true
 
 [profile.dev.package."*"]
 opt-level = 3

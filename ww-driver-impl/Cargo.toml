@@ -9,24 +9,37 @@ repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
 license = "GPL-3.0"
 
 [dependencies]
-tracing = "0.1.37"
+tracing.workspace = true
 ww-driver-trait = { path = "../ww-driver-trait" }
 ww-frame = { path = "../ww-frame" }
 
 # virtual-tree
 bevy = { version = "0.9.1", optional = true, default-features = false, features = ["render", "x11"] }
 bevy_egui = { version = "0.19.0", optional = true }
-egui = { version = "0.20.1", optional = true }
-lazy_static = { version = "1.4.0", optional = true }
-rand = { version = "0.8.5", optional = true }
-ron = { version = "0.8.0", optional = true }
-serde = { version = "1.0.152", optional = true, features = ["derive"] }
+egui = { workspace = true, optional = true }
+lazy_static = { workspace = true, optional = true }
+rand = { workspace = true, optional = true }
+ron = { workspace = true, optional = true }
+serde = { workspace = true, optional = true, features = ["derive"] }
 smooth-bevy-cameras = { version = "0.7.0", optional = true }
-strum = { version = "0.24.1", optional = true, features = ["derive"] }
-tokio = { version = "1.25.0", optional = true, features = ["macros", "rt", "time", "sync"] }
+strum = { workspace = true, optional = true }
+tokio = { workspace = true, optional = true }
 ww-effects = { path = "../ww-effects", optional = true }
 ww-gift-coords = { path = "../ww-gift-coords", optional = true }
 
 [features]
 test = []
-virtual-tree = ["dep:bevy", "dep:bevy_egui", "dep:egui", "dep:lazy_static", "dep:rand", "dep:ron", "dep:serde", "dep:smooth-bevy-cameras", "dep:strum", "dep:tokio", "dep:ww-effects", "dep:ww-gift-coords"]
+virtual-tree = [
+	"dep:bevy",
+	"dep:bevy_egui",
+	"dep:egui",
+	"dep:lazy_static",
+	"dep:rand",
+	"dep:ron",
+	"dep:serde",
+	"dep:smooth-bevy-cameras",
+	"dep:strum",
+	"dep:tokio",
+	"dep:ww-effects",
+	"dep:ww-gift-coords"
+]
