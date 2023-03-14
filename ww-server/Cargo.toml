@@ -10,8 +10,12 @@ license = "GPL-3.0"
 
 [dependencies]
 cfg-if = "1.0.0"
+tokio.workspace = true
+tracing.workspace = true
+tracing-appender = "0.2.2"
 tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
-winter-wonderlights = { path = "../" }
+ww-driver-impl = { path = "../ww-driver-impl" }
+ww-effects = { path = "../ww-effects" }
 
 [features]
-virtual-tree = ["winter-wonderlights/virtual-tree"]
+virtual-tree = ["ww-driver-impl/virtual-tree"]

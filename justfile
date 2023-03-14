@@ -6,7 +6,7 @@ _default:
 
 # run the benchmarks
 bench filter='':
-	cargo bench --features bench {{filter}}
+	cd {{justfile_directory()}}/ww-benchmarks && cargo bench {{filter}}
 
 # cargo check the whole project
 check:

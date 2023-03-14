@@ -1,11 +1,7 @@
-#![cfg(feature = "bench")]
-
 use criterion::{criterion_group, criterion_main, Criterion};
-use winter_wonderlights::{
-    drivers::Driver,
-    effects::EffectList,
-    frame::{FrameType, RGBArray},
-};
+use ww_driver_trait::Driver;
+use ww_effects::EffectList;
+use ww_frame::{FrameType, RGBArray};
 
 const LIGHTS_NUM: usize = 500;
 
@@ -81,5 +77,5 @@ fn debug_effects(c: &mut Criterion) {
     benchmark_effects!(DebugOneByOne, DebugBinaryIndex, MovingPlane);
 }
 
-criterion_group!(effects, debug_effects);
-criterion_main!(effects);
+criterion_group! { effects, debug_effects }
+criterion_main! { effects }

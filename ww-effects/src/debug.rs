@@ -5,6 +5,7 @@ use async_trait::async_trait;
 use egui::{Align, Context, Layout, RichText, Ui, Vec2};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
+use tracing::debug;
 use ww_driver_trait::Driver;
 use ww_frame::{FrameType, RGBArray};
 
@@ -205,6 +206,7 @@ impl Effect for DebugBinaryIndex {
     }
 
     async fn run(self, driver: &mut dyn Driver) {
+        #[derive(Debug)]
         enum Binary {
             Zero,
             One,
@@ -250,6 +252,8 @@ impl Effect for DebugBinaryIndex {
                 .all(|n| n == binary_number_length),
             "Every Vec<RGBTuple> in the list must be the same length"
         );
+
+        debug!(?binary_for_each_light);
 
         // Now actually display the colours on the lights
         for i in 0..binary_number_length {

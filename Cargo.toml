@@ -1,6 +1,6 @@
 [workspace]
-members = ["ww-driver-impl", "ww-driver-trait", "ww-effects", "ww-frame", "ww-gift-coords", "ww-server"]
-exclude = ["benches"]
+resolver = "2"
+members = ["ww-benchmarks", "ww-driver-impl", "ww-driver-trait", "ww-effects", "ww-frame", "ww-gift-coords", "ww-server"]
 
 [workspace.dependencies]
 async-trait = "0.1.64"
@@ -18,34 +18,5 @@ tracing =  "0.1.37"
 float-cmp = "0.9.0"
 insta = { version = "1.26.0", features = ["ron"] }
 
-[package]
-name = "winter-wonderlights"
-version = "0.1.0-dev"
-authors = ["Dyson Dyson <dyson.dyson@icloud.com>"]
-edition = "2021"
-rust-version = "1.65"
-description = "A program to render 3D effects on a Christmas tree in real time."
-repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
-license = "GPL-3.0"
-
-[dependencies]
-ww-driver-impl = { path = "ww-driver-impl" }
-ww-driver-trait = { path = "ww-driver-trait" }
-ww-effects = { path = "ww-effects" }
-ww-frame = { path = "ww-frame" }
-ww-gift-coords = { path = "ww-gift-coords" }
-
-[dev-dependencies]
-criterion = { version = "0.4.0", features = ["async_tokio"] }
-tokio.workspace = true
-
 [profile.dev.package."*"]
 opt-level = 3
-
-[features]
-bench = ["ww-effects/bench"]
-virtual-tree = ["ww-driver-impl/virtual-tree"]
-
-[[bench]]
-name = "effects"
-harness = false

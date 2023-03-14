@@ -1,0 +1,20 @@
+[package]
+name = "ww-benchmarks"
+version = "0.1.0-dev"
+authors = ["Dyson Dyson <dyson.dyson@icloud.com>"]
+edition = "2021"
+rust-version = "1.65"
+description = "The benchmarks for Winter WonderLights."
+repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
+license = "GPL-3.0"
+
+[dependencies]
+criterion = { version = "0.4.0", features = ["async_tokio"] }
+tokio.workspace = true
+ww-driver-trait = { path = "../ww-driver-trait" }
+ww-effects = { path = "../ww-effects", features = ["bench"] }
+ww-frame = { path = "../ww-frame" }
+
+[[bench]]
+name = "effects"
+harness = false
