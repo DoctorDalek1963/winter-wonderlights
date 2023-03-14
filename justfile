@@ -10,8 +10,7 @@ bench filter='':
 
 # cargo check the whole project
 check:
-	cargo check
-	cargo check --features virtual-tree
+	cargo check --workspace
 
 # build the docs and optionally open them
 doc-build open='':
@@ -19,8 +18,8 @@ doc-build open='':
 
 # run the virtual tree with info level logs
 run-virtual log_level='info':
-	cd {{justfile_directory()}}/ww-server && cargo build --release --features virtual-tree
-	RUST_LOG=none,winter_wonderlights={{log_level}} {{justfile_directory()}}/target/release/ww-server
+	cd {{justfile_directory()}}/ww-virtual-tree && cargo build --release
+	RUST_LOG=none,ww_virtual_tree={{log_level}} {{justfile_directory()}}/target/release/ww-virtual-tree
 
 # run the tests in debug and release mode
 test:

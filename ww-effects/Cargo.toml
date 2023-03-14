@@ -10,6 +10,7 @@ license = "GPL-3.0"
 
 [dependencies]
 async-trait.workspace = true
+cfg-if.workspace = true
 egui.workspace = true
 heck = "0.4.1"
 ron.workspace = true
@@ -32,4 +33,3 @@ impl = ["dep:glam", "dep:rand", "dep:tracing", "dep:ww-frame", "dep:ww-gift-coor
 
 [dev-dependencies]
 insta.workspace = true
-ww-driver-impl = { path = "../ww-driver-impl", features = ["test"] }

@@ -7,7 +7,6 @@ use self::{
     bevy_setup::{add_tree_to_world, setup, LightIndex, TreeComponent},
     config::VirtualTreeConfig,
 };
-use crate::Driver;
 use bevy::{log::LogPlugin, prelude::*, DefaultPlugins};
 use bevy_egui::{EguiContext, EguiPlugin};
 use egui::RichText;
@@ -17,6 +16,7 @@ use std::{sync::RwLock, thread, time::Duration};
 use strum::IntoEnumIterator;
 use tokio::sync::broadcast;
 use tracing::{debug, instrument, trace};
+use ww_driver_trait::Driver;
 use ww_effects::{EffectConfig, EffectList};
 use ww_frame::{FrameType, RGBArray};
 use ww_gift_coords::COORDS;

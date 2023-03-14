@@ -233,7 +233,7 @@ impl Effect for LavaLamp {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ww_driver_impl::TestDriver;
+    use crate::TestDriver;
 
     #[tokio::test]
     async fn lava_lamp_test() {

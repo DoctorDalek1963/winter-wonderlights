@@ -1,8 +1,11 @@
 //! This binary crate just runs the server for Winter WonderLights, currently just to test
 //! features.
 
-use cfg_if::cfg_if;
+mod drivers;
+
+use self::drivers::DebugDriver;
 use tracing_subscriber::{filter::LevelFilter, fmt::Layer, prelude::*, EnvFilter};
+use ww_effects::EffectList;
 
 fn init_tracing() {
     let appender =
@@ -30,23 +33,9 @@ fn init_tracing() {
         .expect("Setting the global default for tracing should be okay");
 }
 
-cfg_if! {
-    if #[cfg(feature = "virtual-tree")] {
-        use ww_driver_impl::run_virtual_tree;
-
-        fn main() {
-            init_tracing();
-            run_virtual_tree();
-        }
-    } else {
-        use ww_driver_impl::DebugDriver;
-        use ww_effects::EffectList;
-
-        #[tokio::main(flavor = "current_thread")]
-        async fn main() {
-            init_tracing();
-            let mut driver = DebugDriver { lights_num: 500 };
-            EffectList::DebugBinaryIndex.create_run_method()(&mut driver).await;
-        }
-    }
+#[tokio::main(flavor = "current_thread")]
+async fn main() {
+    init_tracing();
+    let mut driver = DebugDriver { lights_num: 500 };
+    EffectList::DebugBinaryIndex.create_run_method()(&mut driver).await;
 }

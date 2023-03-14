@@ -1,0 +1,27 @@
+[package]
+name = "ww-virtual-tree"
+version = "0.1.0-dev"
+authors = ["Dyson Dyson <dyson.dyson@icloud.com>"]
+edition = "2021"
+rust-version = "1.65"
+description = "The virtual tree simulation for Winter WonderLights."
+repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
+license = "GPL-3.0"
+
+[dependencies]
+bevy = { version = "0.9.1", default-features = false, features = ["render", "x11"] }
+bevy_egui = "0.19.0"
+egui.workspace = true
+lazy_static.workspace = true
+rand.workspace = true
+ron.workspace = true
+serde = { workspace = true, features = ["derive"] }
+smooth-bevy-cameras = "0.7.0"
+strum.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+ww-driver-trait = { path = "../ww-driver-trait" }
+ww-effects = { path = "../ww-effects" }
+ww-frame = { path = "../ww-frame" }
+ww-gift-coords = { path = "../ww-gift-coords" }

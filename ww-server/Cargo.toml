@@ -9,13 +9,10 @@ repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
 license = "GPL-3.0"
 
 [dependencies]
-cfg-if = "1.0.0"
 tokio.workspace = true
 tracing.workspace = true
 tracing-appender = "0.2.2"
-tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
-ww-driver-impl = { path = "../ww-driver-impl" }
+tracing-subscriber.workspace = true
+ww-driver-trait = { path = "../ww-driver-trait" }
 ww-effects = { path = "../ww-effects" }
-
-[features]
-virtual-tree = ["ww-driver-impl/virtual-tree"]
+ww-frame = { path = "../ww-frame" }
