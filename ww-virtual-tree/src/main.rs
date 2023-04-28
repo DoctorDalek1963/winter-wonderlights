@@ -1,7 +1,6 @@
 //! This crate implements a virtual tree driver to simulate effects with Bevy.
 
 #![feature(never_type)]
-#![feature(is_some_and)]
 
 mod virtual_tree;
 
