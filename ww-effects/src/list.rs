@@ -72,15 +72,16 @@ impl EffectList {
         do_thing_on_effects!(match_return_names)
     }
 
-    /// Return a trait object of the config for the given effect.
+    /// Return a trait object of the config for the given effect, loaded from that effect's config
+    /// file.
     ///
-    /// See [`Effect::config()`].
-    pub fn config(&self) -> Box<dyn EffectConfig> {
+    /// See [`Effect::config_from_file()`].
+    pub fn config_from_file(&self) -> Box<dyn EffectConfig> {
         /// A simple macro to call `config()` for the given effect.
         macro_rules! match_return_configs {
             ( $( $name:ident ),* ) => {
                 match self {
-                    $( EffectList::$name => Box::new($name::config()), )*
+                    $( EffectList::$name => Box::new($name::config_from_file()), )*
                 }
             };
         }

@@ -51,7 +51,11 @@ enum ThreadMessage {
 /// Set the global effect config. This method should be called after every time
 /// [`VirtualTreeConfig.effect`] is updated.
 fn set_global_effect_config() {
-    unsafe { EFFECT_CONFIG = VIRTUAL_TREE_CONFIG.effect.map(|effect| effect.config()) };
+    unsafe {
+        EFFECT_CONFIG = VIRTUAL_TREE_CONFIG
+            .effect
+            .map(|effect| effect.config_from_file())
+    };
 }
 
 /// Listen to messages on [`struct@SEND_MESSAGE_TO_THREAD`] and run the effect in [`VIRTUAL_TREE_CONFIG`].
@@ -179,7 +183,7 @@ impl Driver for VirtualTreeDriver {
     }
 
     fn get_lights_count(&self) -> usize {
-        COORDS.coords().len()
+        COORDS.lights_num()
     }
 }
 

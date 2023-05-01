@@ -110,8 +110,8 @@ pub trait Effect: Default {
         )
     }
 
-    /// Return a copy of this effect's config.
-    fn config() -> Self::Config {
+    /// Return a copy of this effect's config, loaded from the file.
+    fn config_from_file() -> Self::Config {
         Self::Config::from_file(&Self::config_filename())
     }
 
