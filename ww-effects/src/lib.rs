@@ -9,8 +9,11 @@ pub(crate) mod traits;
 
 pub use self::{
     list::EffectList,
-    traits::{save_effect_config_to_file, Effect, EffectConfig},
+    traits::{save_effect_config_to_file, EffectConfig},
 };
+
+#[cfg(feature = "effect-trait")]
+pub use self::traits::Effect;
 
 cfg_if::cfg_if! {
     if #[cfg(feature = "impl")] {

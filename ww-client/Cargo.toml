@@ -1,0 +1,26 @@
+[package]
+name = "ww-client"
+version = "0.1.0-dev"
+authors = ["Dyson Dyson <dyson.dyson@icloud.com>"]
+edition = "2021"
+description = "The client for Winter WonderLights."
+repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
+license = "GPL-3.0"
+
+[dependencies]
+cfg-if.workspace = true
+eframe = { version = "0.21.3", features = ["persistence", "dark-light"] }
+tracing.workspace = true
+tracing-unwrap.workspace = true
+wasm-bindgen-futures = "0.4.34"
+ww-effects = { path = "../ww-effects", default-features = false }
+ww-server-client-msgs = { path = "../ww-server-client-msgs" }
+
+# Native
+[target.'cfg(not(target_family = "wasm"))'.dependencies]
+tracing-subscriber.workspace = true
+
+# WASM
+[target.'cfg(target_family = "wasm")'.dependencies]
+console_error_panic_hook = "0.1.7"
+tracing-wasm = "0.2.1"
