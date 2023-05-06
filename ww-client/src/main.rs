@@ -44,7 +44,7 @@ fn main() {
         ..Default::default()
     };
 
-    wasm_bindgen_futures::spawn_local(async {
+    prokio::Runtime::default().spawn_pinned(move || async {
         eframe::start_web(
             "main_canvas_id",
             options,

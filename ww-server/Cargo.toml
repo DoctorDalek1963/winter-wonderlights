@@ -9,6 +9,7 @@ license = "GPL-3.0"
 
 [dependencies]
 color-eyre.workspace = true
+ron.workspace = true
 tiny_http = { version = "0.12.0", features = ["ssl"] }
 tokio = { workspace = true, features = ["rt-multi-thread"] }
 tracing.workspace = true
@@ -18,4 +19,4 @@ tracing-unwrap.workspace = true
 ww-driver-trait = { path = "../ww-driver-trait" }
 ww-effects = { path = "../ww-effects" }
 ww-frame = { path = "../ww-frame" }
-ww-server-client-msgs = { path = "../ww-server-client-msgs" }
+ww-shared-msgs = { path = "../ww-shared-msgs" }

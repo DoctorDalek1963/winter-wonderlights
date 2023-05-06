@@ -9,12 +9,15 @@ license = "GPL-3.0"
 
 [dependencies]
 cfg-if.workspace = true
+crossbeam-channel = "0.5.8"
 eframe = { version = "0.21.3", features = ["persistence", "dark-light"] }
+prokio = "0.1.0"
+reqwest = "0.11.17"
+ron.workspace = true
 tracing.workspace = true
 tracing-unwrap.workspace = true
-wasm-bindgen-futures = "0.4.34"
 ww-effects = { path = "../ww-effects", default-features = false }
-ww-server-client-msgs = { path = "../ww-server-client-msgs" }
+ww-shared-msgs = { path = "../ww-shared-msgs" }
 
 # Native
 [target.'cfg(not(target_family = "wasm"))'.dependencies]

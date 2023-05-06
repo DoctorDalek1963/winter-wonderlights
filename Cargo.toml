@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["ww-benchmarks", "ww-client", "ww-driver-trait", "ww-effects", "ww-frame", "ww-gift-coords", "ww-server", "ww-server-client-msgs", "ww-virtual-tree"]
+members = ["ww-benchmarks", "ww-client", "ww-driver-trait", "ww-effects", "ww-frame", "ww-gift-coords", "ww-server", "ww-shared-msgs", "ww-virtual-tree"]
 
 [workspace.dependencies]
 async-trait = "0.1.64"
@@ -14,7 +14,7 @@ ron = "0.8.0"
 serde = { version = "1.0.152", features = ["derive"] }
 strum = { version = "0.24.1", features = ["derive"] }
 tokio = { version = "1.25.0", features = ["macros", "rt", "time", "sync"] }
-tracing =  "0.1.37"
+tracing = { version = "0.1.37", features = ["max_level_debug", "release_max_level_info"] }
 tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
 tracing-unwrap = "0.10.0"
 

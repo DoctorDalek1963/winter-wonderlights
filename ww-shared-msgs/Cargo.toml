@@ -1,8 +1,12 @@
 [package]
-name = "ww-server-client-msgs"
+name = "ww-shared-msgs"
 version = "0.1.0-dev"
 authors = ["Dyson Dyson <dyson.dyson@icloud.com>"]
 edition = "2021"
 description = "The shared messages for server/client pair for Winter WonderLights."
 repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
 license = "GPL-3.0"
+
+[dependencies]
+serde.workspace = true
+ww-effects = { path = "../ww-effects", default-features = false }

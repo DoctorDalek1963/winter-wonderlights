@@ -3,21 +3,59 @@
 
 mod drivers;
 
-//use self::drivers::DebugDriver;
-//use ww_effects::EffectList;
 use color_eyre::Result;
-use tiny_http::Request;
-use tracing::{debug, info, instrument, warn};
+use tiny_http::{Header, Request, Response};
+use tracing::{debug, error, info, instrument, trace, warn};
 use tracing_subscriber::{filter::LevelFilter, fmt::Layer, prelude::*, EnvFilter};
 use tracing_unwrap::ResultExt;
+use ww_shared_msgs::{ClientToServerMsg, ServerToClientMsg};
+
+/// The `.expect()` error message for serializing a [`ServerToClientMsg`].
+const EXPECT_SERIALIZE_MSG: &str = "Serializing a ServerToClientMsg should never fail";
+
+/// Create a header that will allow the client to function properly without CORS getting in the way.
+fn no_cors_header() -> Header {
+    Header {
+        field: "Access-Control-Allow-Origin"
+            .parse()
+            .expect("This &'static str should parse just fine"),
+        value: "*"
+            .parse()
+            .expect("This &'static str should parse just fine"),
+    }
+}
 
 #[instrument(skip_all, fields(addr = ?req.remote_addr()))]
-async fn handle_request(mut req: Request) -> Result<()> {
-    info!("Received a new request");
+fn handle_request(mut req: Request) -> Result<()> {
+    debug!("Received a new request");
 
-    debug!(?req);
+    trace!(?req);
 
-    todo!("Implement this")
+    let mut body = String::new();
+    req.as_reader().read_to_string(&mut body)?;
+    let msg: ClientToServerMsg = ron::from_str(&body)?;
+
+    trace!(?msg);
+
+    match msg {
+        ClientToServerMsg::RequestUpdate => {
+            info!("Client requesting update");
+
+            // TODO: Implement client state, including effect config
+            req.respond(
+                Response::from_string(
+                    ron::to_string(&ServerToClientMsg::UpdateClientState)
+                        .expect(EXPECT_SERIALIZE_MSG),
+                )
+                .with_header(no_cors_header()),
+            )?;
+        }
+        ClientToServerMsg::ChangeEffect(_effect) => {
+            todo!("Implement some sort of effect manager")
+        }
+    };
+
+    Ok(())
 }
 
 fn init_tracing() {
@@ -46,9 +84,8 @@ fn init_tracing() {
         .expect("Setting the global default for tracing should be okay");
 }
 
-#[tokio::main]
 #[instrument]
-async fn main() {
+fn main() {
     init_tracing();
 
     info!(port = env!("PORT"), "Initialising server");
@@ -74,11 +111,11 @@ async fn main() {
     info!("Server initialised");
 
     for req in server.incoming_requests() {
-        tokio::spawn(handle_request(req));
+        match handle_request(req) {
+            Ok(()) => (),
+            Err(e) => error!(?e, "Error handing request"),
+        };
     }
 
     info!("Server socket has shut down. Terminating server");
-
-    //let mut driver = DebugDriver { lights_num: 500 };
-    //EffectList::DebugBinaryIndex.create_run_method()(&mut driver).await;
 }
