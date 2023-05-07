@@ -22,15 +22,15 @@ run-virtual log_level='info':
 	RUST_LOG=none,ww_virtual_tree={{log_level}} {{justfile_directory()}}/target/release/ww-virtual-tree
 
 # a little convenience function to build the server and client
-_build_server_client command flags='':
-	cd {{justfile_directory()}}/ww-server && cargo {{command}} {{flags}}
-	cd {{justfile_directory()}}/ww-client && cargo {{command}} {{flags}}
+_build_server_client flags='':
+	cd {{justfile_directory()}}/ww-server && cargo build {{flags}}
+	cd {{justfile_directory()}}/ww-client && trunk build {{flags}}
 
 # build the server and client in debug mode
-build: (_build_server_client 'build')
+build: _build_server_client
 
 # build the server and client in release mode
-build-release: (_build_server_client 'build' '--release')
+build-release: (_build_server_client '--release')
 
 # watch the server and rerun anytime the code is changed
 watch-server flags='':
