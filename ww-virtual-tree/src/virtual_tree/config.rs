@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::fs;
-use ww_effects::EffectList;
+use ww_effects::EffectNameList;
 
 /// The configuration of the virtual tree.
 #[derive(Serialize, Deserialize)]
@@ -11,7 +11,7 @@ pub struct VirtualTreeConfig {
     pub loop_pause_time: u64,
 
     /// The item in the effects enum that's currently being run.
-    pub effect: Option<EffectList>,
+    pub effect: Option<EffectNameList>,
 
     /// Is the tree enabled?
     pub is_tree_enabled: bool,

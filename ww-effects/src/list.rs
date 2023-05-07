@@ -1,11 +1,11 @@
-//! This module handles the [`EffectList`], which contains an entry for each possible effect.
+//! This module handles the [`EffectNameList`], which contains an entry for each possible effect.
 
 use serde::{Deserialize, Serialize};
 
 /// An enum to list all the usable effects. If an effect is not accessible via this enum, then it
 /// should not be used.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, strum::EnumIter, Serialize, Deserialize)]
-pub enum EffectList {
+pub enum EffectNameList {
     /// See [`DebugOneByOne`].
     DebugOneByOne,
 
@@ -38,7 +38,7 @@ cfg_if::cfg_if! {
 
         // NOTE: For these macros to work, we need an effect in scope with the same name as its
         // corresponding entry in the enum.
-        impl EffectList {
+        impl EffectNameList {
             /// Return a boxed async closure for the run method of the corresponding effect. Calling and
             /// awaiting the closure will run the effect.
             ///
@@ -51,7 +51,7 @@ cfg_if::cfg_if! {
                 macro_rules! match_return_closures {
                 ( $( $name:ident ),* ) => {
                     match self {
-                        $( EffectList::$name => Box::new(move |driver| $name::from_file().run(driver)), )*
+                        $( EffectNameList::$name => Box::new(move |driver| $name::from_file().run(driver)), )*
                     }
                 };
             }
@@ -67,7 +67,7 @@ cfg_if::cfg_if! {
                 macro_rules! match_return_names {
                 ( $( $name:ident ),* ) => {
                     match *self {
-                        $( EffectList::$name => $name::effect_name(), )*
+                        $( EffectNameList::$name => $name::effect_name(), )*
                     }
                 };
             }
@@ -84,7 +84,7 @@ cfg_if::cfg_if! {
                 macro_rules! match_return_configs {
                 ( $( $name:ident ),* ) => {
                     match self {
-                        $( EffectList::$name => Box::new($name::config_from_file()), )*
+                        $( EffectNameList::$name => Box::new($name::config_from_file()), )*
                     }
                 };
             }

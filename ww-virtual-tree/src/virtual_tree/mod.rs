@@ -17,7 +17,7 @@ use strum::IntoEnumIterator;
 use tokio::sync::broadcast;
 use tracing::{debug, instrument, trace};
 use ww_driver_trait::Driver;
-use ww_effects::{EffectConfig, EffectList};
+use ww_effects::{EffectConfig, EffectNameList};
 use ww_frame::{FrameType, RGBArray};
 use ww_gift_coords::COORDS;
 
@@ -266,7 +266,7 @@ fn render_gui(mut ctx: ResMut<EguiContext>) {
                     .clicked();
 
                 // Iterate over all the effects and see if a new effect has been clicked
-                let selected_new_effect = EffectList::iter().any(|effect| {
+                let selected_new_effect = EffectNameList::iter().any(|effect| {
                     // We remember which value was initially selected and whether this value is a
                     // new one
                     let different = Some(effect) != unsafe { VIRTUAL_TREE_CONFIG.effect };

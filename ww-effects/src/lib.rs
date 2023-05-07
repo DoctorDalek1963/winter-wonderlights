@@ -8,7 +8,7 @@ pub(crate) mod list;
 pub(crate) mod traits;
 
 pub use self::{
-    list::EffectList,
+    list::EffectNameList,
     traits::{save_effect_config_to_file, EffectConfig},
 };
 
