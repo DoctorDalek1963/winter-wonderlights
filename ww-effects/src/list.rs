@@ -112,10 +112,7 @@ cfg_if::cfg_if! {
                 }
             }
 
-            pub fn save_to_file(&self, filename: &str)
-            where
-                Self: Sized + Serialize,
-            {
+            pub fn save_to_file(&self, filename: &str) {
                 match self {
                     EffectConfigDispatchList::DebugOneByOneConfig(config) => {
                         crate::save_effect_config_to_file(filename, config)
@@ -145,10 +142,7 @@ cfg_if::cfg_if! {
 
         impl EffectNameList {
             // TODO: Replace this with a proc-macro (needs separate crate)
-            pub fn effect_name(&self) -> &'static str
-            where
-                Self: Sized,
-            {
+            pub fn effect_name(&self) -> &'static str {
                 match self {
                     EffectNameList::DebugOneByOne => DebugOneByOne::effect_name(),
                     EffectNameList::DebugBinaryIndex => DebugBinaryIndex::effect_name(),
@@ -260,10 +254,7 @@ cfg_if::cfg_if! {
 
         // TODO: Replace these with proc-macros (needs separate crate)
         impl EffectDispatchList {
-            pub fn effect_name(&self) -> &'static str
-            where
-                Self: Sized,
-            {
+            pub fn effect_name(&self) -> &'static str {
                 match self {
                     EffectDispatchList::DebugOneByOne(_) => DebugOneByOne::effect_name(),
                     EffectDispatchList::DebugBinaryIndex(_) => DebugBinaryIndex::effect_name(),

@@ -8,7 +8,7 @@ use std::fs;
 #[cfg(feature = "config-trait")]
 pub fn save_effect_config_to_file<T>(filename: &str, config: &T)
 where
-    T: EffectConfig + Serialize,
+    T: EffectConfig,
 {
     let _ = fs::write(
         filename,
@@ -19,7 +19,9 @@ where
 
 /// This trait is needed by all structs that want to act as configuration for effects.
 #[cfg(feature = "config-trait")]
-pub trait EffectConfig {
+pub trait EffectConfig:
+    Clone + Default + PartialEq + Serialize + for<'de> Deserialize<'de>
+{
     /// Render the GUI to edit the config of this effect. The default implementation does nothing.
     ///
     /// If you implement this for an effect, the implementation should look something like the one
@@ -31,7 +33,7 @@ pub trait EffectConfig {
     /// # use ww_effects::EffectConfig;
     /// # struct ParentEffect;
     /// # impl ParentEffect { fn config_filename() -> String { String::new() } }
-    /// # #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
+    /// # #[derive(Clone, Debug, Default, PartialEq, serde::Serialize, serde::Deserialize)]
     /// # struct Dummy;
     /// # impl EffectConfig for Dummy {
     /// fn render_options_gui(&mut self, _ctx: &Context, ui: &mut Ui) {
@@ -58,10 +60,7 @@ pub trait EffectConfig {
 
     /// Load the effect configuration from the config file, or use the default if the file is
     /// unavailable. Also save the default to the file for future editing.
-    fn from_file(filename: &str) -> Self
-    where
-        Self: Default + Serialize + for<'a> Deserialize<'a>,
-    {
+    fn from_file(filename: &str) -> Self {
         let _ = fs::DirBuilder::new()
             .recursive(true)
             .create(format!("{}/config", env!("DATA_DIR")));
@@ -80,10 +79,7 @@ pub trait EffectConfig {
     }
 
     /// Save the config to the given filename, which should be from the parent effect.
-    fn save_to_file(&self, filename: &str)
-    where
-        Self: Sized + Serialize,
-    {
+    fn save_to_file(&self, filename: &str) {
         save_effect_config_to_file(filename, self);
     }
 }
@@ -101,18 +97,13 @@ mod effect_trait {
     #[async_trait]
     pub trait Effect: Default {
         /// The type of this effect's config.
-        type Config: EffectConfig + Default + Serialize + for<'a> Deserialize<'a>;
+        type Config: EffectConfig;
 
         /// The name of the effect, used for config files and GUI editting.
-        fn effect_name() -> &'static str
-        where
-            Self: Sized;
+        fn effect_name() -> &'static str;
 
         /// The filename for the config file of this effect.
-        fn config_filename() -> String
-        where
-            Self: Sized,
-        {
+        fn config_filename() -> String {
             format!(
                 "{}/config/{}.ron",
                 env!("DATA_DIR"),
@@ -139,7 +130,7 @@ mod effect_trait {
         /// ```
         /// # use ww_driver_trait::Driver;
         /// # use ww_effects::{Effect, EffectConfig};
-        /// # #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
+        /// # #[derive(Clone, Debug, Default, PartialEq, serde::Serialize, serde::Deserialize)]
         /// # struct DummyConfig;
         /// # impl EffectConfig for DummyConfig {}
         /// # #[derive(Default)]
@@ -166,7 +157,7 @@ mod effect_trait {
         /// ```
         /// # use ww_driver_trait::Driver;
         /// # use ww_effects::{Effect, EffectConfig, save_effect_config_to_file};
-        /// # #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
+        /// # #[derive(Clone, Debug, Default, PartialEq, serde::Serialize, serde::Deserialize)]
         /// # struct DummyConfig;
         /// # impl EffectConfig for DummyConfig {}
         /// # #[derive(Default)]
