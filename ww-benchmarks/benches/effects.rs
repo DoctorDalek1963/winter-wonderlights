@@ -1,6 +1,6 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use ww_driver_trait::Driver;
-use ww_effects::EffectList;
+use ww_effects::{effects::*, EffectDispatchList};
 use ww_frame::{FrameType, RGBArray};
 
 const LIGHTS_NUM: usize = 500;
@@ -48,9 +48,9 @@ fn debug_effects(c: &mut Criterion) {
     macro_rules! benchmark_effects_simple {
         ( $( $name:ident ),* ) => {
             $(
-                let method = EffectList::$name.create_run_method();
                 c.bench_function(concat!("(SimpleDriver) ", stringify!($name)), |b| {
-                    b.to_async(&runtime).iter(|| method(unsafe { &mut SIMPLE_DRIVER }));
+                    let effect = EffectDispatchList::$name($name::default());
+                    b.to_async(&runtime).iter(|| effect.clone().run(unsafe { &mut SIMPLE_DRIVER }));
                 });
             )*
         };
@@ -59,9 +59,9 @@ fn debug_effects(c: &mut Criterion) {
     macro_rules! benchmark_effects_convert_frame {
         ( $( $name:ident ),* ) => {
             $(
-                let method = EffectList::$name.create_run_method();
                 c.bench_function(concat!("(ConvertFrameDriver) ", stringify!($name)), |b| {
-                    b.to_async(&runtime).iter(|| method(unsafe { &mut CONVERT_FRAME_DRIVER }));
+                    let effect = EffectDispatchList::$name($name::default());
+                    b.to_async(&runtime).iter(|| effect.clone().run(unsafe { &mut CONVERT_FRAME_DRIVER }));
                 });
             )*
         };
