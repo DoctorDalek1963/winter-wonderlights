@@ -46,9 +46,7 @@ pub enum EffectNameList {
 cfg_if::cfg_if! {
     if #[cfg(feature = "config-impls")] {
         use crate::{
-            aesthetic::LavaLampConfig,
-            debug::{DebugBinaryIndexConfig, DebugOneByOneConfig},
-            maths::MovingPlaneConfig,
+            effects::configs::*,
             traits::EffectConfig,
         };
 
@@ -140,9 +138,7 @@ cfg_if::cfg_if! {
 cfg_if::cfg_if! {
     if #[cfg(feature = "effect-impls")] {
         use crate::{
-            aesthetic::LavaLamp,
-            debug::{DebugBinaryIndex, DebugOneByOne},
-            maths::MovingPlane,
+            effects::effects::*,
             traits::Effect,
         };
         use ww_driver_trait::Driver;

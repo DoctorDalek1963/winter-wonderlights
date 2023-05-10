@@ -23,13 +23,8 @@ pub use self::traits::{save_effect_config_to_file, EffectConfig};
 #[cfg(feature = "effect-trait")]
 pub use self::traits::Effect;
 
-cfg_if::cfg_if! {
-    if #[cfg(any(feature = "effect-impls", feature = "config-impls"))] {
-        pub mod aesthetic;
-        pub mod debug;
-        pub mod maths;
-    }
-}
+#[cfg(any(feature = "config-impls", feature = "effect-impls"))]
+pub mod effects;
 
 cfg_if::cfg_if! {
     if #[cfg(feature = "effect-impls")] {
@@ -44,11 +39,6 @@ cfg_if::cfg_if! {
         }
 
         pub(crate) use sleep;
-        pub use self::{
-            aesthetic::LavaLamp,
-            debug::{DebugBinaryIndex, DebugOneByOne},
-            maths::MovingPlane,
-        };
     }
 }
 
