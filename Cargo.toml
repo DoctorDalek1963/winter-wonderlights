@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["ww-benchmarks", "ww-client", "ww-driver-trait", "ww-effects", "ww-frame", "ww-gift-coords", "ww-server", "ww-shared-msgs", "ww-virtual-tree"]
+members = ["ww-benchmarks", "ww-client", "ww-driver-trait", "ww-effects", "ww-frame", "ww-gift-coords", "ww-proc-macros", "ww-server", "ww-shared-msgs", "ww-virtual-tree"]
 
 [workspace.dependencies]
 async-trait = "0.1.64"

@@ -8,6 +8,7 @@ use std::time::Duration;
 use tracing::debug;
 use ww_driver_trait::Driver;
 use ww_frame::{FrameType, RGBArray};
+use ww_proc_macros::BaseEffect;
 
 /// The config for the one-by-one effect; includes timing and the color.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -75,7 +76,7 @@ impl EffectConfig for DebugOneByOneConfig {
 }
 
 /// Light up each light individually, one-by-one.
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, BaseEffect)]
 pub struct DebugOneByOne {
     /// The config for this effect.
     config: DebugOneByOneConfig,
@@ -84,10 +85,6 @@ pub struct DebugOneByOne {
 #[async_trait]
 impl Effect for DebugOneByOne {
     type Config = DebugOneByOneConfig;
-
-    fn effect_name() -> &'static str {
-        "DebugOneByOne"
-    }
 
     async fn run(self, driver: &mut dyn Driver) {
         driver.clear();
@@ -104,16 +101,6 @@ impl Effect for DebugOneByOne {
 
             driver.clear();
             sleep!(Duration::from_millis(self.config.dark_time_ms));
-        }
-    }
-
-    fn save_to_file(&self) {
-        self.config.save_to_file(&Self::config_filename());
-    }
-
-    fn from_file() -> Self {
-        Self {
-            config: Self::Config::from_file(&Self::config_filename()),
         }
     }
 }
@@ -191,7 +178,7 @@ impl EffectConfig for DebugBinaryIndexConfig {
 }
 
 /// Make each light flash its index in binary.
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, BaseEffect)]
 pub struct DebugBinaryIndex {
     /// The config for this effect.
     config: DebugBinaryIndexConfig,
@@ -200,10 +187,6 @@ pub struct DebugBinaryIndex {
 #[async_trait]
 impl Effect for DebugBinaryIndex {
     type Config = DebugBinaryIndexConfig;
-
-    fn effect_name() -> &'static str {
-        "DebugBinaryIndex"
-    }
 
     async fn run(self, driver: &mut dyn Driver) {
         #[derive(Debug)]
@@ -270,16 +253,6 @@ impl Effect for DebugBinaryIndex {
 
             driver.clear();
             sleep!(Duration::from_millis(self.config.dark_time_ms));
-        }
-    }
-
-    fn save_to_file(&self) {
-        self.config.save_to_file(&Self::config_filename());
-    }
-
-    fn from_file() -> Self {
-        Self {
-            config: Self::Config::from_file(&Self::config_filename()),
         }
     }
 }

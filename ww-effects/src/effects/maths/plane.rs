@@ -10,6 +10,7 @@ use std::time::Duration;
 use ww_driver_trait::Driver;
 use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object, RGBArray};
 use ww_gift_coords::COORDS;
+use ww_proc_macros::BaseEffect;
 
 /// The config for the moving plane effect; includes speed.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -69,7 +70,7 @@ impl EffectConfig for MovingPlaneConfig {
 }
 
 /// Move a plane through the tree at a random angle with a random colour.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, BaseEffect)]
 pub struct MovingPlane {
     /// The config for this effect.
     config: MovingPlaneConfig,
@@ -101,13 +102,6 @@ impl Default for MovingPlane {
 #[async_trait]
 impl Effect for MovingPlane {
     type Config = MovingPlaneConfig;
-
-    fn effect_name() -> &'static str
-    where
-        Self: Sized,
-    {
-        "MovingPlane"
-    }
 
     async fn run(mut self, driver: &mut dyn Driver) {
         let colour: RGBArray = self.rng.gen();
@@ -144,17 +138,6 @@ impl Effect for MovingPlane {
             // move 1/50th of the units per second
             point += (self.config.units_per_second / 50.) * normal;
             sleep!(Duration::from_millis(20));
-        }
-    }
-
-    fn save_to_file(&self) {
-        self.config.save_to_file(&Self::config_filename());
-    }
-
-    fn from_file() -> Self {
-        Self {
-            config: Self::Config::from_file(&Self::config_filename()),
-            ..Self::default()
         }
     }
 }

@@ -11,6 +11,7 @@ use tracing::{debug, instrument};
 use ww_driver_trait::Driver;
 use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object, RGBArray};
 use ww_gift_coords::COORDS;
+use ww_proc_macros::BaseEffect;
 
 /// A simple sphere used to keep track of the spheres in the lava lamp.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -111,7 +112,7 @@ impl EffectConfig for LavaLampConfig {
 }
 
 /// Display a lava lamp-like effect on the tree.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, BaseEffect)]
 pub struct LavaLamp {
     /// The config for this effect.
     config: LavaLampConfig,
@@ -143,13 +144,6 @@ impl Default for LavaLamp {
 #[async_trait]
 impl Effect for LavaLamp {
     type Config = LavaLampConfig;
-
-    fn effect_name() -> &'static str
-    where
-        Self: Sized,
-    {
-        "LavaLamp"
-    }
 
     #[instrument(skip_all)]
     async fn run(mut self, driver: &mut dyn Driver) {
@@ -216,17 +210,6 @@ impl Effect for LavaLamp {
                     break;
                 }
             }
-        }
-    }
-
-    fn save_to_file(&self) {
-        self.config.save_to_file(&Self::config_filename());
-    }
-
-    fn from_file() -> Self {
-        Self {
-            config: Self::Config::from_file(&Self::config_filename()),
-            ..Self::default()
         }
     }
 }

@@ -21,6 +21,7 @@ ron = { workspace = true, optional = true }
 async-trait = { workspace = true, optional = true } # Also needed for `impl` feature
 heck = { version = "0.4.1", optional = true }
 ww-driver-trait = { path = "../ww-driver-trait", optional = true }
+ww-proc-macros = { path = "../ww-proc-macros", optional = true }
 
 # effect-impls
 glam = { workspace = true, optional = true, features = ["serde"] }
@@ -33,7 +34,7 @@ ww-gift-coords = { path = "../ww-gift-coords", optional = true }
 [features]
 default = ["effect-trait", "effect-impls", "config-trait", "config-impls"]
 bench = []
-effect-trait = ["config-impls", "dep:async-trait", "dep:heck", "dep:ww-driver-trait"]
+effect-trait = ["config-impls", "dep:async-trait", "dep:heck", "dep:ww-driver-trait", "dep:ww-proc-macros"]
 effect-impls = ["effect-trait", "dep:async-trait", "dep:glam", "dep:rand", "dep:tokio", "dep:tracing", "dep:ww-frame", "dep:ww-gift-coords"]
 config-trait = ["dep:egui", "dep:ron"]
 config-impls = ["config-trait", "dep:heck"]

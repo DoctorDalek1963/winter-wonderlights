@@ -136,7 +136,7 @@ cfg_if::cfg_if! {
     if #[cfg(feature = "effect-impls")] {
         use crate::{
             effects::effects::*,
-            traits::Effect,
+            traits::{Effect, BaseEffect},
         };
         use ww_driver_trait::Driver;
 
