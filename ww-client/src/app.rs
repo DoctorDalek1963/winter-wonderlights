@@ -4,7 +4,7 @@ use crossbeam_channel::{Receiver, Sender};
 use eframe::egui::{self, Context};
 use reqwest::Client;
 use std::time::Duration;
-use tracing::{debug, error, instrument, trace};
+use tracing::{debug, error, instrument};
 use tracing_unwrap::ResultExt;
 use ww_shared_msgs::{ClientToServerMsg, ServerToClientMsg};
 

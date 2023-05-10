@@ -12,7 +12,7 @@ use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object, RGBArray}
 use ww_gift_coords::COORDS;
 
 /// The config for the moving plane effect; includes speed.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct MovingPlaneConfig {
     /// How many units (in GIFT coords) that the plane moves in one second.
     units_per_second: f32,
@@ -69,6 +69,7 @@ impl EffectConfig for MovingPlaneConfig {
 }
 
 /// Move a plane through the tree at a random angle with a random colour.
+#[derive(Clone, Debug, PartialEq)]
 pub struct MovingPlane {
     /// The config for this effect.
     config: MovingPlaneConfig,

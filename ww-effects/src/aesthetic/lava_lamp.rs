@@ -52,7 +52,7 @@ impl Sphere {
 }
 
 /// The config for the lava lamp effect.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct LavaLampConfig {
     /// The base colour of the spheres.
     base_colour: RGBArray,
@@ -111,6 +111,7 @@ impl EffectConfig for LavaLampConfig {
 }
 
 /// Display a lava lamp-like effect on the tree.
+#[derive(Clone, Debug, PartialEq)]
 pub struct LavaLamp {
     /// The config for this effect.
     config: LavaLampConfig,

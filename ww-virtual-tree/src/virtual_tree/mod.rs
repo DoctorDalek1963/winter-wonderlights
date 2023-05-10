@@ -17,7 +17,7 @@ use strum::IntoEnumIterator;
 use tokio::sync::broadcast;
 use tracing::{debug, instrument, trace};
 use ww_driver_trait::Driver;
-use ww_effects::{EffectConfig, EffectNameList};
+use ww_effects::{EffectConfigDispatchList, EffectDispatchList, EffectNameList};
 use ww_frame::{FrameType, RGBArray};
 use ww_gift_coords::COORDS;
 
@@ -27,8 +27,8 @@ static CURRENT_FRAME: RwLock<FrameType> = RwLock::new(FrameType::Off);
 /// The config for the virtual tree.
 static mut VIRTUAL_TREE_CONFIG: VirtualTreeConfig = VirtualTreeConfig::default();
 
-/// The trait object for the config of the current effect.
-static mut EFFECT_CONFIG: Option<Box<dyn EffectConfig>> = None;
+/// The config of the current effect.
+static mut EFFECT_CONFIG: Option<EffectConfigDispatchList> = None;
 
 lazy_static! {
     /// The broadcast sender which lets you send messages to the calculation thread, which is
@@ -54,6 +54,7 @@ fn set_global_effect_config() {
     unsafe {
         EFFECT_CONFIG = VIRTUAL_TREE_CONFIG
             .effect
+            .as_ref()
             .map(|effect| effect.config_from_file())
     };
 }
@@ -86,7 +87,12 @@ fn listen_and_run_effect() {
                         ThreadMessage::RestartNew => {
                             info!(
                                 "Restarting with new effect {:?}",
-                                unsafe { VIRTUAL_TREE_CONFIG.effect.map_or("None", |x| x.name()) }
+                                unsafe {
+                                    VIRTUAL_TREE_CONFIG
+                                        .effect
+                                        .as_ref()
+                                        .map_or("None", |x| x.effect_name())
+                                }
                             );
                             set_global_effect_config();
                             continue;
@@ -94,7 +100,12 @@ fn listen_and_run_effect() {
                         ThreadMessage::RestartCurrent => {
                             info!(
                                 "Restarting current effect {:?}",
-                                unsafe { VIRTUAL_TREE_CONFIG.effect.map_or("None", |x| x.name()) }
+                                unsafe {
+                                    VIRTUAL_TREE_CONFIG
+                                        .effect
+                                        .as_ref()
+                                        .map_or("None", |x| x.effect_name())
+                                }
                             );
                             continue;
                         },
@@ -106,7 +117,9 @@ fn listen_and_run_effect() {
                 // so it can respond to messages quickly
                 _ = async { loop {
                     if let Some(effect) = unsafe { VIRTUAL_TREE_CONFIG.effect } {
-                        effect.create_run_method()(&mut driver).await;
+                        let effect: EffectDispatchList = effect.into();
+
+                        effect.run(&mut driver).await;
                         driver.display_frame(FrameType::Off);
 
                         // Pause before looping the effect
@@ -258,7 +271,8 @@ fn render_gui(mut ctx: ResMut<EguiContext>) {
             .selected_text(unsafe {
                 VIRTUAL_TREE_CONFIG
                     .effect
-                    .map_or("None", |effect| effect.name())
+                    .as_ref()
+                    .map_or("None", |effect| effect.effect_name())
             })
             .show_ui(ui, |ui| {
                 let selected_none = ui
@@ -269,11 +283,11 @@ fn render_gui(mut ctx: ResMut<EguiContext>) {
                 let selected_new_effect = EffectNameList::iter().any(|effect| {
                     // We remember which value was initially selected and whether this value is a
                     // new one
-                    let different = Some(effect) != unsafe { VIRTUAL_TREE_CONFIG.effect };
+                    let different = Some(&effect) != unsafe { VIRTUAL_TREE_CONFIG.effect.as_ref() };
                     let resp = ui.selectable_value(
                         unsafe { &mut VIRTUAL_TREE_CONFIG.effect },
                         Some(effect),
-                        effect.name(),
+                        effect.effect_name(),
                     );
 
                     // If the value is different from the old and has been clicked, then we care

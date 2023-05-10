@@ -4,23 +4,35 @@
 // Duration is imported and unused for tests and benchmarks because of the sleep macro
 #![cfg_attr(any(test, feature = "bench"), allow(unused_imports))]
 
-pub(crate) mod list;
-pub(crate) mod traits;
+pub mod list;
 
-pub use self::{
-    list::EffectNameList,
-    traits::{save_effect_config_to_file, EffectConfig},
-};
+pub use self::list::{EffectConfigNameList, EffectNameList};
+
+#[cfg(feature = "config-impls")]
+pub use self::list::EffectConfigDispatchList;
+
+#[cfg(feature = "effect-impls")]
+pub use self::list::EffectDispatchList;
+
+#[cfg(any(feature = "effect-trait", feature = "config-trait"))]
+pub mod traits;
+
+#[cfg(feature = "config-trait")]
+pub use self::traits::{save_effect_config_to_file, EffectConfig};
 
 #[cfg(feature = "effect-trait")]
 pub use self::traits::Effect;
 
 cfg_if::cfg_if! {
-    if #[cfg(feature = "impl")] {
-        pub(crate) mod aesthetic;
-        pub(crate) mod debug;
-        pub(crate) mod maths;
+    if #[cfg(any(feature = "effect-impls", feature = "config-impls"))] {
+        pub mod aesthetic;
+        pub mod debug;
+        pub mod maths;
+    }
+}
 
+cfg_if::cfg_if! {
+    if #[cfg(feature = "effect-impls")] {
         /// Asynchronously sleep for the specified duration and await it when running normally.
         ///
         /// The sleep call gets completely removed for test and bench builds.

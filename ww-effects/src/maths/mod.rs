@@ -1,5 +1,5 @@
 //! This module contains purely mathematical effects.
 
-mod plane;
+pub mod plane;
 
-pub use self::plane::MovingPlane;
+pub use self::plane::{MovingPlane, MovingPlaneConfig};

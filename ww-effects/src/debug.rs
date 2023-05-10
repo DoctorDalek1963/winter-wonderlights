@@ -10,7 +10,7 @@ use ww_driver_trait::Driver;
 use ww_frame::{FrameType, RGBArray};
 
 /// The config for the one-by-one effect; includes timing and the color.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct DebugOneByOneConfig {
     /// The number of milliseconds that the light is on for.
     light_time_ms: u64,
@@ -75,7 +75,7 @@ impl EffectConfig for DebugOneByOneConfig {
 }
 
 /// Light up each light individually, one-by-one.
-#[derive(Default)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct DebugOneByOne {
     /// The config for this effect.
     config: DebugOneByOneConfig,
@@ -119,7 +119,7 @@ impl Effect for DebugOneByOne {
 }
 
 /// The config for the binary index effect; includes timing and colors.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct DebugBinaryIndexConfig {
     /// The number of milliseconds that the lights are on for.
     light_time_ms: u64,
@@ -191,7 +191,7 @@ impl EffectConfig for DebugBinaryIndexConfig {
 }
 
 /// Make each light flash its index in binary.
-#[derive(Default)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct DebugBinaryIndex {
     /// The config for this effect.
     config: DebugBinaryIndexConfig,
