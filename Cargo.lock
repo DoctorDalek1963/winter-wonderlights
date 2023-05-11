@@ -1781,6 +1781,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "effect-proc-macros"
+version = "0.1.0-dev"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.15",
+]
+
+[[package]]
 name = "eframe"
 version = "0.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5566,6 +5575,7 @@ version = "0.1.0-dev"
 dependencies = [
  "async-trait",
  "cfg-if",
+ "effect-proc-macros",
  "egui 0.20.1",
  "glam 0.23.0",
  "heck",
@@ -5579,7 +5589,6 @@ dependencies = [
  "ww-driver-trait",
  "ww-frame",
  "ww-gift-coords",
- "ww-proc-macros",
 ]
 
 [[package]]
@@ -5603,15 +5612,6 @@ dependencies = [
  "float-cmp",
  "lazy_static",
  "serde",
-]
-
-[[package]]
-name = "ww-proc-macros"
-version = "0.1.0-dev"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.15",
 ]
 
 [[package]]

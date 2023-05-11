@@ -2,13 +2,13 @@
 
 use crate::{sleep, Effect, EffectConfig};
 use async_trait::async_trait;
+use effect_proc_macros::{BaseEffect, Sealed};
 use egui::{Align, Context, Layout, RichText, Ui, Vec2};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use tracing::debug;
 use ww_driver_trait::Driver;
 use ww_frame::{FrameType, RGBArray};
-use ww_proc_macros::{BaseEffect, Sealed};
 
 /// The config for the one-by-one effect; includes timing and the color.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Sealed)]

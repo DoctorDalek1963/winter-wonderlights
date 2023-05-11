@@ -2,6 +2,7 @@
 
 use crate::{sleep, Effect, EffectConfig};
 use async_trait::async_trait;
+use effect_proc_macros::{BaseEffect, Sealed};
 use egui::{Align, Layout, RichText, Vec2};
 use glam::{IVec3, Vec3};
 use rand::{rngs::StdRng, Rng, SeedableRng};
@@ -11,7 +12,6 @@ use tracing::{debug, instrument};
 use ww_driver_trait::Driver;
 use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object, RGBArray};
 use ww_gift_coords::COORDS;
-use ww_proc_macros::{BaseEffect, Sealed};
 
 /// A simple sphere used to keep track of the spheres in the lava lamp.
 #[derive(Clone, Copy, Debug, PartialEq)]

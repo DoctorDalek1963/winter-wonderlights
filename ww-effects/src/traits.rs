@@ -99,7 +99,7 @@ mod effect_trait {
     use ww_driver_trait::Driver;
 
     /// A trait needed for all implemtors of [`Effect`]. This trait should be derived with
-    /// [`ww_proc_macros::BaseEffect`].
+    /// [`effect_proc_macros::BaseEffect`].
     pub trait BaseEffect: Default + private::Sealed {
         /// The name of the effect, used for config files and GUI editting.
         fn effect_name() -> &'static str;

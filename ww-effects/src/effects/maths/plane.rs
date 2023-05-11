@@ -2,6 +2,7 @@
 
 use crate::{sleep, Effect, EffectConfig};
 use async_trait::async_trait;
+use effect_proc_macros::{BaseEffect, Sealed};
 use egui::RichText;
 use glam::Vec3;
 use rand::{rngs::StdRng, Rng, SeedableRng};
@@ -10,7 +11,6 @@ use std::time::Duration;
 use ww_driver_trait::Driver;
 use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object, RGBArray};
 use ww_gift_coords::COORDS;
-use ww_proc_macros::{BaseEffect, Sealed};
 
 /// The config for the moving plane effect; includes speed.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Sealed)]
