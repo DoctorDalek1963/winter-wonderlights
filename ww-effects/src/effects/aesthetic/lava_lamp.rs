@@ -11,7 +11,7 @@ use tracing::{debug, instrument};
 use ww_driver_trait::Driver;
 use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object, RGBArray};
 use ww_gift_coords::COORDS;
-use ww_proc_macros::BaseEffect;
+use ww_proc_macros::{BaseEffect, Sealed};
 
 /// A simple sphere used to keep track of the spheres in the lava lamp.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -53,7 +53,7 @@ impl Sphere {
 }
 
 /// The config for the lava lamp effect.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Sealed)]
 pub struct LavaLampConfig {
     /// The base colour of the spheres.
     base_colour: RGBArray,

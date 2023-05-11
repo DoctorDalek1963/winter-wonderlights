@@ -8,10 +8,10 @@ use std::time::Duration;
 use tracing::debug;
 use ww_driver_trait::Driver;
 use ww_frame::{FrameType, RGBArray};
-use ww_proc_macros::BaseEffect;
+use ww_proc_macros::{BaseEffect, Sealed};
 
 /// The config for the one-by-one effect; includes timing and the color.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Sealed)]
 pub struct DebugOneByOneConfig {
     /// The number of milliseconds that the light is on for.
     light_time_ms: u64,
@@ -106,7 +106,7 @@ impl Effect for DebugOneByOne {
 }
 
 /// The config for the binary index effect; includes timing and colors.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Sealed)]
 pub struct DebugBinaryIndexConfig {
     /// The number of milliseconds that the lights are on for.
     light_time_ms: u64,

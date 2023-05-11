@@ -10,10 +10,10 @@ use std::time::Duration;
 use ww_driver_trait::Driver;
 use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object, RGBArray};
 use ww_gift_coords::COORDS;
-use ww_proc_macros::BaseEffect;
+use ww_proc_macros::{BaseEffect, Sealed};
 
 /// The config for the moving plane effect; includes speed.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Sealed)]
 pub struct MovingPlaneConfig {
     /// How many units (in GIFT coords) that the plane moves in one second.
     units_per_second: f32,
