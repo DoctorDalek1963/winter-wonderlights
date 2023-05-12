@@ -1,0 +1,16 @@
+[package]
+name = "effect-proc-macros"
+version = "0.1.0-dev"
+authors = ["Dyson Dyson <dyson.dyson@icloud.com>"]
+edition = "2021"
+description = "A set of proc-macros for the `ww_effects` crate of Winter WonderLights."
+repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
+license = "GPL-3.0"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1.0.56"
+quote = "1.0.27"
+syn = { version = "2.0.15", features = ["derive"] }

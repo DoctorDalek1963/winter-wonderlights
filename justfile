@@ -42,5 +42,5 @@ serve-client flags='':
 
 # run the tests in debug and release mode
 test:
-	cargo insta test --unreferenced warn --all-features --workspace
-	cargo insta test --unreferenced warn --all-features --workspace --release
+	cargo insta test --unreferenced reject --all-features --workspace
+	cargo insta test --unreferenced reject --all-features --workspace --release

@@ -12,6 +12,7 @@ license = "GPL-3.0"
 cfg-if.workspace = true
 serde.workspace = true
 strum.workspace = true
+effect-proc-macros = { path = "./effect-proc-macros" }
 
 # config-trait
 egui = { workspace = true, optional = true }

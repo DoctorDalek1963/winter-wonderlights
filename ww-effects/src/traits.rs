@@ -17,10 +17,23 @@ where
     );
 }
 
+/// This module contains the [`Sealed`](self::private::Sealed) trait
+#[cfg(any(feature = "config-trait", feature = "effect-trait"))]
+pub(crate) mod private {
+    #[cfg(doc)]
+    use super::{BaseEffect, Effect, EffectConfig};
+
+    /// This trait restricts implementors of [`Effect`], [`BaseEffect`], and [`EffectConfig`] to only
+    /// be in this crate. This restriction is needed so that
+    /// [`EffectNameList`](../list/enum.EffectNameList.html) and friends have variants for all the
+    /// effects.
+    pub trait Sealed {}
+}
+
 /// This trait is needed by all structs that want to act as configuration for effects.
 #[cfg(feature = "config-trait")]
 pub trait EffectConfig:
-    Clone + Default + PartialEq + Serialize + for<'de> Deserialize<'de>
+    Clone + Default + PartialEq + Serialize + for<'de> Deserialize<'de> + private::Sealed
 {
     /// Render the GUI to edit the config of this effect. The default implementation does nothing.
     ///
@@ -28,14 +41,7 @@ pub trait EffectConfig:
     /// below. Saving the config data at the end is a necessary but unfortunate workaround. I hope
     /// to find a better method in the future.
     ///
-    /// ```
-    /// # use egui::{Context, RichText, Ui};
-    /// # use ww_effects::EffectConfig;
-    /// # struct ParentEffect;
-    /// # impl ParentEffect { fn config_filename() -> String { String::new() } }
-    /// # #[derive(Clone, Debug, Default, PartialEq, serde::Serialize, serde::Deserialize)]
-    /// # struct Dummy;
-    /// # impl EffectConfig for Dummy {
+    /// ```ignore
     /// fn render_options_gui(&mut self, _ctx: &Context, ui: &mut Ui) {
     ///     ui.separator();
     ///     ui.label(RichText::new("EffectName config").heading());
@@ -53,7 +59,6 @@ pub trait EffectConfig:
     ///         self.save_to_file(&ParentEffect::config_filename());
     ///     }
     /// }
-    /// # }
     /// ```
     #[allow(unused_variables)]
     fn render_options_gui(&mut self, _ctx: &Context, ui: &mut Ui) {}
@@ -93,14 +98,46 @@ mod effect_trait {
     use heck::ToSnakeCase;
     use ww_driver_trait::Driver;
 
-    /// The trait implemented by all effects, which primarily defines how to run them.
-    #[async_trait]
-    pub trait Effect: Default {
-        /// The type of this effect's config.
-        type Config: EffectConfig;
-
+    /// A trait needed for all implemtors of [`Effect`]. This trait should be derived with
+    /// [`effect_proc_macros::BaseEffect`].
+    pub trait BaseEffect: Default + private::Sealed {
         /// The name of the effect, used for config files and GUI editting.
         fn effect_name() -> &'static str;
+
+        /// Save the config to a file.
+        ///
+        /// The implementation should call [`save_effect_config_to_file`] with
+        /// `Self::config_filename()` and the internal config data.
+        ///
+        /// ```ignore
+        /// fn save_to_file(&self) {
+        ///     self.config.save_to_file(&Self::config_filename())
+        /// }
+        /// ```
+        fn save_to_file(&self);
+
+        /// Load the effect from a file.
+        ///
+        /// `Self::Config` will have a method [`from_file`](EffectConfig::from_file), so you can use
+        /// that for the config. Any internal state should be initial state.
+        ///
+        /// The recommended implementation is shown below:
+        ///
+        /// ```ignore
+        /// fn from_file() -> Self {
+        ///     Self {
+        ///         config: <Self as Effect>::Config::from_file(&Self::config_filename()),
+        ///     }
+        /// }
+        /// ```
+        fn from_file() -> Self;
+    }
+
+    /// The trait implemented by all effects, which defines how to run them.
+    #[async_trait]
+    pub trait Effect: BaseEffect {
+        /// The type of this effect's config.
+        type Config: EffectConfig;
 
         /// The filename for the config file of this effect.
         fn config_filename() -> String {
@@ -120,61 +157,10 @@ mod effect_trait {
         ///
         /// This function should not handle looping the effect. That's handled by the driver code, so
         /// this function should just run the effect once.
+        ///
+        /// However, if the effect is a procedural aesthetic thing like
+        /// [`LavaLamp`](../effects/aesthetic/struct.LavaLamp.html), then that should loop on its
+        /// own.
         async fn run(self, driver: &mut dyn Driver);
-
-        /// Save the config to a file.
-        ///
-        /// The implementation should call [`save_effect_config_to_file`] with
-        /// `Self::config_filename()` and the internal config data.
-        ///
-        /// ```
-        /// # use ww_driver_trait::Driver;
-        /// # use ww_effects::{Effect, EffectConfig};
-        /// # #[derive(Clone, Debug, Default, PartialEq, serde::Serialize, serde::Deserialize)]
-        /// # struct DummyConfig;
-        /// # impl EffectConfig for DummyConfig {}
-        /// # #[derive(Default)]
-        /// # struct Dummy { config: DummyConfig };
-        /// # #[async_trait::async_trait]
-        /// # impl Effect for Dummy {
-        /// # type Config = DummyConfig;
-        /// # fn effect_name() -> &'static str { "Dummy" }
-        /// # async fn run(self, driver: &mut dyn Driver) {}
-        /// # fn from_file() -> Self { Self::default() }
-        /// fn save_to_file(&self) {
-        ///     self.config.save_to_file(&Self::config_filename())
-        /// }
-        /// # }
-        fn save_to_file(&self);
-
-        /// Load the effect from a file.
-        ///
-        /// `Self::Config` will have a method [`from_file`](EffectConfig::from_file), so you can use
-        /// that for the config. Any internal state should be initial state.
-        ///
-        /// The recommended implementation is shown below:
-        ///
-        /// ```
-        /// # use ww_driver_trait::Driver;
-        /// # use ww_effects::{Effect, EffectConfig, save_effect_config_to_file};
-        /// # #[derive(Clone, Debug, Default, PartialEq, serde::Serialize, serde::Deserialize)]
-        /// # struct DummyConfig;
-        /// # impl EffectConfig for DummyConfig {}
-        /// # #[derive(Default)]
-        /// # struct Dummy { config: DummyConfig };
-        /// # #[async_trait::async_trait]
-        /// # impl Effect for Dummy {
-        /// # type Config = DummyConfig;
-        /// # fn effect_name() -> &'static str { "Dummy" }
-        /// # async fn run(self, driver: &mut dyn Driver) {}
-        /// # fn save_to_file(&self) {}
-        /// fn from_file() -> Self {
-        ///     Self {
-        ///         config: Self::Config::from_file(&Self::config_filename()),
-        ///     }
-        /// }
-        /// # }
-        /// ```
-        fn from_file() -> Self;
     }
 }

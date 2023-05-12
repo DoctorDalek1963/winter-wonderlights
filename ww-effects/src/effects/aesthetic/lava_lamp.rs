@@ -2,6 +2,7 @@
 
 use crate::{sleep, Effect, EffectConfig};
 use async_trait::async_trait;
+use effect_proc_macros::{BaseEffect, Sealed};
 use egui::{Align, Layout, RichText, Vec2};
 use glam::{IVec3, Vec3};
 use rand::{rngs::StdRng, Rng, SeedableRng};
@@ -52,7 +53,7 @@ impl Sphere {
 }
 
 /// The config for the lava lamp effect.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Sealed)]
 pub struct LavaLampConfig {
     /// The base colour of the spheres.
     base_colour: RGBArray,
@@ -111,7 +112,7 @@ impl EffectConfig for LavaLampConfig {
 }
 
 /// Display a lava lamp-like effect on the tree.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, BaseEffect)]
 pub struct LavaLamp {
     /// The config for this effect.
     config: LavaLampConfig,
@@ -143,13 +144,6 @@ impl Default for LavaLamp {
 #[async_trait]
 impl Effect for LavaLamp {
     type Config = LavaLampConfig;
-
-    fn effect_name() -> &'static str
-    where
-        Self: Sized,
-    {
-        "LavaLamp"
-    }
 
     #[instrument(skip_all)]
     async fn run(mut self, driver: &mut dyn Driver) {
@@ -216,17 +210,6 @@ impl Effect for LavaLamp {
                     break;
                 }
             }
-        }
-    }
-
-    fn save_to_file(&self) {
-        self.config.save_to_file(&Self::config_filename());
-    }
-
-    fn from_file() -> Self {
-        Self {
-            config: Self::Config::from_file(&Self::config_filename()),
-            ..Self::default()
         }
     }
 }
