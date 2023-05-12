@@ -4,7 +4,17 @@
 // Duration is imported and unused for tests and benchmarks because of the sleep macro
 #![cfg_attr(any(test, feature = "bench"), allow(unused_imports))]
 
-pub mod list;
+pub mod list {
+    //! This module contains list enums for effects and their configs, in name and dispatch (instance
+    //! wrapper) form.
+
+    effect_proc_macros::generate_lists_and_impls! {
+        DebugOneByOne,
+        DebugBinaryIndex,
+        MovingPlane,
+        LavaLamp,
+    }
+}
 
 pub use self::list::{EffectConfigNameList, EffectNameList};
 
