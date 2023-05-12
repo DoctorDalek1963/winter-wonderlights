@@ -27,7 +27,11 @@ fn generate_lists_and_impls2(input: TokenStream) -> Result<TokenStream> {
     let from_impls = impl_from_lists(&effect_names);
 
     Ok(quote! {
-        use crate::traits::{BaseEffect, Effect, EffectConfig};
+        #[cfg(feature = "config-trait")]
+        use crate::traits::EffectConfig;
+
+        #[cfg(feature = "effect-trait")]
+        use crate::traits::{BaseEffect, Effect};
 
         #name_lists
         #dispatch_lists
@@ -185,8 +189,9 @@ fn impl_lists(effect_names: &Vec<Ident>, config_names: &Vec<Ident>) -> TokenStre
     let effect_name_list_effect_names: Vec<_> = effect_names
         .iter()
         .map(|ident| {
+            let string = ident.to_string();
             quote! {
-                EffectNameList:: #ident => #ident ::effect_name()
+                EffectNameList:: #ident => #string
             }
         })
         .collect();
@@ -204,8 +209,9 @@ fn impl_lists(effect_names: &Vec<Ident>, config_names: &Vec<Ident>) -> TokenStre
     let effect_dispatch_list_effect_names: Vec<_> = effect_names
         .iter()
         .map(|ident| {
+            let string = ident.to_string();
             quote! {
-                EffectDispatchList:: #ident (_) => #ident ::effect_name()
+                EffectDispatchList:: #ident (_) => #string
             }
         })
         .collect();
