@@ -33,6 +33,12 @@ fn generate_lists_and_impls2(input: TokenStream) -> Result<TokenStream> {
         #[cfg(feature = "effect-trait")]
         use crate::traits::{BaseEffect, Effect};
 
+        #[cfg(feature = "config-impls")]
+        use crate::effects::configs::*;
+
+        #[cfg(feature = "effect-impls")]
+        use crate::effects::effects::*;
+
         #name_lists
         #dispatch_lists
         #impls
@@ -159,9 +165,6 @@ fn create_dispatch_lists(effect_names: &Vec<Ident>, config_names: &Vec<Ident>) -
         .collect();
 
     quote! {
-        #[cfg(feature = "effect-impls")]
-        use crate::effects::effects::*;
-
         /// This enum has a variant to wrap an instance of every effect. You can call any method
         /// from the [`Effect`] trait on a variant of this enum.
         #[cfg(feature = "effect-impls")]
@@ -169,9 +172,6 @@ fn create_dispatch_lists(effect_names: &Vec<Ident>, config_names: &Vec<Ident>) -
         pub enum EffectDispatchList {
             #( #effect_items ),*
         }
-
-        #[cfg(feature = "config-impls")]
-        use crate::effects::configs::*;
 
         /// This enum has a variant to wrap an instance of every effect config. You can call most
         /// methods from the [`EffectConfig`] trait on a variant of this enum.
@@ -200,8 +200,13 @@ fn impl_lists(effect_names: &Vec<Ident>, config_names: &Vec<Ident>) -> TokenStre
         .iter()
         .map(|ident| {
             let config_ident = format_ident!("{ident}Config");
+            let ident_name = ident.to_string();
             quote! {
-                EffectNameList:: #ident => EffectConfigDispatchList:: #config_ident (#ident ::config_from_file())
+                EffectNameList:: #ident => {
+                    EffectConfigDispatchList:: #config_ident (
+                        #config_ident ::from_file(&crate::traits::get_config_filename( #ident_name ))
+                    )
+                }
             }
         })
         .collect();
