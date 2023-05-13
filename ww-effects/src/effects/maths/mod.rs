@@ -1,5 +1,9 @@
 //! This module contains purely mathematical effects.
 
-pub mod plane;
+pub mod moving_plane;
 
-pub use self::plane::{MovingPlane, MovingPlaneConfig};
+#[cfg(feature = "effect-impls")]
+pub use self::moving_plane::MovingPlane;
+
+#[cfg(feature = "config-impls")]
+pub use self::moving_plane::MovingPlaneConfig;

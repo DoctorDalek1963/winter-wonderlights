@@ -16,6 +16,20 @@
 #[cfg(doc)]
 use crate::traits::{Effect, EffectConfig};
 
+/// Asynchronously sleep for the specified duration and await it when running normally.
+///
+/// The sleep call gets completely removed for test and bench builds.
+#[cfg(feature = "effect-impls")]
+macro_rules! sleep {
+    ( $dur:expr ) => {
+        #[cfg(not(any(test, feature = "bench")))]
+        ::tokio::time::sleep($dur).await
+    };
+}
+
+#[cfg(feature = "effect-impls")]
+pub(crate) use sleep;
+
 pub mod aesthetic;
 pub mod debug;
 pub mod maths;

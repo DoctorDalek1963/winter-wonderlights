@@ -17,6 +17,18 @@ where
     );
 }
 
+/// Get the filename for the config of the given effect name.
+#[cfg(feature = "config-impls")]
+pub fn get_config_filename(effect_name: &str) -> String {
+    use heck::ToSnakeCase;
+
+    format!(
+        "{}/config/{}.ron",
+        env!("DATA_DIR"),
+        effect_name.to_snake_case()
+    )
+}
+
 /// This module contains the [`Sealed`](self::private::Sealed) trait
 #[cfg(any(feature = "config-trait", feature = "effect-trait"))]
 pub(crate) mod private {
@@ -56,7 +68,7 @@ pub trait EffectConfig:
     ///     }
     ///
     ///     if config_changed {
-    ///         self.save_to_file(&ParentEffect::config_filename());
+    ///         self.save_to_file(&get_config_filename("ParentEffect"));
     ///     }
     /// }
     /// ```
@@ -89,78 +101,66 @@ pub trait EffectConfig:
     }
 }
 
-pub use self::effect_trait::*;
-
+/// A trait needed for all implemtors of [`Effect`]. This trait should be derived with
+/// [`effect_proc_macros::BaseEffect`].
 #[cfg(feature = "effect-trait")]
-mod effect_trait {
-    use super::*;
-    use async_trait::async_trait;
-    use heck::ToSnakeCase;
-    use ww_driver_trait::Driver;
+pub trait BaseEffect: Default + private::Sealed {
+    /// The name of the effect, used for config files and GUI editting.
+    fn effect_name() -> &'static str;
 
-    /// A trait needed for all implemtors of [`Effect`]. This trait should be derived with
-    /// [`effect_proc_macros::BaseEffect`].
-    pub trait BaseEffect: Default + private::Sealed {
-        /// The name of the effect, used for config files and GUI editting.
-        fn effect_name() -> &'static str;
+    /// Save the config to a file.
+    ///
+    /// The implementation should call [`save_effect_config_to_file`] with
+    /// `Self::config_filename()` and the internal config data.
+    ///
+    /// ```ignore
+    /// fn save_to_file(&self) {
+    ///     self.config.save_to_file(&Self::config_filename())
+    /// }
+    /// ```
+    fn save_to_file(&self);
 
-        /// Save the config to a file.
-        ///
-        /// The implementation should call [`save_effect_config_to_file`] with
-        /// `Self::config_filename()` and the internal config data.
-        ///
-        /// ```ignore
-        /// fn save_to_file(&self) {
-        ///     self.config.save_to_file(&Self::config_filename())
-        /// }
-        /// ```
-        fn save_to_file(&self);
+    /// Load the effect from a file.
+    ///
+    /// `Self::Config` will have a method [`from_file`](EffectConfig::from_file), so you can use
+    /// that for the config. Any internal state should be initial state.
+    ///
+    /// The recommended implementation is shown below:
+    ///
+    /// ```ignore
+    /// fn from_file() -> Self {
+    ///     Self {
+    ///         config: <Self as Effect>::Config::from_file(&Self::config_filename()),
+    ///     }
+    /// }
+    /// ```
+    fn from_file() -> Self;
+}
 
-        /// Load the effect from a file.
-        ///
-        /// `Self::Config` will have a method [`from_file`](EffectConfig::from_file), so you can use
-        /// that for the config. Any internal state should be initial state.
-        ///
-        /// The recommended implementation is shown below:
-        ///
-        /// ```ignore
-        /// fn from_file() -> Self {
-        ///     Self {
-        ///         config: <Self as Effect>::Config::from_file(&Self::config_filename()),
-        ///     }
-        /// }
-        /// ```
-        fn from_file() -> Self;
+/// The trait implemented by all effects, which defines how to run them.
+#[cfg(feature = "effect-trait")]
+#[async_trait::async_trait]
+pub trait Effect: BaseEffect {
+    /// The type of this effect's config.
+    type Config: EffectConfig;
+
+    /// The filename for the config file of this effect.
+    fn config_filename() -> String {
+        get_config_filename(Self::effect_name())
     }
 
-    /// The trait implemented by all effects, which defines how to run them.
-    #[async_trait]
-    pub trait Effect: BaseEffect {
-        /// The type of this effect's config.
-        type Config: EffectConfig;
-
-        /// The filename for the config file of this effect.
-        fn config_filename() -> String {
-            format!(
-                "{}/config/{}.ron",
-                env!("DATA_DIR"),
-                Self::effect_name().to_snake_case()
-            )
-        }
-
-        /// Return a copy of this effect's config, loaded from the file.
-        fn config_from_file() -> Self::Config {
-            Self::Config::from_file(&Self::config_filename())
-        }
-
-        /// Run the effect with the given driver.
-        ///
-        /// This function should not handle looping the effect. That's handled by the driver code, so
-        /// this function should just run the effect once.
-        ///
-        /// However, if the effect is a procedural aesthetic thing like
-        /// [`LavaLamp`](../effects/aesthetic/struct.LavaLamp.html), then that should loop on its
-        /// own.
-        async fn run(self, driver: &mut dyn Driver);
+    /// Return a copy of this effect's config, loaded from the file.
+    fn config_from_file() -> Self::Config {
+        Self::Config::from_file(&Self::config_filename())
     }
+
+    /// Run the effect with the given driver.
+    ///
+    /// This function should not handle looping the effect. That's handled by the driver code, so
+    /// this function should just run the effect once.
+    ///
+    /// However, if the effect is a procedural aesthetic thing like
+    /// [`LavaLamp`](../effects/aesthetic/struct.LavaLamp.html), then that should loop on its
+    /// own.
+    async fn run(self, driver: &mut dyn ww_driver_trait::Driver);
 }

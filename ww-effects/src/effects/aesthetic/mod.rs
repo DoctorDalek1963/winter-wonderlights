@@ -2,4 +2,8 @@
 
 pub mod lava_lamp;
 
-pub use self::lava_lamp::{LavaLamp, LavaLampConfig};
+#[cfg(feature = "effect-impls")]
+pub use self::lava_lamp::LavaLamp;
+
+#[cfg(feature = "config-impls")]
+pub use self::lava_lamp::LavaLampConfig;

@@ -37,22 +37,6 @@ pub use self::traits::Effect;
 pub mod effects;
 
 cfg_if::cfg_if! {
-    if #[cfg(feature = "effect-impls")] {
-        /// Asynchronously sleep for the specified duration and await it when running normally.
-        ///
-        /// The sleep call gets completely removed for test and bench builds.
-        macro_rules! sleep {
-            ( $dur:expr ) => {
-                #[cfg(not(any(test, feature = "bench")))]
-                ::tokio::time::sleep($dur).await
-            };
-        }
-
-        pub(crate) use sleep;
-    }
-}
-
-cfg_if::cfg_if! {
     if #[cfg(test)] {
         use ww_driver_trait::Driver;
         use ww_frame::FrameType;
