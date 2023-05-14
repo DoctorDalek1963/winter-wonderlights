@@ -15,7 +15,7 @@ use tracing::{debug, error, info, instrument, trace, warn};
 use tracing_subscriber::{filter::LevelFilter, fmt::Layer, prelude::*, EnvFilter};
 use tracing_unwrap::ResultExt;
 use ww_effects::{traits::get_config_filename, EffectConfigNameList};
-use ww_shared_msgs::{ClientState, ClientToServerMsg, ServerToClientMsg};
+use ww_shared::{ClientState, ClientToServerMsg, ServerToClientMsg};
 
 /// The `.expect()` error message for serializing a [`ServerToClientMsg`].
 const EXPECT_SERIALIZE_MSG: &str = "Serializing a ServerToClientMsg should never fail";

@@ -18,7 +18,7 @@ ron.workspace = true
 tracing.workspace = true
 tracing-unwrap.workspace = true
 ww-effects = { path = "../ww-effects", default-features = false, features = ["config-impls"] }
-ww-shared-msgs = { path = "../ww-shared-msgs" }
+ww-shared = { path = "../ww-shared" }
 
 # Native
 [target.'cfg(not(target_family = "wasm"))'.dependencies]

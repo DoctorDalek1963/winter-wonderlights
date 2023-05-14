@@ -5,7 +5,7 @@ use reqwest::Client;
 use std::time::Duration;
 use tracing::{debug, error, instrument};
 use tracing_unwrap::ResultExt;
-use ww_shared_msgs::{ClientState, ClientToServerMsg, ServerToClientMsg};
+use ww_shared::{ClientState, ClientToServerMsg, ServerToClientMsg};
 
 /// The `.expect()` error message for serializing a [`ClientToServerMsg`].
 const EXPECT_SERIALIZE_MSG: &str = "Serializing a ClientToServerMsg should never fail";

@@ -1,5 +1,5 @@
 [package]
-name = "ww-shared-msgs"
+name = "ww-shared"
 version = "0.1.0-dev"
 authors = ["Dyson Dyson <dyson.dyson@icloud.com>"]
 edition = "2021"

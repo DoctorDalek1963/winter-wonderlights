@@ -18,4 +18,4 @@ tracing-unwrap.workspace = true
 ww-driver-trait = { path = "../ww-driver-trait" }
 ww-effects = { path = "../ww-effects" }
 ww-frame = { path = "../ww-frame" }
-ww-shared-msgs = { path = "../ww-shared-msgs" }
+ww-shared = { path = "../ww-shared" }

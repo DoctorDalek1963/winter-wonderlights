@@ -5561,7 +5561,7 @@ dependencies = [
  "tracing-unwrap",
  "tracing-wasm",
  "ww-effects",
- "ww-shared-msgs",
+ "ww-shared",
 ]
 
 [[package]]
@@ -5630,11 +5630,11 @@ dependencies = [
  "ww-driver-trait",
  "ww-effects",
  "ww-frame",
- "ww-shared-msgs",
+ "ww-shared",
 ]
 
 [[package]]
-name = "ww-shared-msgs"
+name = "ww-shared"
 version = "0.1.0-dev"
 dependencies = [
  "serde",
