@@ -249,13 +249,30 @@ fn impl_lists(effect_names: &Vec<Ident>, config_names: &Vec<Ident>) -> TokenStre
         })
         .collect();
 
-    let config_name_list_configs_from_file: Vec<_> = config_names.iter()
+    let config_name_list_configs_from_file: Vec<_> = config_names
+        .iter()
         .map(|ident| {
             let effect_name = ident.to_string().replace("Config", "");
             quote! {
-                EffectConfigNameList:: #ident => EffectConfigDispatchList:: #ident ( #ident ::from_file( #effect_name ))
+                EffectConfigNameList:: #ident => {
+                    EffectConfigDispatchList:: #ident (
+                        #ident ::from_file(&crate::traits::get_config_filename( #effect_name ))
+                    )
+                }
             }
-        }).collect();
+        })
+        .collect();
+
+    let config_name_list_effect_names: Vec<_> = effect_names
+        .iter()
+        .map(|ident| {
+            let string = ident.to_string();
+            let config = format_ident!("{ident}Config");
+            quote! {
+                EffectConfigNameList:: #config => #string
+            }
+        })
+        .collect();
 
     let config_dispatch_list_render_options_guis: Vec<_> = config_names
         .iter()
@@ -271,6 +288,17 @@ fn impl_lists(effect_names: &Vec<Ident>, config_names: &Vec<Ident>) -> TokenStre
         .map(|ident| {
             quote! {
                 EffectConfigDispatchList:: #ident (config) => crate::save_effect_config_to_file(filename, config)
+            }
+        })
+        .collect();
+
+    let config_dispatch_list_effect_names: Vec<_> = effect_names
+        .iter()
+        .map(|ident| {
+            let string = ident.to_string();
+            let config = format_ident!("{ident}Config");
+            quote! {
+                EffectConfigDispatchList:: #config (_) => #string
             }
         })
         .collect();
@@ -332,12 +360,19 @@ fn impl_lists(effect_names: &Vec<Ident>, config_names: &Vec<Ident>) -> TokenStre
                     #( #config_name_list_configs_from_file ),*
                 }
             }
+
+            /// Get the name of the corresponding effect.
+            pub fn effect_name(&self) -> &'static str {
+                match self {
+                    #( #config_name_list_effect_names ),*
+                }
+            }
         }
 
         #[cfg(feature = "config-impls")]
         impl EffectConfigDispatchList {
             /// Render the options GUI for the config.
-            pub fn render_options_gui(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
+            pub fn render_options_gui(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) -> bool {
                 match self {
                     #( #config_dispatch_list_render_options_guis ),*
                 }
@@ -347,6 +382,13 @@ fn impl_lists(effect_names: &Vec<Ident>, config_names: &Vec<Ident>) -> TokenStre
             pub fn save_to_file(&self, filename: &str) {
                 match self {
                     #( #config_dispatch_list_save_to_file ),*
+                }
+            }
+
+            /// Get the name of the corresponding effect.
+            pub fn effect_name(&self) -> &'static str {
+                match self {
+                    #( #config_dispatch_list_effect_names ),*
                 }
             }
         }

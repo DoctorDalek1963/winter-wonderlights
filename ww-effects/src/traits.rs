@@ -47,15 +47,14 @@ pub(crate) mod private {
 pub trait EffectConfig:
     Clone + Default + PartialEq + Serialize + for<'de> Deserialize<'de> + private::Sealed
 {
-    /// Render the GUI to edit the config of this effect. The default implementation does nothing.
+    /// Render the GUI to edit the config of this effect and return whether the config has changed.
+    /// The default implementation returns false.
     ///
     /// If you implement this for an effect, the implementation should look something like the one
-    /// below. Saving the config data at the end is a necessary but unfortunate workaround. I hope
-    /// to find a better method in the future.
+    /// below.
     ///
     /// ```ignore
     /// fn render_options_gui(&mut self, _ctx: &Context, ui: &mut Ui) {
-    ///     ui.separator();
     ///     ui.label(RichText::new("EffectName config").heading());
     ///
     ///     let mut config_changed = false;
@@ -67,13 +66,13 @@ pub trait EffectConfig:
     ///         config_changed = true;
     ///     }
     ///
-    ///     if config_changed {
-    ///         self.save_to_file(&get_config_filename("ParentEffect"));
-    ///     }
+    ///     config_changed
     /// }
     /// ```
     #[allow(unused_variables)]
-    fn render_options_gui(&mut self, _ctx: &Context, ui: &mut Ui) {}
+    fn render_options_gui(&mut self, _ctx: &Context, ui: &mut Ui) -> bool {
+        false
+    }
 
     /// Load the effect configuration from the config file, or use the default if the file is
     /// unavailable. Also save the default to the file for future editing.

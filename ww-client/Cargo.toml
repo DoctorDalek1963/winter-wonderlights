@@ -8,15 +8,16 @@ repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
 license = "GPL-3.0"
 
 [dependencies]
+async-channel = "1.8.0"
 cfg-if.workspace = true
-crossbeam-channel = "0.5.8"
-eframe = { version = "0.21.3", features = ["persistence", "dark-light"] }
+eframe = { version = "0.20.1", features = ["persistence", "dark-light"] }
+egui.workspace = true
 prokio = "0.1.0"
 reqwest = "0.11.17"
 ron.workspace = true
 tracing.workspace = true
 tracing-unwrap.workspace = true
-ww-effects = { path = "../ww-effects", default-features = false }
+ww-effects = { path = "../ww-effects", default-features = false, features = ["config-impls"] }
 ww-shared-msgs = { path = "../ww-shared-msgs" }
 
 # Native

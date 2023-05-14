@@ -11,7 +11,6 @@ license = "GPL-3.0"
 color-eyre.workspace = true
 ron.workspace = true
 tiny_http = { version = "0.12.0", features = ["ssl"] }
-tokio = { workspace = true, features = ["rt-multi-thread"] }
 tracing.workspace = true
 tracing-appender = "0.2.2"
 tracing-subscriber.workspace = true

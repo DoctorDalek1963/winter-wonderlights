@@ -8,7 +8,7 @@ pub use effect::LavaLamp;
 
 #[cfg(feature = "config-impls")]
 mod config {
-    use crate::traits::{get_config_filename, EffectConfig};
+    use crate::traits::EffectConfig;
     use effect_proc_macros::Sealed;
     use egui::{Align, Layout, RichText, Vec2};
     use serde::{Deserialize, Serialize};
@@ -39,8 +39,7 @@ mod config {
     }
 
     impl EffectConfig for LavaLampConfig {
-        fn render_options_gui(&mut self, _ctx: &egui::Context, ui: &mut egui::Ui) {
-            ui.separator();
+        fn render_options_gui(&mut self, _ctx: &egui::Context, ui: &mut egui::Ui) -> bool {
             ui.label(RichText::new("LavaLamp config").heading());
 
             let mut config_changed = false;
@@ -66,9 +65,7 @@ mod config {
                 config_changed = true;
             }
 
-            if config_changed {
-                self.save_to_file(&get_config_filename("LavaLamp"));
-            }
+            config_changed
         }
     }
 }

@@ -4,14 +4,48 @@
 mod drivers;
 
 use color_eyre::Result;
+use std::{
+    ops::Deref,
+    sync::{Arc, RwLock},
+    thread,
+    time::Duration,
+};
 use tiny_http::{Header, Request, Response};
 use tracing::{debug, error, info, instrument, trace, warn};
 use tracing_subscriber::{filter::LevelFilter, fmt::Layer, prelude::*, EnvFilter};
 use tracing_unwrap::ResultExt;
-use ww_shared_msgs::{ClientToServerMsg, ServerToClientMsg};
+use ww_effects::{traits::get_config_filename, EffectConfigNameList};
+use ww_shared_msgs::{ClientState, ClientToServerMsg, ServerToClientMsg};
 
 /// The `.expect()` error message for serializing a [`ServerToClientMsg`].
 const EXPECT_SERIALIZE_MSG: &str = "Serializing a ServerToClientMsg should never fail";
+
+/// A simple wrapper struct to hold the client state.
+#[derive(Clone, Debug)]
+struct WrappedClientState(Arc<RwLock<ClientState>>);
+
+impl WrappedClientState {
+    /// Save the config of the client state.
+    fn save_config(&self) {
+        debug!("Saving config to file");
+
+        if let Some(config) = &self
+            .read()
+            .expect_or_log("Should be able to read client state")
+            .effect_config
+        {
+            config.save_to_file(&get_config_filename(config.effect_name()));
+        }
+    }
+}
+
+impl Deref for WrappedClientState {
+    type Target = RwLock<ClientState>;
+
+    fn deref(&self) -> &Self::Target {
+        &*self.0
+    }
+}
 
 /// Create a header that will allow the client to function properly without CORS getting in the way.
 fn no_cors_header() -> Header {
@@ -26,7 +60,7 @@ fn no_cors_header() -> Header {
 }
 
 #[instrument(skip_all, fields(addr = ?req.remote_addr()))]
-fn handle_request(mut req: Request) -> Result<()> {
+fn handle_request(mut req: Request, client_state: &WrappedClientState) -> Result<()> {
     debug!("Received a new request");
 
     trace!(?req);
@@ -37,18 +71,33 @@ fn handle_request(mut req: Request) -> Result<()> {
 
     trace!(?msg);
 
+    let mut client = client_state
+        .write()
+        .expect_or_log("Should be able to write to client state");
+
+    macro_rules! respond_update_client_state {
+        () => {
+            req.respond(
+                Response::from_string(
+                    ron::to_string(&ServerToClientMsg::UpdateClientState(client.clone()))
+                        .expect(EXPECT_SERIALIZE_MSG),
+                )
+                .with_header(no_cors_header()),
+            )?
+        };
+    }
+
     match msg {
         ClientToServerMsg::RequestUpdate => {
             info!("Client requesting update");
 
-            // TODO: Implement client state, including effect config
-            req.respond(
-                Response::from_string(
-                    ron::to_string(&ServerToClientMsg::UpdateClientState)
-                        .expect(EXPECT_SERIALIZE_MSG),
-                )
-                .with_header(no_cors_header()),
-            )?;
+            respond_update_client_state!();
+        }
+        ClientToServerMsg::UpdateConfig(new_config) => {
+            info!("Client requesting config change");
+            client.effect_config = Some(new_config);
+            info!(?client);
+            respond_update_client_state!();
         }
         ClientToServerMsg::ChangeEffect(_effect) => {
             todo!("Implement some sort of effect manager")
@@ -108,14 +157,30 @@ fn main() {
         }
     };
 
+    let client_state = WrappedClientState(Arc::new(RwLock::new(ClientState {
+        effect_config: Some(EffectConfigNameList::MovingPlaneConfig.config_from_file()),
+    })));
+
+    // Save the effect config every 10 seconds
+    thread::spawn({
+        let state = client_state.clone();
+        move || loop {
+            state.save_config();
+            thread::sleep(Duration::from_secs(10));
+        }
+    });
+
     info!("Server initialised");
 
     for req in server.incoming_requests() {
-        match handle_request(req) {
+        match handle_request(req, &client_state) {
             Ok(()) => (),
             Err(e) => error!(?e, "Error handing request"),
         };
     }
 
-    info!("Server socket has shut down. Terminating server");
+    info!("Server socket has shut down. Saving config and terminating server");
+
+    client_state.save_config();
+    info!("Config saved");
 }

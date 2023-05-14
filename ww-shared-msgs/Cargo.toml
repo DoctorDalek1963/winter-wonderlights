@@ -9,4 +9,4 @@ license = "GPL-3.0"
 
 [dependencies]
 serde.workspace = true
-ww-effects = { path = "../ww-effects", default-features = false }
+ww-effects = { path = "../ww-effects", default-features = false, features = ["config-impls"] }
