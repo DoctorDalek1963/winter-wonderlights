@@ -20,12 +20,15 @@ pub enum ClientToServerMsg {
     UpdateConfig(EffectConfigDispatchList),
 
     /// Ask the server to change the effect.
-    ChangeEffect(EffectNameList),
+    ChangeEffect(Option<EffectNameList>),
 }
 
 /// The state of the client.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ClientState {
+    /// The name of the current effect.
+    pub effect_name: Option<EffectNameList>,
+
     /// The config of the current effect.
     pub effect_config: Option<EffectConfigDispatchList>,
 }

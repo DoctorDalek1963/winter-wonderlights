@@ -3,8 +3,10 @@
 use async_channel::{Receiver, Sender};
 use reqwest::Client;
 use std::time::Duration;
+use strum::IntoEnumIterator;
 use tracing::{debug, error, instrument};
 use tracing_unwrap::ResultExt;
+use ww_effects::EffectNameList;
 use ww_shared::{ClientState, ClientToServerMsg, ServerToClientMsg};
 
 /// The `.expect()` error message for serializing a [`ClientToServerMsg`].
@@ -106,26 +108,80 @@ impl eframe::App for App {
                 ui.centered_and_justified(|ui| ui.spinner());
             }
             Some(state) => {
-                if let Some(config) = &mut state.effect_config {
-                    if config.render_options_gui(ctx.into(), ui) {
-                        debug!("Config changed, sending message");
+                let new_effect_selected = egui::ComboBox::from_label("Current effect")
+                    .selected_text(
+                        state
+                            .effect_name
+                            .map_or("None", |effect| effect.effect_name()),
+                    )
+                    .show_ui(ui, |ui| {
+                        let selected_none = ui
+                            .selectable_value(&mut state.effect_name, None, "None")
+                            .clicked();
 
-                        // Since we're now using async_channel, we need to send the message in an
-                        // async runtime
-                        self.async_runtime.spawn_pinned({
-                            let message_tx = self.message_tx.clone();
-                            let config = config.clone();
+                        let selected_new_effect = EffectNameList::iter().any(|effect| {
+                            // We remember which value was initially selected and whether this
+                            // value is a new one
+                            let different = Some(effect) != state.effect_name;
+                            let resp = ui.selectable_value(
+                                &mut state.effect_name,
+                                Some(effect),
+                                effect.effect_name(),
+                            );
 
-                            move || async move {
-                                message_tx
-                                    .send(ClientToServerMsg::UpdateConfig(config))
-                                    .await
-                                    .expect_or_log(
-                                        "Unable to send UpdateConfig message down channel",
-                                    );
-                            }
-                        })
-                    }
+                            // If the value is different from the old and has been clicked, then we care
+                            resp.clicked() && different
+                        });
+
+                        if selected_new_effect || selected_none {
+                            Some(state.effect_name.clone())
+                        } else {
+                            None
+                        }
+                    })
+                    .inner
+                    //.flatten()
+                    .flatten();
+
+                let effect_config_changed = if let Some(config) = &mut state.effect_config {
+                    ui.separator();
+                    config
+                        .render_options_gui(ctx.into(), ui)
+                        .then_some(config.clone())
+                } else {
+                    None
+                };
+
+                if let Some(name) = new_effect_selected {
+                    debug!("New effect selected, sending message");
+
+                    self.async_runtime.spawn_pinned({
+                        let message_tx = self.message_tx.clone();
+                        let name = name.clone();
+
+                        move || async move {
+                            message_tx
+                                .send(ClientToServerMsg::ChangeEffect(name))
+                                .await
+                                .expect_or_log("Unable to send UpdateConfig message down channel");
+                        }
+                    });
+                }
+
+                if let Some(config) = effect_config_changed {
+                    debug!("Effect config changed, sending message");
+
+                    self.async_runtime.spawn_pinned({
+                        let message_tx = self.message_tx.clone();
+                        let config = config.clone();
+
+                        move || async move {
+                            message_tx
+                                .send(ClientToServerMsg::UpdateConfig(config))
+                                .await
+                                .expect_or_log("Unable to send UpdateConfig message down channel");
+                        }
+                    });
                 }
             }
         });
