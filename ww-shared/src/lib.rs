@@ -21,6 +21,9 @@ pub enum ClientToServerMsg {
 
     /// Ask the server to change the effect.
     ChangeEffect(Option<EffectNameList>),
+
+    /// Restart the current effect.
+    RestartCurrentEffect,
 }
 
 /// The state of the client.

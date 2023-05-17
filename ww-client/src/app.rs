@@ -143,6 +143,8 @@ impl eframe::App for App {
                     //.flatten()
                     .flatten();
 
+                let restart_effect = ui.button("Restart current effect").clicked();
+
                 let effect_config_changed = if let Some(config) = &mut state.effect_config {
                     ui.separator();
                     config
@@ -152,6 +154,8 @@ impl eframe::App for App {
                     None
                 };
 
+                // TODO: Collapse these cases into a single `self.async_runtime.spawn_pinned()`
+                // call to reduce overhead
                 if let Some(name) = new_effect_selected {
                     debug!("New effect selected, sending message");
 
@@ -164,6 +168,23 @@ impl eframe::App for App {
                                 .send(ClientToServerMsg::ChangeEffect(name))
                                 .await
                                 .expect_or_log("Unable to send UpdateConfig message down channel");
+                        }
+                    });
+                }
+
+                if restart_effect {
+                    debug!("Restarting current effect");
+
+                    self.async_runtime.spawn_pinned({
+                        let message_tx = self.message_tx.clone();
+
+                        move || async move {
+                            message_tx
+                                .send(ClientToServerMsg::RestartCurrentEffect)
+                                .await
+                                .expect_or_log(
+                                    "Unable to send RestartCurrentEffect message down channel",
+                                );
                         }
                     });
                 }

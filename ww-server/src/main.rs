@@ -112,6 +112,7 @@ fn handle_request(mut req: Request, client_state: &WrappedClientState) -> Result
 
     match msg {
         ClientToServerMsg::RequestUpdate => {
+            // This is debug rather than info because the client does it every second
             debug!("Client requesting update");
 
             respond_update_client_state!();
@@ -135,8 +136,15 @@ fn handle_request(mut req: Request, client_state: &WrappedClientState) -> Result
             client.effect_name = new_effect;
             client.effect_config = new_effect.map(|effect| effect.config_from_file());
 
-            info!(?client, "After updating client state effect name");
+            debug!(?client, "After updating client state effect name");
             drop(client);
+            respond_update_client_state!();
+        }
+        ClientToServerMsg::RestartCurrentEffect => {
+            info!("Client requesting restart current effect");
+
+            // TODO: Restart effect when drivers have been implemented
+
             respond_update_client_state!();
         }
     };
