@@ -11,10 +11,10 @@ glam = { version = "0.23.0", features = ["rand"] }
 lazy_static =  "1.4.0"
 rand = "0.8.5"
 ron = "0.8.0"
-serde = { version = "1.0.152", features = ["derive"] }
-strum = { version = "0.24.1" }
-tokio = { version = "1.25.0", features = ["macros", "rt", "time", "sync"] }
-tracing = { version = "0.1.37", features = ["max_level_debug", "release_max_level_info"] }
+serde = "1.0.152"
+strum = "0.24.1"
+tokio = "1.25.0"
+tracing = "0.1.37"
 tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
 tracing-unwrap = "0.10.0"
 

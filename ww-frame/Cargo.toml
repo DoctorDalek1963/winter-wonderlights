@@ -10,7 +10,7 @@ license = "GPL-3.0"
 [dependencies]
 glam = { workspace = true, features = ["serde"] }
 rand.workspace = true
-serde.workspace = true
+serde = { workspace = true, features = ["derive"] }
 tracing.workspace = true
 ww-gift-coords = { path = "../ww-gift-coords" }
 

@@ -11,7 +11,7 @@ license = "GPL-3.0"
 bincode = "1.3.3"
 color-eyre.workspace = true
 lazy_static.workspace = true
-serde.workspace = true
+serde = { workspace = true, features = ["derive"] }
 
 [dev-dependencies]
 float-cmp.workspace = true

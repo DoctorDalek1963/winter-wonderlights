@@ -18,7 +18,7 @@ ron.workspace = true
 serde = { workspace = true, features = ["derive"] }
 smooth-bevy-cameras = "0.7.0"
 strum.workspace = true
-tokio.workspace = true
+tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread", "sync"] }
 tracing.workspace = true
 tracing-subscriber.workspace = true
 ww-driver-trait = { path = "../ww-driver-trait" }

@@ -8,9 +8,17 @@ _default:
 bench filter='':
 	cd {{justfile_directory()}}/ww-benchmarks && cargo bench {{filter}}
 
+# check the crates with optional flags
+_check flags='':
+	cd {{justfile_directory()}}/ww-server && cargo check {{flags}}
+	cd {{justfile_directory()}}/ww-virtual-tree && cargo check {{flags}}
+	cd {{justfile_directory()}}/ww-client && cargo check {{flags}}
+	cd {{justfile_directory()}}/ww-client && cargo check --target wasm32-unknown-unknown {{flags}}
+
 # cargo check the whole project
 check:
-	cargo check --workspace
+	@just _check
+	@just _check --release
 
 # build the docs and optionally open them
 doc-build open='':
@@ -42,5 +50,7 @@ serve-client flags='':
 
 # run the tests in debug and release mode
 test:
-	cargo insta test --unreferenced reject --all-features --workspace
-	cargo insta test --unreferenced reject --all-features --workspace --release
+	cd {{justfile_directory()}}/ww-effects && cargo insta test --unreferenced reject --all-features
+	cd {{justfile_directory()}}/ww-effects && cargo insta test --unreferenced reject --all-features --release
+	cd {{justfile_directory()}}/ww-gift-coords && cargo insta test --unreferenced reject --all-features
+	cd {{justfile_directory()}}/ww-gift-coords && cargo insta test --unreferenced reject --all-features --release
