@@ -25,23 +25,9 @@ repos:
         files: '.*\.rs|Cargo.(toml|lock)$'
         pass_filenames: false
 
-      - id: just-build
-        name: just build
-        entry: just build
-        language: system
-        files: '.*\.rs|Cargo.(toml|lock)$'
-        pass_filenames: false
-
       - id: just-doc-build
         name: just doc-build
         entry: just doc-build
-        language: system
-        files: '.*\.rs|Cargo.(toml|lock)$'
-        pass_filenames: false
-
-      - id: just-test
-        name: just test
-        entry: just test
         language: system
         files: '.*\.rs|Cargo.(toml|lock)$'
         pass_filenames: false

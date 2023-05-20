@@ -10,8 +10,8 @@ bench filter='':
 
 # check the crates with optional flags
 _check flags='':
-	cd {{justfile_directory()}}/ww-server && cargo check {{flags}}
-	cd {{justfile_directory()}}/ww-virtual-tree && cargo check {{flags}}
+	cd {{justfile_directory()}}/ww-server && cargo check --no-default-features --features driver-debug {{flags}}
+	cd {{justfile_directory()}}/ww-server && cargo check --no-default-features --features driver-virtual-tree {{flags}}
 	cd {{justfile_directory()}}/ww-client && cargo check {{flags}}
 	cd {{justfile_directory()}}/ww-client && cargo check --target wasm32-unknown-unknown {{flags}}
 
@@ -22,23 +22,20 @@ check:
 
 # build the docs and optionally open them
 doc-build open='':
-	RUSTDOCFLAGS="-D warnings" cargo doc --all-features --no-deps --document-private-items --workspace --release --target-dir target {{open}}
-
-# run the virtual tree with info level logs
-run-virtual log_level='info':
-	cd {{justfile_directory()}}/ww-virtual-tree && cargo build --release
-	RUST_LOG=none,ww_virtual_tree={{log_level}} {{justfile_directory()}}/target/release/ww-virtual-tree
+	RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --document-private-items --workspace --release --target-dir target {{open}}
 
 # a little convenience function to build the server and client
-_build_server_client flags='':
-	cd {{justfile_directory()}}/ww-server && cargo build {{flags}}
+_build_server_client driver flags='':
+	cd {{justfile_directory()}}/ww-server && cargo build --no-default-features --features {{driver}} {{flags}}
 	cd {{justfile_directory()}}/ww-client && trunk build {{flags}}
 
 # build the server and client in debug mode
-build: _build_server_client
+build driver:
+	@just _build_server_client {{driver}}
 
 # build the server and client in release mode
-build-release: (_build_server_client '--release')
+build-release driver:
+	@just _build_server_client {{driver}} '--release'
 
 # watch the server and rerun anytime the code is changed
 watch-server flags='':

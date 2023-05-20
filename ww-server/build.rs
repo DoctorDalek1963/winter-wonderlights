@@ -1,6 +1,6 @@
 #![feature(iter_intersperse)]
 
-const DRIVER_NAMES: &'static [&'static str] = &["DEBUG"];
+const DRIVER_NAMES: &'static [&'static str] = &["DEBUG", "VIRTUAL_TREE"];
 
 fn driver_name_to_feature_name(driver_name: &&str) -> String {
     format!("driver-{}", driver_name.to_lowercase().replace("_", "-"))

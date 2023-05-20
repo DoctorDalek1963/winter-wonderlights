@@ -188,8 +188,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d6041616acea41d67c4a984709ddab1587fd0b10efe5cc563fee954d2f011854"
 dependencies = [
  "clipboard-win",
- "core-graphics",
- "image",
  "log",
  "objc",
  "objc-foundation",
@@ -535,19 +533,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
-]
-
-[[package]]
-name = "bevy_egui"
-version = "0.19.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fbb8036050af170243e803eb68e0b5d34f549828a8de92479619fb6dac842f85"
-dependencies = [
- "arboard",
- "bevy",
- "egui",
- "thread_local",
- "webbrowser",
 ]
 
 [[package]]
@@ -2898,8 +2883,6 @@ dependencies = [
  "color_quant",
  "num-rational",
  "num-traits",
- "png",
- "tiff",
 ]
 
 [[package]]
@@ -3002,12 +2985,6 @@ name = "jni-sys"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8eaf4bc02d17cbdd7ff4c7438cafcdf7fb9a4613313ad11b4f8fefe7d3fa0130"
-
-[[package]]
-name = "jpeg-decoder"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc0000e42512c92e31c2252315bda326620a4e034105e900c98ec492fa077b3e"
 
 [[package]]
 name = "js-sys"
@@ -4494,17 +4471,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tiff"
-version = "0.8.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7449334f9ff2baf290d55d73983a7d6fa15e01198faef72af07e2a8db851e471"
-dependencies = [
- "flate2",
- "jpeg-decoder",
- "weezl",
-]
-
-[[package]]
 name = "time"
 version = "0.3.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4907,6 +4873,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 
 [[package]]
+name = "virtual-tree"
+version = "0.1.0-dev"
+dependencies = [
+ "bevy",
+ "lazy_static",
+ "rand",
+ "ron 0.8.0",
+ "serde",
+ "smooth-bevy-cameras",
+ "strum",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "ww-driver-trait",
+ "ww-effects",
+ "ww-frame",
+ "ww-gift-coords",
+]
+
+[[package]]
 name = "waker-fn"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5116,12 +5102,6 @@ dependencies = [
  "url",
  "web-sys",
 ]
-
-[[package]]
-name = "weezl"
-version = "0.1.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9193164d4de03a926d909d3bc7c30543cecb35400c02114792c2cae20d5e2dbb"
 
 [[package]]
 name = "wgpu"
@@ -5632,6 +5612,7 @@ dependencies = [
  "tracing-appender",
  "tracing-subscriber",
  "tracing-unwrap",
+ "virtual-tree",
  "ww-driver-trait",
  "ww-effects",
  "ww-frame",
@@ -5644,28 +5625,6 @@ version = "0.1.0-dev"
 dependencies = [
  "serde",
  "ww-effects",
-]
-
-[[package]]
-name = "ww-virtual-tree"
-version = "0.1.0-dev"
-dependencies = [
- "bevy",
- "bevy_egui",
- "egui",
- "lazy_static",
- "rand",
- "ron 0.8.0",
- "serde",
- "smooth-bevy-cameras",
- "strum",
- "tokio",
- "tracing",
- "tracing-subscriber",
- "ww-driver-trait",
- "ww-effects",
- "ww-frame",
- "ww-gift-coords",
 ]
 
 [[package]]
