@@ -5622,9 +5622,12 @@ dependencies = [
 name = "ww-server"
 version = "0.1.0-dev"
 dependencies = [
+ "cfg-if",
  "color-eyre",
+ "lazy_static",
  "ron 0.8.0",
  "tiny_http",
+ "tokio",
  "tracing",
  "tracing-appender",
  "tracing-subscriber",

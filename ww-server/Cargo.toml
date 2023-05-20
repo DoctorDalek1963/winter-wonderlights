@@ -8,14 +8,24 @@ repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
 license = "GPL-3.0"
 
 [dependencies]
+cfg-if.workspace = true
 color-eyre.workspace = true
+lazy_static.workspace = true
 ron.workspace = true
 tiny_http = { version = "0.12.0", features = ["ssl"] }
+tokio = { workspace = true, features = ["macros", "rt", "sync"] }
 tracing.workspace = true
 tracing-appender = "0.2.2"
 tracing-subscriber.workspace = true
 tracing-unwrap.workspace = true
-ww-driver-trait = { path = "../ww-driver-trait" }
 ww-effects = { path = "../ww-effects" }
-ww-frame = { path = "../ww-frame" }
 ww-shared = { path = "../ww-shared" }
+
+# Optional dependencies
+ww-driver-trait = { path = "../ww-driver-trait", optional = true }
+ww-frame = { path = "../ww-frame", optional = true }
+
+[features]
+default = ["driver-debug"] # For testing purpose
+
+driver-debug = ["dep:ww-driver-trait", "dep:ww-frame"]
