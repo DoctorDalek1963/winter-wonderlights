@@ -17,9 +17,7 @@ use tracing::{debug, error, info, instrument, trace, warn};
 use tracing_subscriber::{filter::LevelFilter, fmt::Layer, prelude::*, EnvFilter};
 use tracing_unwrap::ResultExt;
 use ww_driver_trait::Driver;
-use ww_effects::{
-    traits::get_config_filename, EffectConfigNameList, EffectDispatchList, EffectNameList,
-};
+use ww_effects::{traits::get_config_filename, EffectDispatchList};
 use ww_frame::FrameType;
 use ww_shared::{ClientState, ClientToServerMsg, ServerToClientMsg};
 
