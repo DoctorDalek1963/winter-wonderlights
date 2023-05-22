@@ -1,6 +1,7 @@
 //! This crate handles messages sent between the server and the client.
 
 use serde::{Deserialize, Serialize};
+use std::fs;
 use ww_effects::list::{EffectConfigDispatchList, EffectNameList};
 
 /// A message from the server to the client.
@@ -34,4 +35,43 @@ pub struct ClientState {
 
     /// The config of the current effect.
     pub effect_config: Option<EffectConfigDispatchList>,
+}
+
+impl ClientState {
+    /// Load the client state from a file.
+    pub fn from_file(filename: &str) -> Self {
+        let _ = fs::DirBuilder::new()
+            .recursive(true)
+            .create(format!("{}/config", env!("DATA_DIR")));
+
+        let write_and_return_default = || -> Self {
+            let default = Self::default();
+            default.save_to_file(filename);
+            default
+        };
+
+        let Ok(text) = fs::read_to_string(format!("{}/config/{filename}", env!("DATA_DIR"))) else {
+            return write_and_return_default();
+        };
+
+        ron::from_str(&text).unwrap_or_else(|_| write_and_return_default())
+    }
+
+    /// Save the client to a file.
+    pub fn save_to_file(&self, filename: &str) {
+        let _ = fs::write(
+            format!("{}/config/{filename}", env!("DATA_DIR")),
+            ron::ser::to_string_pretty(self, ron::ser::PrettyConfig::default().struct_names(true))
+                .expect("ClientState should be serializable"),
+        );
+    }
+}
+
+impl Default for ClientState {
+    fn default() -> Self {
+        Self {
+            effect_name: None,
+            effect_config: None,
+        }
+    }
 }

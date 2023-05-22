@@ -26,6 +26,9 @@ use ww_shared::{ClientState, ClientToServerMsg, ServerToClientMsg};
 /// The `.expect()` error message for serializing a [`ServerToClientMsg`].
 const EXPECT_SERIALIZE_MSG: &str = "Serializing a ServerToClientMsg should never fail";
 
+/// The filename for the server state config.
+const SERVER_STATE_FILENAME: &str = "server_state.ron";
+
 lazy_static! {
     /// The broadcast sender which lets you send messages to the background thread, which is
     /// running the effect itself.
@@ -47,11 +50,11 @@ enum ThreadMessage {
 struct WrappedClientState(Arc<RwLock<ClientState>>);
 
 impl WrappedClientState {
+    /// Initialise the server state.
     fn new() -> Self {
-        Self(Arc::new(RwLock::new(ClientState {
-            effect_name: Some(EffectNameList::MovingPlane),
-            effect_config: Some(EffectConfigNameList::MovingPlaneConfig.config_from_file()),
-        })))
+        Self(Arc::new(RwLock::new(ClientState::from_file(
+            SERVER_STATE_FILENAME,
+        ))))
     }
 
     /// Save the config of the client state.
@@ -74,6 +77,12 @@ impl Deref for WrappedClientState {
 
     fn deref(&self) -> &Self::Target {
         &*self.0
+    }
+}
+
+impl Drop for WrappedClientState {
+    fn drop(&mut self) {
+        self.read().unwrap().save_to_file(SERVER_STATE_FILENAME)
     }
 }
 

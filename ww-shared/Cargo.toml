@@ -8,5 +8,6 @@ repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
 license = "GPL-3.0"
 
 [dependencies]
+ron.workspace = true
 serde.workspace = true
 ww-effects = { path = "../ww-effects", default-features = false, features = ["config-impls"] }
