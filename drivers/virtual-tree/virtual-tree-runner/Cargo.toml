@@ -1,0 +1,23 @@
+[package]
+name = "virtual-tree-runner"
+version = "0.1.0-dev"
+authors = ["Dyson Dyson <dyson.dyson@icloud.com>"]
+edition = "2021"
+description = "The virtual tree runner for Winter WonderLights."
+repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
+license = "GPL-3.0"
+
+[dependencies]
+bevy = { version = "0.9.1", default-features = false, features = ["bevy_asset", "render", "x11"] }
+lazy_static.workspace = true
+rand.workspace = true
+ron.workspace = true
+serde = { workspace = true, features = ["derive"] }
+smooth-bevy-cameras = "0.7.0"
+strum.workspace = true
+tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread", "sync"] }
+tracing.workspace = true
+tracing-subscriber.workspace = true
+ww-effects = { path = "../../../ww-effects" }
+ww-frame = { path = "../../../ww-frame" }
+ww-gift-coords = { path = "../../../ww-gift-coords" }
