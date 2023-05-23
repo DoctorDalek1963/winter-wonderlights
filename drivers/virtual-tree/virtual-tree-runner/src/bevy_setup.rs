@@ -10,10 +10,6 @@ use ww_gift_coords::COORDS;
 #[derive(Component, Clone, Copy, Debug)]
 pub(super) struct LightIndex(pub(super) usize);
 
-/// A simple Bevy marker component to indicate that an entity is part of the tree.
-#[derive(Component, Clone, Copy, Debug)]
-pub(super) struct TreeComponent;
-
 /// Setup the Bevy world with a camera, plane, and lights.
 pub(super) fn setup(
     mut commands: Commands,
@@ -108,23 +104,21 @@ pub(super) fn add_tree_to_world(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     // Trunk
-    commands
-        .spawn(PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Capsule {
-                radius: 0.06,
-                rings: 100,
-                depth: COORDS.max_z() * 0.88,
-                ..default()
-            })),
-            material: materials.add(StandardMaterial {
-                base_color: Color::rgb_u8(39, 13, 13),
-                perceptual_roughness: 0.8,
-                ..default()
-            }),
-            transform: Transform::from_xyz(0., COORDS.max_z() / 2. - 0.2, 0.),
+    commands.spawn(PbrBundle {
+        mesh: meshes.add(Mesh::from(shape::Capsule {
+            radius: 0.06,
+            rings: 100,
+            depth: COORDS.max_z() * 0.88,
             ..default()
-        })
-        .insert(TreeComponent);
+        })),
+        material: materials.add(StandardMaterial {
+            base_color: Color::rgb_u8(39, 13, 13),
+            perceptual_roughness: 0.8,
+            ..default()
+        }),
+        transform: Transform::from_xyz(0., COORDS.max_z() / 2. - 0.2, 0.),
+        ..default()
+    });
 
     // Leaves
     let initial_y: f32 = 0.3;
@@ -156,14 +150,12 @@ pub(super) fn add_tree_to_world(
             let (mesh, transform) =
                 create_tree_branch((0., y, 0.), point, (scale * 0.03).max(0.015), &mut rng);
 
-            commands
-                .spawn(PbrBundle {
-                    mesh: meshes.add(mesh),
-                    transform,
-                    material: leaf_material.clone(),
-                    ..default()
-                })
-                .insert(TreeComponent);
+            commands.spawn(PbrBundle {
+                mesh: meshes.add(mesh),
+                transform,
+                material: leaf_material.clone(),
+                ..default()
+            });
         }
 
         y += 0.15;

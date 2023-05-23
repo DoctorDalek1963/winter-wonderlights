@@ -1,0 +1,12 @@
+[package]
+name = "virtual-tree-shared"
+version = "0.1.0-dev"
+authors = ["Dyson Dyson <dyson.dyson@icloud.com>"]
+edition = "2021"
+description = "The shared library for the virtual tree driver/runner for Winter WonderLights."
+repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
+license = "GPL-3.0"
+
+[dependencies]
+serde = { workspace = true, features = ["derive"] }
+ww-frame = { path = "../../../ww-frame" }

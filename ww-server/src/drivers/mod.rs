@@ -6,5 +6,7 @@ cfg_if::cfg_if! {
     if #[cfg(feature = "driver-debug")] {
         mod debug;
         pub(super) use debug::DebugDriver as Driver;
+    } else if #[cfg(feature = "driver-virtual-tree")] {
+        pub(super) use virtual_tree::VirtualTreeDriver as Driver;
     }
 }

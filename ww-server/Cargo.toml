@@ -18,14 +18,19 @@ tracing.workspace = true
 tracing-appender = "0.2.2"
 tracing-subscriber.workspace = true
 tracing-unwrap.workspace = true
+ww-driver-trait = { path = "../ww-driver-trait" }
 ww-effects = { path = "../ww-effects" }
+ww-frame = { path = "../ww-frame" }
 ww-shared = { path = "../ww-shared" }
 
-# Optional dependencies
-ww-driver-trait = { path = "../ww-driver-trait", optional = true }
-ww-frame = { path = "../ww-frame", optional = true }
+### Optional dependencies for drivers
+
+# driver-virtual-tree
+virtual-tree = { path = "../drivers/virtual-tree", optional = true }
 
 [features]
-default = ["driver-debug"] # For testing purpose
+# For testing purposes
+default = ["driver-virtual-tree"]
 
-driver-debug = ["dep:ww-driver-trait", "dep:ww-frame"]
+driver-debug = []
+driver-virtual-tree = ["dep:virtual-tree"]
