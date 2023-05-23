@@ -81,7 +81,7 @@ mod effect {
     use glam::{IVec3, Vec3};
     use rand::{rngs::StdRng, Rng, SeedableRng};
     use std::time::Duration;
-    use tracing::{debug, instrument};
+    use tracing::{instrument, trace};
     use ww_driver_trait::Driver;
     use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object, RGBArray};
     use ww_gift_coords::COORDS;
@@ -186,7 +186,7 @@ mod effect {
                     movement_direction: random_vector(&mut self.rng),
                 });
             }
-            debug!(?spheres);
+            trace!(?spheres);
 
             #[cfg(any(test, feature = "bench"))]
             let mut counter: u8 = 0;

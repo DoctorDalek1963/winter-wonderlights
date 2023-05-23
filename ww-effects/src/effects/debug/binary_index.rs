@@ -92,7 +92,7 @@ mod effect {
     use async_trait::async_trait;
     use effect_proc_macros::BaseEffect;
     use std::time::Duration;
-    use tracing::debug;
+    use tracing::trace;
     use ww_driver_trait::Driver;
     use ww_frame::{FrameType, RGBArray};
 
@@ -157,7 +157,7 @@ mod effect {
                 "Every Vec<RGBTuple> in the list must be the same length"
             );
 
-            debug!(?binary_for_each_light);
+            trace!(?binary_for_each_light);
 
             // Now actually display the colours on the lights
             for i in 0..binary_number_length {
