@@ -8,7 +8,7 @@ repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
 license = "GPL-3.0"
 
 [dependencies]
-bevy = { version = "0.9.1", default-features = false, features = ["bevy_asset", "render", "x11"] }
+bevy = { version = "0.9.1", default-features = false, features = ["bevy_asset", "dynamic", "render", "x11"] }
 bincode.workspace = true
 interprocess.workspace = true
 lazy_static.workspace = true
