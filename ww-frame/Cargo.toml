@@ -1,0 +1,18 @@
+[package]
+name = "ww-frame"
+version = "0.1.0-dev"
+authors = ["Dyson Dyson <dyson.dyson@icloud.com>"]
+edition = "2021"
+description = "The frame utilities for Winter WonderLights."
+repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
+license = "GPL-3.0"
+
+[dependencies]
+glam = { workspace = true, features = ["serde"] }
+rand.workspace = true
+serde = { workspace = true, features = ["derive"] }
+tracing.workspace = true
+ww-gift-coords = { path = "../ww-gift-coords" }
+
+[dev-dependencies]
+insta.workspace = true

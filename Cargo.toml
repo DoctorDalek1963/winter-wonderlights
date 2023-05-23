@@ -1,51 +1,28 @@
-[package]
-name = "winter-wonderlights"
-version = "0.1.0"
-authors = ["Dyson Dyson <dyson.dyson@icloud.com>"]
-edition = "2021"
-rust-version = "1.65"
-description = " A program to render 3D effects on a Christmas tree in real time."
-repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
-license = "GPL-3.0"
+[workspace]
+resolver = "2"
+members = ["drivers/virtual-tree", "ww-benchmarks", "ww-client", "ww-driver-trait", "ww-effects", "ww-frame", "ww-gift-coords", "ww-server", "ww-shared"]
 
-[[bin]]
-name = "winter-wonderlights"
-path = "src/main.rs"
-
-[dependencies]
+[workspace.dependencies]
 async-trait = "0.1.64"
 bincode = "1.3.3"
 cfg-if = "1.0.0"
 color-eyre = "0.6.2"
 egui = "0.20.1"
-glam = { version = "0.22.0", features = ["rand", "serde"] }
-heck = "0.4.1"
-lazy_static = "1.4.0"
+glam = { version = "0.23.0", features = ["rand"] }
+interprocess = "1.2.1"
+lazy_static =  "1.4.0"
 rand = "0.8.5"
 ron = "0.8.0"
-serde = { version = "1.0.152", features = ["derive"] }
-strum = { version = "0.24.1", features = ["derive"] }
-tokio = { version = "1.25.0", features = ["macros", "rt", "time", "sync"] }
+serde = "1.0.152"
+strum = "0.24.1"
+tokio = "1.25.0"
 tracing = "0.1.37"
 tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
+tracing-unwrap = "0.10.0"
 
-# virtual-tree
-bevy = { version = "0.9.1", optional = true, default-features = false, features = ["render", "x11"] }
-bevy_egui = { version = "0.19.0", optional = true }
-smooth-bevy-cameras = { version = "0.7.0", optional = true }
-
-[dev-dependencies]
-criterion = { version = "0.4.0", features = ["async_tokio"] }
+# testing
 float-cmp = "0.9.0"
 insta = { version = "1.26.0", features = ["ron"] }
 
 [profile.dev.package."*"]
 opt-level = 3
-
-[features]
-bench = []
-virtual-tree = ["dep:bevy", "dep:bevy_egui", "dep:smooth-bevy-cameras"]
-
-[[bench]]
-name = "effects"
-harness = false

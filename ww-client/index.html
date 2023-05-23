@@ -1,0 +1,53 @@
+<!-- Taken from https://github.com/emilk/eframe_template/blob/master/index.html -->
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Winter WonderLights</title>
+
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<!-- Disable zooming: -->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+		<link data-trunk rel="rust" data-wasm-opt="3" />
+
+		<style>
+			html {
+				/* Remove touch delay: */
+				touch-action: manipulation;
+
+				background-color: #1b1b1b;
+			}
+
+			@media (prefers-color-scheme: light) {
+				html {
+					background-color: #f8f8f8;
+				}
+			}
+
+			/* Allow canvas to fill entire web page: */
+			html, body {
+				overflow: hidden;
+				margin: 0 !important;
+				padding: 0 !important;
+				height: 100%;
+				width: 100%;
+			}
+
+			/* Position canvas in center-top: */
+			canvas {
+				margin-right: auto;
+				margin-left: auto;
+				display: block;
+				position: absolute;
+				top: 0%;
+				left: 50%;
+				transform: translate(-50%, 0%);
+			}
+		</style>
+	</head>
+	<body>
+		<!-- The WASM code will resize the canvas dynamically -->
+		<canvas id="main_canvas_id"></canvas>
+	</body>
+</html>
