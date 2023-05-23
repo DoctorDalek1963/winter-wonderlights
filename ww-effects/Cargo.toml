@@ -23,18 +23,18 @@ heck = { version = "0.4.1", optional = true }
 
 # effect-trait
 async-trait = { workspace = true, optional = true }
-ww-driver-trait = { path = "../ww-driver-trait", optional = true }
+ww-driver-trait = { workspace = true, optional = true }
 
 # effect-impls
 glam = { workspace = true, optional = true, features = ["serde"] }
 rand = { workspace = true, optional = true }
 tokio = { workspace = true, optional = true, features = ["time"] }
 tracing = { workspace = true, optional = true }
-ww-frame = { path = "../ww-frame", optional = true }
-ww-gift-coords = { path = "../ww-gift-coords", optional = true }
+ww-frame = { workspace = true, optional = true }
+ww-gift-coords = { workspace = true, optional = true }
 
 [features]
-default = ["effect-trait", "effect-impls", "config-trait", "config-impls"]
+default = []
 bench = []
 config-trait = ["dep:egui", "dep:ron"]
 config-impls = ["config-trait", "dep:heck", "serde/derive"]

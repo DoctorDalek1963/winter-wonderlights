@@ -10,4 +10,4 @@ license = "GPL-3.0"
 [dependencies]
 ron.workspace = true
 serde.workspace = true
-ww-effects = { path = "../ww-effects", default-features = false, features = ["config-impls"] }
+ww-effects = { workspace = true, features = ["config-impls"] }

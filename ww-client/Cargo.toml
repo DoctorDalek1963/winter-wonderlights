@@ -18,8 +18,8 @@ ron.workspace = true
 strum.workspace = true
 tracing.workspace = true
 tracing-unwrap.workspace = true
-ww-effects = { path = "../ww-effects", default-features = false, features = ["config-impls"] }
-ww-shared = { path = "../ww-shared" }
+ww-effects = { workspace = true, features = ["config-impls"] }
+ww-shared.workspace = true
 
 # Native
 [target.'cfg(not(target_family = "wasm"))'.dependencies]

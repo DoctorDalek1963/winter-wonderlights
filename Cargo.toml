@@ -20,6 +20,12 @@ tracing = "0.1.37"
 tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
 tracing-unwrap = "0.10.0"
 
+ww-driver-trait = { path = "./ww-driver-trait" }
+ww-effects = { path = "./ww-effects" }
+ww-frame = { path = "./ww-frame" }
+ww-gift-coords = { path = "./ww-gift-coords" }
+ww-shared = { path = "./ww-shared" }
+
 # testing
 float-cmp = "0.9.0"
 insta = { version = "1.26.0", features = ["ron"] }

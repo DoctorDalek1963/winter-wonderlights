@@ -9,4 +9,4 @@ license = "GPL-3.0"
 
 [dependencies]
 serde = { workspace = true, features = ["derive"] }
-ww-frame = { path = "../../../ww-frame" }
+ww-frame.workspace = true

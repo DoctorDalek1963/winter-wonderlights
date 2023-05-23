@@ -10,9 +10,9 @@ license = "GPL-3.0"
 [dependencies]
 criterion = { version = "0.4.0", features = ["async_tokio"] }
 tokio.workspace = true
-ww-driver-trait = { path = "../ww-driver-trait" }
-ww-effects = { path = "../ww-effects", features = ["bench"] }
-ww-frame = { path = "../ww-frame" }
+ww-driver-trait.workspace = true
+ww-effects = { workspace = true, features = ["bench", "effect-impls"] }
+ww-frame.workspace = true
 
 [[bench]]
 name = "effects"

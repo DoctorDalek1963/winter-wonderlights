@@ -12,7 +12,7 @@ glam = { workspace = true, features = ["serde"] }
 rand.workspace = true
 serde = { workspace = true, features = ["derive"] }
 tracing.workspace = true
-ww-gift-coords = { path = "../ww-gift-coords" }
+ww-gift-coords.workspace = true
 
 [dev-dependencies]
 insta.workspace = true

@@ -21,6 +21,6 @@ tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread", "sync
 tracing.workspace = true
 tracing-subscriber.workspace = true
 virtual-tree-shared = { path = "../virtual-tree-shared" }
-ww-effects = { path = "../../../ww-effects" }
-ww-frame = { path = "../../../ww-frame" }
-ww-gift-coords = { path = "../../../ww-gift-coords" }
+ww-effects.workspace = true
+ww-frame.workspace = true
+ww-gift-coords.workspace = true
