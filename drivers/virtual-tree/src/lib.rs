@@ -1,8 +1,13 @@
 //! This crate provides a [`VirtualTreeDriver`] for use in `ww-server`.
 
-use std::{process::Command, thread};
-
-use tracing::{debug, instrument};
+use interprocess::local_socket::{LocalSocketListener, LocalSocketStream, NameTypeSupport};
+use std::{
+    io::{self, Write},
+    process::Command,
+    thread,
+};
+use tracing::{debug, error, instrument};
+use virtual_tree_shared::Message;
 use ww_driver_trait::Driver;
 use ww_frame::FrameType;
 use ww_gift_coords::COORDS;
@@ -11,14 +16,39 @@ use ww_gift_coords::COORDS;
 const RUNNER_PATH: &str = env!("CARGO_BIN_FILE_VIRTUAL_TREE_RUNNER");
 
 /// A driver that uses IPC to communicate with Bevy to render a virtual tree.
-pub struct VirtualTreeDriver {}
+pub struct VirtualTreeDriver {
+    /// The IPC socket stream to write data to.
+    stream: LocalSocketStream,
+}
 
 impl VirtualTreeDriver {
     /// Initialise the driver.
     pub fn init() -> Self {
         debug!(?RUNNER_PATH);
-        // TODO: Set up IPC
-        let socket_path = "/tmp/unnamed.sock";
+
+        let socket_path = match NameTypeSupport::query() {
+            NameTypeSupport::OnlyPaths => {
+                concat!(env!("DATA_DIR"), "/winter-wonderlights-virtual-tree.sock")
+            }
+            NameTypeSupport::OnlyNamespaced | NameTypeSupport::Both => {
+                "@winter-wonderlights-virtual-tree.sock"
+            }
+        };
+
+        let socket_listener = match LocalSocketListener::bind(socket_path) {
+            Ok(x) => x,
+            Err(e) => {
+                if e.kind() == io::ErrorKind::AddrInUse {
+                    panic!("Expected for path {RUNNER_PATH:?} to be usable as the socket");
+                } else {
+                    error!(?e, "Unknown error");
+                    panic!(
+                        "Unexpected error trying to bind socket to {RUNNER_PATH:?} error: {e:?}"
+                    );
+                }
+            }
+        };
+
         thread::spawn(move || {
             Command::new(RUNNER_PATH)
                 .arg(socket_path)
@@ -26,16 +56,25 @@ impl VirtualTreeDriver {
                 .expect(&format!("Unable to start runner at path {RUNNER_PATH}"));
         });
 
-        Self {}
+        let stream = socket_listener
+            .accept()
+            .expect("The runner should successfully connect to the driver's socket");
+
+        Self { stream }
     }
 }
 
 impl Driver for VirtualTreeDriver {
     #[instrument(skip_all)]
     fn display_frame(&mut self, frame: FrameType) {
-        tracing::info!(?frame);
-        // TODO: Implement this with IPC
-        //*CURRENT_FRAME.write().unwrap() = frame;
+        debug!(?frame, "Writing frame to socket");
+
+        self.stream
+            .write(
+                &bincode::serialize(&Message::UpdateFrame(frame))
+                    .expect("Serializing a Message should not fail"),
+            )
+            .expect("Failed to write to the socket");
     }
 
     fn get_lights_count(&self) -> usize {
