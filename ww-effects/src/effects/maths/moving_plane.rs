@@ -6,12 +6,11 @@ pub use config::MovingPlaneConfig;
 #[cfg(feature = "effect-impls")]
 pub use effect::MovingPlane;
 
+use crate::effects::prelude::*;
+
 #[cfg(feature = "config-impls")]
 mod config {
-    use crate::traits::EffectConfig;
-    use effect_proc_macros::Sealed;
-    use egui::RichText;
-    use serde::{Deserialize, Serialize};
+    use super::*;
 
     /// The config for the moving plane effect; includes speed.
     #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Sealed)]
@@ -70,19 +69,8 @@ mod config {
 
 #[cfg(feature = "effect-impls")]
 mod effect {
-    use crate::{
-        effects::sleep,
-        traits::{Effect, EffectConfig},
-    };
-    use effect_proc_macros::BaseEffect;
-    use glam::Vec3;
-    use rand::{rngs::StdRng, Rng, SeedableRng};
-    use std::time::Duration;
-    use ww_driver_trait::Driver;
-    use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object, RGBArray};
+    use super::*;
     use ww_gift_coords::COORDS;
-
-    use super::config::MovingPlaneConfig;
 
     /// Move a plane through the tree at a random angle with a random colour.
     #[derive(Clone, Debug, PartialEq, BaseEffect)]
@@ -97,19 +85,10 @@ mod effect {
     }
 
     impl Default for MovingPlane {
-        #[cfg(test)]
         fn default() -> Self {
             Self {
                 config: MovingPlaneConfig::default(),
-                rng: StdRng::seed_from_u64(12345),
-            }
-        }
-
-        #[cfg(not(test))]
-        fn default() -> Self {
-            Self {
-                config: MovingPlaneConfig::default(),
-                rng: StdRng::from_entropy(),
+                rng: rng!(),
             }
         }
     }

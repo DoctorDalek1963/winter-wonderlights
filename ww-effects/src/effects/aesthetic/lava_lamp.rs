@@ -6,12 +6,11 @@ pub use config::LavaLampConfig;
 #[cfg(feature = "effect-impls")]
 pub use effect::LavaLamp;
 
+use crate::effects::prelude::*;
+
 #[cfg(feature = "config-impls")]
 mod config {
-    use crate::traits::EffectConfig;
-    use effect_proc_macros::Sealed;
-    use egui::{Align, Layout, RichText, Vec2};
-    use serde::{Deserialize, Serialize};
+    use super::*;
 
     /// The config for the lava lamp effect.
     #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Sealed)]
@@ -72,21 +71,9 @@ mod config {
 
 #[cfg(feature = "effect-impls")]
 mod effect {
-    use crate::{
-        effects::sleep,
-        traits::{Effect, EffectConfig},
-    };
-    use async_trait::async_trait;
-    use effect_proc_macros::BaseEffect;
-    use glam::{IVec3, Vec3};
-    use rand::{rngs::StdRng, Rng, SeedableRng};
-    use std::time::Duration;
-    use tracing::{instrument, trace};
-    use ww_driver_trait::Driver;
-    use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object, RGBArray};
+    use super::*;
+    use glam::IVec3;
     use ww_gift_coords::COORDS;
-
-    use super::config::LavaLampConfig;
 
     /// A simple sphere used to keep track of the spheres in the lava lamp.
     #[derive(Clone, Copy, Debug, PartialEq)]
@@ -140,19 +127,10 @@ mod effect {
     }
 
     impl Default for LavaLamp {
-        #[cfg(test)]
         fn default() -> Self {
             Self {
                 config: LavaLampConfig::default(),
-                rng: StdRng::seed_from_u64(12345),
-            }
-        }
-
-        #[cfg(not(test))]
-        fn default() -> Self {
-            Self {
-                config: LavaLampConfig::default(),
-                rng: StdRng::from_entropy(),
+                rng: rng!(),
             }
         }
     }

@@ -6,12 +6,11 @@ pub use config::DebugBinaryIndexConfig;
 #[cfg(feature = "effect-impls")]
 pub use effect::DebugBinaryIndex;
 
+use crate::effects::prelude::*;
+
 #[cfg(feature = "config-impls")]
 mod config {
-    use crate::traits::EffectConfig;
-    use effect_proc_macros::Sealed;
-    use egui::{Align, Layout, RichText, Vec2};
-    use serde::{Deserialize, Serialize};
+    use super::*;
 
     /// The config for the binary index effect; includes timing and colors.
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Sealed)]
@@ -85,18 +84,7 @@ mod config {
 
 #[cfg(feature = "effect-impls")]
 mod effect {
-    use crate::{
-        effects::sleep,
-        traits::{Effect, EffectConfig},
-    };
-    use async_trait::async_trait;
-    use effect_proc_macros::BaseEffect;
-    use std::time::Duration;
-    use tracing::trace;
-    use ww_driver_trait::Driver;
-    use ww_frame::{FrameType, RGBArray};
-
-    use super::config::DebugBinaryIndexConfig;
+    use super::*;
 
     /// Make each light flash its index in binary.
     #[derive(Clone, Debug, Default, PartialEq, BaseEffect)]

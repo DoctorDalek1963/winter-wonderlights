@@ -10,7 +10,7 @@ license = "GPL-3.0"
 
 [dependencies]
 cfg-if.workspace = true
-serde.workspace = true
+serde = { workspace = true, features = ["derive"] }
 strum = { workspace = true, features = ["derive"] }
 effect-proc-macros = { path = "./effect-proc-macros" }
 

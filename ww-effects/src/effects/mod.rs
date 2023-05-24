@@ -30,6 +30,65 @@ macro_rules! sleep {
 #[cfg(feature = "effect-impls")]
 pub(crate) use sleep;
 
+/// Create a `rand::rngs::StdRng` from entropy in a normal build, or seeded from 12345 in a test or
+/// bench build.
+#[cfg(feature = "effect-impls")]
+macro_rules! rng {
+    () => {{
+        use ::rand::{rngs::StdRng, SeedableRng};
+
+        cfg_if::cfg_if! {
+            if #[cfg(any(test, feature = "bench"))] {
+                StdRng::seed_from_u64(12345)
+            } else {
+                StdRng::from_entropy()
+            }
+        }
+    }};
+}
+
+#[cfg(feature = "effect-impls")]
+pub(crate) use rng;
+
+/// A prelude to be imported by effect implementations.
+///
+/// This module automatically handles `config-impls` and `effect-impls` features.
+#[cfg(any(feature = "config-impls", feature = "effect-impls"))]
+#[allow(unused_imports)]
+pub(crate) mod prelude {
+    /// A prelude for the [`EffectConfig`] implementations.
+    #[cfg(feature = "config-impls")]
+    pub(crate) mod config_prelude {
+        pub use crate::traits::EffectConfig;
+        pub use effect_proc_macros::Sealed;
+        pub use egui::{Align, Layout, RichText, Vec2};
+        pub use serde::{Deserialize, Serialize};
+    }
+
+    #[cfg(feature = "config-impls")]
+    pub use self::config_prelude::*;
+
+    /// A prelude for the [`Effect`] implementations.
+    #[cfg(feature = "effect-impls")]
+    pub(crate) mod effect_prelude {
+        pub(crate) use crate::{
+            effects::{rng, sleep},
+            traits::Effect,
+        };
+        pub use async_trait::async_trait;
+        pub use effect_proc_macros::BaseEffect;
+        pub use glam::Vec3;
+        pub use rand::{rngs::StdRng, Rng};
+        pub use std::time::Duration;
+        pub use tracing::{debug, error, info, instrument, trace, warn};
+        pub use ww_driver_trait::Driver;
+        pub use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object, RGBArray};
+    }
+
+    #[cfg(feature = "effect-impls")]
+    pub use self::effect_prelude::*;
+}
+
 pub mod aesthetic;
 pub mod debug;
 pub mod maths;

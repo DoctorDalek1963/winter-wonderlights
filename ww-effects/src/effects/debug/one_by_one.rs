@@ -6,12 +6,11 @@ pub use config::DebugOneByOneConfig;
 #[cfg(feature = "effect-impls")]
 pub use effect::DebugOneByOne;
 
+use crate::effects::prelude::*;
+
 #[cfg(feature = "config-impls")]
 mod config {
-    use crate::traits::EffectConfig;
-    use effect_proc_macros::Sealed;
-    use egui::{Align, Context, Layout, RichText, Ui, Vec2};
-    use serde::{Deserialize, Serialize};
+    use super::*;
 
     /// The config for the `DebugOneByOne` effect; includes timing and the color.
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Sealed)]
@@ -37,7 +36,7 @@ mod config {
     }
 
     impl EffectConfig for DebugOneByOneConfig {
-        fn render_options_gui(&mut self, _ctx: &Context, ui: &mut Ui) -> bool {
+        fn render_options_gui(&mut self, _ctx: &egui::Context, ui: &mut egui::Ui) -> bool {
             ui.label(RichText::new("DebugOneByOne config").heading());
 
             let mut config_changed = false;
@@ -78,16 +77,7 @@ mod config {
 
 #[cfg(feature = "effect-impls")]
 mod effect {
-    use crate::{
-        effects::sleep,
-        traits::{Effect, EffectConfig},
-    };
-    use effect_proc_macros::BaseEffect;
-    use std::time::Duration;
-    use ww_driver_trait::Driver;
-    use ww_frame::FrameType;
-
-    use super::config::DebugOneByOneConfig;
+    use super::*;
 
     /// Light up each light individually, one-by-one.
     #[derive(Clone, Debug, Default, PartialEq, BaseEffect)]
