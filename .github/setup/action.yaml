@@ -1,0 +1,19 @@
+name: 'Setup Rust'
+description: 'Setup Rust for the Winter WonderLights CI'
+runs:
+  using: 'composite'
+  steps:
+    # TODO: Use minimal profile here (why doesn't it work?) and add input to specify extra components (e.g. for doc-build)
+    - name: Install Rust nightly
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly
+
+    - name: Add wasm32 target
+      run: rustup target add wasm32-unknown-unknown
+
+    - name: Install cargo-binstall
+      run: curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+
+    - name: Cargo binstall things
+      run: cargo binstall -y just cargo-insta trunk

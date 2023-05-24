@@ -15,19 +15,3 @@ repos:
     rev: v1.0
     hooks:
       - id: fmt
-
-  - repo: local
-    hooks:
-      - id: just-check
-        name: just check
-        entry: just check
-        language: system
-        files: '.*\.rs|Cargo.(toml|lock)$'
-        pass_filenames: false
-
-      - id: just-doc-build
-        name: just doc-build
-        entry: just doc-build
-        language: system
-        files: '.*\.rs|Cargo.(toml|lock)$'
-        pass_filenames: false

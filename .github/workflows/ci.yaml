@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - dev/*
+      - effect/*
+      - driver/*
+
+jobs:
+  cargo-fmt:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          profile: minimal
+          components: rustfmt
+
+      - run: cargo fmt --all --check
+
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/setup
+      - run: just check
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/setup
+      - run: just test
+
+  doc-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/setup
+      - run: just doc-build
+
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        driver: ['driver-debug', 'driver-virtual-tree']
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/setup
+      - run: just build ${{ matrix.driver }}
