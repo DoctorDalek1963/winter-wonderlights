@@ -11,8 +11,8 @@ permissions:
 
 jobs:
   benchmark:
-    name: Run Rust benchmark example
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
 
@@ -23,7 +23,7 @@ jobs:
       - name: Store benchmark result
         uses: benchmark-action/github-action-benchmark@v1
         with:
-          name: Rust Benchmark
+          name: Benchmark
           tool: 'cargo'
           output-file-path: output.txt
           github-token: ${{ secrets.GITHUB_TOKEN }}
