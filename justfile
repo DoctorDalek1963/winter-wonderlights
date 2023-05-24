@@ -1,4 +1,6 @@
-set dotenv-load := true
+set dotenv-load
+
+export DATA_DIR := justfile_directory() + "/data"
 
 # list available recipes
 _default:
