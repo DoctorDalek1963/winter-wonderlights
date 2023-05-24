@@ -29,8 +29,8 @@ ww-shared.workspace = true
 virtual-tree = { path = "../drivers/virtual-tree", optional = true }
 
 [features]
-# For testing purposes
-default = ["driver-virtual-tree"]
+# To let rust-analyzer run faster
+default = ["driver-debug"]
 
 driver-debug = []
 driver-virtual-tree = ["dep:virtual-tree"]
