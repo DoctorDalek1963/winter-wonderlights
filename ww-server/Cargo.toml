@@ -32,5 +32,8 @@ virtual-tree = { path = "../drivers/virtual-tree", optional = true }
 # To let rust-analyzer run faster
 default = ["driver-debug"]
 
+# Just log whatever the driver was asked to display at the info level using tracing.
 driver-debug = []
+
+# Display the effect on a virtual tree render with Bevy - uses `coords.gift` to work out where the lights are.
 driver-virtual-tree = ["dep:virtual-tree"]

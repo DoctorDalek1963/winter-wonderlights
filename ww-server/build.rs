@@ -1,5 +1,7 @@
 #![feature(iter_intersperse)]
 
+/// Names of driver features with leading `driver-` removed, dashes replaced with underscores, and
+/// everything in ALL CAPS.
 const DRIVER_NAMES: &'static [&'static str] = &["DEBUG", "VIRTUAL_TREE"];
 
 fn driver_name_to_feature_name(driver_name: &&str) -> String {
