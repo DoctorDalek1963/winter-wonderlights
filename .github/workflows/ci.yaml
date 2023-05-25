@@ -22,6 +22,11 @@ jobs:
           profile: minimal
           components: rustfmt
 
+      - run: |
+          rustup --version
+          rustfmt --version
+          cargo fmt --version
+
       - run: cargo fmt --all --check
 
   check:
