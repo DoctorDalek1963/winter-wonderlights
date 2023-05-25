@@ -9,6 +9,7 @@ license = "GPL-3.0"
 
 [dependencies]
 criterion = { version = "0.4.0", features = ["async_tokio"] }
+strum.workspace = true
 tokio.workspace = true
 ww-driver-trait.workspace = true
 ww-effects = { workspace = true, features = ["bench", "effect-impls"] }

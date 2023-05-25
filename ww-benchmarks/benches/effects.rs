@@ -1,6 +1,7 @@
 use criterion::{criterion_group, criterion_main, Criterion};
+use strum::IntoEnumIterator;
 use ww_driver_trait::Driver;
-use ww_effects::{effects::*, EffectDispatchList};
+use ww_effects::EffectNameList;
 use ww_frame::{FrameType, RGBArray};
 
 const LIGHTS_NUM: usize = 500;
@@ -45,36 +46,21 @@ fn debug_effects(c: &mut Criterion) {
         .build()
         .unwrap();
 
-    macro_rules! benchmark_effects_simple {
-        ( $( $name:ident ),* ) => {
-            $(
-                c.bench_function(concat!("(SimpleDriver) ", stringify!($name)), |b| {
-                    let effect = EffectDispatchList::$name($name::default());
-                    b.to_async(&runtime).iter(|| effect.clone().run(unsafe { &mut SIMPLE_DRIVER }));
-                });
-            )*
-        };
+    for name in EffectNameList::iter() {
+        c.bench_function(&format!("(SimpleDriver) {}", name.effect_name()), |b| {
+            let effect = name.default_dispatch();
+            b.to_async(&runtime)
+                .iter(|| effect.clone().run(unsafe { &mut SIMPLE_DRIVER }));
+        });
+        c.bench_function(
+            &format!("(ConvertFrameDriver) {}", name.effect_name()),
+            |b| {
+                let effect = name.default_dispatch();
+                b.to_async(&runtime)
+                    .iter(|| effect.clone().run(unsafe { &mut CONVERT_FRAME_DRIVER }));
+            },
+        );
     }
-
-    macro_rules! benchmark_effects_convert_frame {
-        ( $( $name:ident ),* ) => {
-            $(
-                c.bench_function(concat!("(ConvertFrameDriver) ", stringify!($name)), |b| {
-                    let effect = EffectDispatchList::$name($name::default());
-                    b.to_async(&runtime).iter(|| effect.clone().run(unsafe { &mut CONVERT_FRAME_DRIVER }));
-                });
-            )*
-        };
-    }
-
-    macro_rules! benchmark_effects {
-        ( $( $name:ident ),* ) => {
-            benchmark_effects_simple!( $( $name ),* );
-            benchmark_effects_convert_frame!( $( $name ),* );
-        };
-    }
-
-    benchmark_effects!(DebugOneByOne, DebugBinaryIndex, MovingPlane, LavaLamp);
 }
 
 criterion_group! { effects, debug_effects }
