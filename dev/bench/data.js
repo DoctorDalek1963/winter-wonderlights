@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1685218546358,
+  "lastUpdate": 1685218926699,
   "repoUrl": "https://github.com/DoctorDalek1963/winter-wonderlights",
   "entries": {
     "Benchmark": [
@@ -359,6 +359,78 @@ window.BENCHMARK_DATA = {
             "name": "(ConvertFrameDriver) LavaLamp",
             "value": 2766352,
             "range": "± 1348",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "committer": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "distinct": true,
+          "id": "fa4e250229561ea2cbf45d512fa3ac583cdc027f",
+          "message": "Use fat lto in release",
+          "timestamp": "2023-05-27T21:17:31+01:00",
+          "tree_id": "ce30374938e12dfb8e6a9fcb93a7ebc5a55d52af",
+          "url": "https://github.com/DoctorDalek1963/winter-wonderlights/commit/fa4e250229561ea2cbf45d512fa3ac583cdc027f"
+        },
+        "date": 1685218925589,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "(SimpleDriver) DebugOneByOne",
+            "value": 54622,
+            "range": "± 4197",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugOneByOne",
+            "value": 117462,
+            "range": "± 4861",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) DebugBinaryIndex",
+            "value": 184509,
+            "range": "± 10130",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugBinaryIndex",
+            "value": 182819,
+            "range": "± 8391",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) MovingPlane",
+            "value": 34846,
+            "range": "± 2994",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) MovingPlane",
+            "value": 3355446,
+            "range": "± 202565",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) LavaLamp",
+            "value": 29234,
+            "range": "± 1711",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) LavaLamp",
+            "value": 2734849,
+            "range": "± 118367",
             "unit": "ns/iter"
           }
         ]
