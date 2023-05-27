@@ -49,12 +49,10 @@ impl VirtualTreeDriver {
             }
         };
 
-        thread::spawn(move || {
-            Command::new(RUNNER_PATH)
-                .arg(socket_path)
-                .spawn()
-                .expect(&format!("Unable to start runner at path {RUNNER_PATH}"));
-        });
+        Command::new(RUNNER_PATH)
+            .arg(socket_path)
+            .spawn()
+            .expect(&format!("Unable to start runner at path {RUNNER_PATH}"));
 
         let stream = socket_listener
             .accept()

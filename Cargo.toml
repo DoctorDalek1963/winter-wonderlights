@@ -3,21 +3,21 @@ resolver = "2"
 members = ["drivers/virtual-tree", "ww-benchmarks", "ww-client", "ww-driver-trait", "ww-effects", "ww-frame", "ww-gift-coords", "ww-server", "ww-shared"]
 
 [workspace.dependencies]
-async-trait = "0.1.64"
+async-trait = "0.1.68"
 bincode = "1.3.3"
 cfg-if = "1.0.0"
 color-eyre = "0.6.2"
-egui = "0.20.1"
-glam = { version = "0.23.0", features = ["rand"] }
+egui = "0.22.0"
+glam = { version = "0.24.0", features = ["rand"] }
 interprocess = "1.2.1"
 lazy_static =  "1.4.0"
 rand = "0.8.5"
 ron = "0.8.0"
-serde = "1.0.152"
+serde = "1.0.163"
 strum = "0.24.1"
-tokio = "1.25.0"
+tokio = "1.28.1"
 tracing = "0.1.37"
-tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 tracing-unwrap = "0.10.0"
 
 ww-driver-trait = { path = "./ww-driver-trait" }
@@ -28,7 +28,7 @@ ww-shared = { path = "./ww-shared" }
 
 # testing
 float-cmp = "0.9.0"
-insta = { version = "1.26.0", features = ["ron"] }
+insta = { version = "1.29.0", features = ["ron"] }
 
 [profile.dev.package."*"]
 opt-level = 3

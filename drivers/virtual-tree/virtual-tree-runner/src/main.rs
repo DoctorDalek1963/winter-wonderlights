@@ -18,7 +18,7 @@ use std::{
     sync::RwLock,
     thread,
 };
-use tracing::{debug, error, instrument, trace};
+use tracing::{debug, error, instrument, trace, warn, Level};
 use virtual_tree_shared::Message;
 use ww_frame::{FrameType, RGBArray};
 use ww_gift_coords::COORDS;
@@ -28,6 +28,8 @@ static CURRENT_FRAME: RwLock<FrameType> = RwLock::new(FrameType::Off);
 
 /// Start the runner, taking a path to a local socket as the first command line argument.
 fn main() {
+    tracing_subscriber::fmt().with_max_level(Level::WARN).init();
+
     let socket_path = env::args()
         .nth(1)
         .expect("We need a socket path as the first argument");
@@ -55,7 +57,6 @@ fn listen_to_socket(socket_path: &str) {
                 bincode::ErrorKind::Io(e) if e.kind() == io::ErrorKind::UnexpectedEof => continue,
                 e => {
                     error!(?e, "Unexpected error");
-                    dbg!(e);
                     continue;
                 }
             },
@@ -98,11 +99,11 @@ fn run_virtual_tree() {
 
     // Winit terminates the program after the event loop ends, so we should never get here. If we
     // do, then we want to terminate the program manually. We also want this function to return `!`
-    error!(concat!(
+    warn!(concat!(
         "Winit should terminate the program when the eventloop ends, but it hasn't. ",
         "Now terminating the program."
     ));
-    process::exit(0);
+    process::exit(255);
 }
 
 /// Update the lights by reading from the [`RwLock`] and setting the colours of all the lights.

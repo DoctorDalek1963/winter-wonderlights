@@ -3,6 +3,7 @@
 mod app;
 
 use self::app::App;
+use tracing_unwrap::ResultExt;
 
 #[cfg(not(target_family = "wasm"))]
 fn main() {
@@ -18,7 +19,7 @@ fn main() {
         options,
         Box::new(|cc| Box::new(App::new(cc))),
     )
-    //.expect_or_log("Unable to run native eframe app");
+    .expect_or_log("Unable to run native eframe app");
 }
 
 #[cfg(target_family = "wasm")]
@@ -30,8 +31,6 @@ fn main() {
             const MAX_TRACING_LEVEL: tracing::Level = tracing::Level::INFO;
         }
     }
-
-    use tracing_unwrap::ResultExt;
 
     console_error_panic_hook::set_once();
     tracing_wasm::set_as_global_default_with_config(
@@ -46,12 +45,13 @@ fn main() {
     };
 
     prokio::Runtime::default().spawn_pinned(move || async {
-        eframe::start_web(
-            "main_canvas_id",
-            options,
-            Box::new(|cc| Box::new(App::new(cc))),
-        )
-        .await
-        .expect_or_log("Unable to start WASM eframe app");
+        eframe::web::WebRunner::new()
+            .start(
+                "main_canvas_id",
+                options,
+                Box::new(|cc| Box::new(App::new(cc))),
+            )
+            .await
+            .expect_or_log("Unable to start WASM eframe app");
     });
 }

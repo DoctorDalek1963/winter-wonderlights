@@ -8,7 +8,7 @@ repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
 license = "GPL-3.0"
 
 [dependencies]
-criterion = { version = "0.4.0", features = ["async_tokio"] }
+criterion = { version = "0.5.0", features = ["async_tokio"] }
 strum.workspace = true
 tokio.workspace = true
 ww-driver-trait.workspace = true
