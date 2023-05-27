@@ -86,7 +86,6 @@ mod effect {
         config: DebugOneByOneConfig,
     }
 
-    #[async_trait::async_trait]
     impl Effect for DebugOneByOne {
         type Config = DebugOneByOneConfig;
 

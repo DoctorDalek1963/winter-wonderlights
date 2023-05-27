@@ -93,7 +93,6 @@ mod effect {
         config: DebugBinaryIndexConfig,
     }
 
-    #[async_trait]
     impl Effect for DebugBinaryIndex {
         type Config = DebugBinaryIndexConfig;
 

@@ -135,7 +135,6 @@ mod effect {
         }
     }
 
-    #[async_trait]
     impl Effect for LavaLamp {
         type Config = LavaLampConfig;
 

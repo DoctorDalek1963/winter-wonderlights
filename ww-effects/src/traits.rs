@@ -138,7 +138,6 @@ pub trait BaseEffect: Default + private::Sealed {
 
 /// The trait implemented by all effects, which defines how to run them.
 #[cfg(feature = "effect-trait")]
-#[async_trait::async_trait]
 pub trait Effect: BaseEffect {
     /// The type of this effect's config.
     type Config: EffectConfig;

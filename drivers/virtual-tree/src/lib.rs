@@ -4,7 +4,6 @@ use interprocess::local_socket::{LocalSocketListener, LocalSocketStream, NameTyp
 use std::{
     io::{self, Write},
     process::Command,
-    thread,
 };
 use tracing::{debug, error, instrument};
 use virtual_tree_shared::Message;

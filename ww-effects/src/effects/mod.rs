@@ -75,7 +75,6 @@ pub(crate) mod prelude {
             effects::{rng, sleep},
             traits::Effect,
         };
-        pub use async_trait::async_trait;
         pub use effect_proc_macros::BaseEffect;
         pub use glam::Vec3;
         pub use rand::{rngs::StdRng, Rng};

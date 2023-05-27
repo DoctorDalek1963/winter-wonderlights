@@ -93,7 +93,6 @@ mod effect {
         }
     }
 
-    #[async_trait::async_trait]
     impl Effect for MovingPlane {
         type Config = MovingPlaneConfig;
 

@@ -1,6 +1,7 @@
 //! This crate provides traits and implementations for various effects, as well as some utility
 //! functions.
 
+#![feature(async_fn_in_trait)]
 // Duration is imported and unused for tests and benchmarks because of the sleep macro
 #![cfg_attr(any(test, feature = "bench"), allow(unused_imports))]
 

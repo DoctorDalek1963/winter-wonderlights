@@ -22,7 +22,6 @@ ron = { workspace = true, optional = true }
 heck = { version = "0.4.1", optional = true }
 
 # effect-trait
-async-trait = { workspace = true, optional = true }
 ww-driver-trait = { workspace = true, optional = true }
 
 # effect-impls
@@ -38,8 +37,8 @@ default = []
 bench = []
 config-trait = ["dep:egui", "dep:ron"]
 config-impls = ["config-trait", "dep:heck", "serde/derive"]
-effect-trait = ["config-trait", "dep:async-trait", "dep:heck", "dep:ww-driver-trait"]
-effect-impls = ["effect-trait", "config-impls", "dep:async-trait", "dep:glam", "dep:rand", "dep:tokio", "dep:tracing", "dep:ww-frame", "dep:ww-gift-coords"]
+effect-trait = ["config-trait", "dep:heck", "dep:ww-driver-trait"]
+effect-impls = ["effect-trait", "config-impls", "dep:glam", "dep:rand", "dep:tokio", "dep:tracing", "dep:ww-frame", "dep:ww-gift-coords"]
 
 [dev-dependencies]
 insta.workspace = true
