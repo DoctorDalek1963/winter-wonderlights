@@ -32,3 +32,6 @@ insta = { version = "1.29.0", features = ["ron"] }
 
 [profile.dev.package."*"]
 opt-level = 3
+
+[profile.release]
+lto = "fat"
