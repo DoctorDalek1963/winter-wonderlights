@@ -6,6 +6,7 @@ use std::{
     process::Command,
 };
 use tracing::{debug, error, instrument};
+use tracing_unwrap::ResultExt;
 use virtual_tree_shared::Message;
 use ww_driver_trait::Driver;
 use ww_frame::FrameType;
@@ -22,6 +23,7 @@ pub struct VirtualTreeDriver {
 
 impl VirtualTreeDriver {
     /// Initialise the driver.
+    #[instrument]
     pub fn init() -> Self {
         debug!(?RUNNER_PATH);
 
@@ -51,11 +53,11 @@ impl VirtualTreeDriver {
         Command::new(RUNNER_PATH)
             .arg(socket_path)
             .spawn()
-            .expect(&format!("Unable to start runner at path {RUNNER_PATH}"));
+            .expect_or_log(&format!("Unable to start runner at path {RUNNER_PATH}"));
 
         let stream = socket_listener
             .accept()
-            .expect("The runner should successfully connect to the driver's socket");
+            .expect_or_log("The runner should successfully connect to the driver's socket");
 
         Self { stream }
     }
@@ -69,9 +71,9 @@ impl Driver for VirtualTreeDriver {
         self.stream
             .write(
                 &bincode::serialize(&Message::UpdateFrame(frame))
-                    .expect("Serializing a Message should not fail"),
+                    .expect_or_log("Serializing a Message should not fail"),
             )
-            .expect("Failed to write to the socket");
+            .expect_or_log("Failed to write to the socket");
     }
 
     fn get_lights_count(&self) -> usize {

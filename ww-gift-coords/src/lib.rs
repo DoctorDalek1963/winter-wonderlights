@@ -14,6 +14,7 @@ use color_eyre::Result;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::fs;
+use tracing_unwrap::ResultExt;
 
 /// A point in 3D space with f32 values.
 pub type PointF = (f32, f32, f32);
@@ -21,7 +22,7 @@ pub type PointF = (f32, f32, f32);
 lazy_static! {
     /// The GIFTCoords loaded from `coords.gift`.
     pub static ref COORDS: GIFTCoords =
-        GIFTCoords::from_file(concat!(env!("DATA_DIR"), "/coords.gift")).expect("We need the coordinates to build the tree");
+        GIFTCoords::from_file(concat!(env!("DATA_DIR"), "/coords.gift")).expect_or_log("We need the coordinates to build the tree");
 }
 
 /// A simple struct to hold and manage GIFT coordinates. See the module documentation for details.
@@ -189,7 +190,7 @@ mod tests {
         assert!(
             approx_eq!(
                 GIFTCoords,
-                GIFTCoords::from_int_coords(&int_coords).unwrap(),
+                GIFTCoords::from_int_coords(&int_coords).unwrap_or_log(),
                 gift_coords()
             ),
             "Testing no translation"
@@ -203,7 +204,7 @@ mod tests {
                         .map(|&(x, y, z)| (x + 500, y, z))
                         .collect()
                 )
-                .unwrap(),
+                .unwrap_or_log(),
                 gift_coords()
             ),
             "Testing simple translation in x"
@@ -217,7 +218,7 @@ mod tests {
                         .map(|&(x, y, z)| (x - 493, y + 112, z + 1000))
                         .collect()
                 )
-                .unwrap(),
+                .unwrap_or_log(),
                 gift_coords()
             ),
             "Testing multiple translations"
@@ -227,7 +228,7 @@ mod tests {
     #[test]
     fn from_file_test() {
         assert_eq!(
-            GIFTCoords::from_file(concat!(env!("DATA_DIR"), "/coords.gift")).unwrap(),
+            GIFTCoords::from_file(concat!(env!("DATA_DIR"), "/coords.gift")).unwrap_or_log(),
             gift_coords()
         );
     }

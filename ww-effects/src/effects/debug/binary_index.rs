@@ -113,7 +113,7 @@ mod effect {
             // We need to pad each number to the same length, so we find the maxmimum length
             let binary_number_length = binary_index_vecs
                 .last()
-                .expect("There should be at least one light")
+                .expect_or_log("There should be at least one light")
                 .len();
 
             // Now we pad out all the elements and convert them to colours

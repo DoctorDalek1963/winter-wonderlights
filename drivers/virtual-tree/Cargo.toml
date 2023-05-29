@@ -11,6 +11,7 @@ license = "GPL-3.0"
 bincode.workspace = true
 interprocess.workspace = true
 tracing.workspace = true
+tracing-unwrap.workspace = true
 virtual-tree-runner = { path = "./virtual-tree-runner", artifact = "bin" }
 virtual-tree-shared = { path = "./virtual-tree-shared" }
 ww-driver-trait.workspace = true

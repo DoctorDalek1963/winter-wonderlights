@@ -2,6 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::fs;
+use tracing_unwrap::ResultExt;
 use ww_effects::list::{EffectConfigDispatchList, EffectNameList};
 
 /// A message from the server to the client.
@@ -62,7 +63,7 @@ impl ClientState {
         let _ = fs::write(
             format!("{}/config/{filename}", env!("DATA_DIR")),
             ron::ser::to_string_pretty(self, ron::ser::PrettyConfig::default().struct_names(true))
-                .expect("ClientState should be serializable"),
+                .expect_or_log("ClientState should be serializable"),
         );
     }
 }

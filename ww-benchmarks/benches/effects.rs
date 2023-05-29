@@ -44,7 +44,7 @@ fn debug_effects(c: &mut Criterion) {
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_time()
         .build()
-        .unwrap();
+        .expect("Should be able to build tokio runtime");
 
     for name in EffectNameList::iter() {
         c.bench_function(&format!("(SimpleDriver) {}", name.effect_name()), |b| {

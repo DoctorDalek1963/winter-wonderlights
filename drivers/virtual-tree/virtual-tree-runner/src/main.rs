@@ -19,6 +19,7 @@ use std::{
     thread,
 };
 use tracing::{debug, error, instrument, trace, warn, Level};
+use tracing_unwrap::{OptionExt, ResultExt};
 use virtual_tree_shared::Message;
 use ww_frame::{FrameType, RGBArray};
 use ww_gift_coords::COORDS;
@@ -32,25 +33,29 @@ fn main() {
 
     let socket_path = env::args()
         .nth(1)
-        .expect("We need a socket path as the first argument");
+        .expect_or_log("We need a socket path as the first argument");
     debug!(?socket_path);
 
-    thread::spawn(move || listen_to_socket(&socket_path));
+    thread::Builder::new()
+        .name("listen-to-virtual-tree-socket".to_string())
+        .spawn(move || listen_to_socket(&socket_path))
+        .unwrap_or_log();
 
     run_virtual_tree()
 }
 
 /// Listen to the given socket and update [`CURRENT_FRAME`] when the socket tells us to update the
 /// frame.
+#[instrument]
 fn listen_to_socket(socket_path: &str) {
     let mut conn = LocalSocketStream::connect(socket_path)
-        .expect(&format!("Unable to connect to socket at {socket_path:?}"));
+        .expect_or_log(&format!("Unable to connect to socket at {socket_path:?}"));
     let mut buf = [0u8; 5180]; // 5kB
 
     loop {
         let idx = conn
             .read(&mut buf)
-            .expect("We should be able to read from the socket connection");
+            .expect_or_log("We should be able to read from the socket connection");
         let message: Message = match bincode::deserialize(&buf[..idx]) {
             Ok(msg) => msg,
             Err(e) => match *e {
@@ -64,7 +69,7 @@ fn listen_to_socket(socket_path: &str) {
         debug!(?message, "Deserialized message");
 
         match message {
-            Message::UpdateFrame(frame) => *CURRENT_FRAME.write().unwrap() = frame,
+            Message::UpdateFrame(frame) => *CURRENT_FRAME.write().unwrap_or_log() = frame,
             Message::Shutdown => process::exit(0),
         };
     }
@@ -122,7 +127,7 @@ fn update_lights(
     let mut render_raw_data = |vec: Vec<RGBArray>| {
         for (handle, idx, children) in parent_query.iter() {
             // Set emissive colour
-            let mut mat = materials.get(handle).unwrap().clone();
+            let mut mat = materials.get(handle).unwrap_or_log().clone();
             trace!(?idx, "Before, color = {:?}", mat.emissive);
 
             let [r, g, b] = vec[idx.0];
@@ -134,7 +139,7 @@ fn update_lights(
 
             for &child in children.iter() {
                 // Set colour of light
-                let mut point_light = child_query.get_mut(child).unwrap();
+                let mut point_light = child_query.get_mut(child).unwrap_or_log();
                 point_light.color = new_colour;
             }
         }

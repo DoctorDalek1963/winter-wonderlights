@@ -80,6 +80,7 @@ pub(crate) mod prelude {
         pub use rand::{rngs::StdRng, Rng};
         pub use std::time::Duration;
         pub use tracing::{debug, error, info, instrument, trace, warn};
+        pub use tracing_unwrap::{OptionExt, ResultExt};
         pub use ww_driver_trait::Driver;
         pub use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object, RGBArray};
     }

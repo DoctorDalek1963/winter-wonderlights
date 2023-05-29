@@ -80,7 +80,9 @@ impl Deref for WrappedClientState {
 
 impl Drop for WrappedClientState {
     fn drop(&mut self) {
-        self.read().unwrap().save_to_file(SERVER_STATE_FILENAME)
+        self.read()
+            .unwrap_or_log()
+            .save_to_file(SERVER_STATE_FILENAME)
     }
 }
 
@@ -89,10 +91,10 @@ fn no_cors_header() -> Header {
     Header {
         field: "Access-Control-Allow-Origin"
             .parse()
-            .expect("This &'static str should parse just fine"),
+            .expect_or_log("This &'static str should parse just fine"),
         value: "*"
             .parse()
-            .expect("This &'static str should parse just fine"),
+            .expect_or_log("This &'static str should parse just fine"),
     }
 }
 
@@ -133,7 +135,7 @@ fn handle_request(mut req: Request, client_state: &WrappedClientState) -> Result
             req.respond(
                 Response::from_string(
                     ron::to_string(&ServerToClientMsg::UpdateClientState(read_state!().clone()))
-                        .expect(EXPECT_SERIALIZE_MSG),
+                        .expect_or_log(EXPECT_SERIALIZE_MSG),
                 )
                 .with_header(no_cors_header()),
             )?
@@ -270,6 +272,7 @@ fn run_effect(state: WrappedClientState) {
     });
 }
 
+/// Initialise a subscriber for tracing to log to `stdout` and a file.
 fn init_tracing() {
     let appender =
         tracing_appender::rolling::daily(concat!(env!("DATA_DIR"), "/logs"), "server.log");
@@ -293,7 +296,7 @@ fn init_tracing() {
         );
 
     tracing::subscriber::set_global_default(subscriber)
-        .expect("Setting the global default for tracing should be okay");
+        .expect_or_log("Setting the global default for tracing should be okay");
 }
 
 #[instrument]
@@ -323,18 +326,24 @@ fn main() {
     let client_state = WrappedClientState::new();
 
     // Save the effect config every 10 seconds
-    thread::spawn({
-        let state = client_state.clone();
-        move || loop {
-            state.save_config();
-            thread::sleep(Duration::from_secs(10));
-        }
-    });
+    thread::Builder::new()
+        .name("client-state-save-config".to_string())
+        .spawn({
+            let state = client_state.clone();
+            move || loop {
+                state.save_config();
+                thread::sleep(Duration::from_secs(10));
+            }
+        })
+        .unwrap_or_log();
 
-    thread::spawn({
-        let state = client_state.clone();
-        move || run_effect(state)
-    });
+    thread::Builder::new()
+        .name("run-effect".to_string())
+        .spawn({
+            let state = client_state.clone();
+            move || run_effect(state)
+        })
+        .unwrap_or_log();
 
     info!("Server initialised");
 

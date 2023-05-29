@@ -10,4 +10,5 @@ license = "GPL-3.0"
 [dependencies]
 ron.workspace = true
 serde.workspace = true
+tracing-unwrap.workspace = true
 ww-effects = { workspace = true, features = ["config-impls"] }

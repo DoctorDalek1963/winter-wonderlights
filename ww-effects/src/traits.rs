@@ -10,10 +10,11 @@ pub fn save_effect_config_to_file<T>(filename: &str, config: &T)
 where
     T: EffectConfig,
 {
+    use tracing_unwrap::ResultExt;
     let _ = fs::write(
         filename,
         ron::ser::to_string_pretty(config, ron::ser::PrettyConfig::default().struct_names(true))
-            .expect("The effect config should be serializable"),
+            .expect_or_log("The effect config should be serializable"),
     );
 }
 

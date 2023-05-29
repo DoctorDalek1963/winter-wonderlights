@@ -4860,6 +4860,7 @@ dependencies = [
  "bincode",
  "interprocess",
  "tracing",
+ "tracing-unwrap",
  "virtual-tree-runner",
  "virtual-tree-shared",
  "ww-driver-trait",
@@ -4883,6 +4884,7 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-subscriber",
+ "tracing-unwrap",
  "virtual-tree-shared",
  "ww-effects",
  "ww-frame",
@@ -5602,6 +5604,7 @@ dependencies = [
  "strum",
  "tokio",
  "tracing",
+ "tracing-unwrap",
  "ww-driver-trait",
  "ww-frame",
  "ww-gift-coords",
@@ -5628,6 +5631,7 @@ dependencies = [
  "float-cmp",
  "lazy_static",
  "serde",
+ "tracing-unwrap",
 ]
 
 [[package]]
@@ -5657,6 +5661,7 @@ version = "0.1.0-dev"
 dependencies = [
  "ron 0.8.0",
  "serde",
+ "tracing-unwrap",
  "ww-effects",
 ]
 
