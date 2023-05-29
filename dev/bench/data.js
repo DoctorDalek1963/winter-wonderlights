@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1685221241448,
+  "lastUpdate": 1685394371149,
   "repoUrl": "https://github.com/DoctorDalek1963/winter-wonderlights",
   "entries": {
     "Benchmark": [
@@ -503,6 +503,78 @@ window.BENCHMARK_DATA = {
             "name": "(ConvertFrameDriver) LavaLamp",
             "value": 2325801,
             "range": "± 4311",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "committer": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "distinct": true,
+          "id": "3b5a3aa3ec4abfa533ba95b67be5a52c1e02b916",
+          "message": "Fix cargo fmt issue from CI",
+          "timestamp": "2023-05-29T22:02:06+01:00",
+          "tree_id": "43f491f6dc67c9c9a7458d4bde8cd918d93c7acb",
+          "url": "https://github.com/DoctorDalek1963/winter-wonderlights/commit/3b5a3aa3ec4abfa533ba95b67be5a52c1e02b916"
+        },
+        "date": 1685394370289,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "(SimpleDriver) DebugOneByOne",
+            "value": 37679,
+            "range": "± 418",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugOneByOne",
+            "value": 95246,
+            "range": "± 650",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) DebugBinaryIndex",
+            "value": 146362,
+            "range": "± 183",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugBinaryIndex",
+            "value": 145195,
+            "range": "± 112",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) MovingPlane",
+            "value": 26159,
+            "range": "± 30",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) MovingPlane",
+            "value": 2909149,
+            "range": "± 5703",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) LavaLamp",
+            "value": 26474,
+            "range": "± 17",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) LavaLamp",
+            "value": 2434698,
+            "range": "± 1485",
             "unit": "ns/iter"
           }
         ]
