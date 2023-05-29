@@ -47,7 +47,6 @@ impl Frame3D {
             data = self
                 .objects
                 .iter()
-
                 // Render the data into its own slice and convert all the u8s to f32s for later
                 .map(|f_obj| {
                     let mut new_data = data.clone();
@@ -58,7 +57,6 @@ impl Frame3D {
                         .map(|[r, g, b]| [r as f32 / total, g as f32 / total, b as f32 / total])
                         .collect::<Vec<_>>()
                 })
-
                 // Sum all the data to get one Vec<[f32; 3]> where each element is the mean colour
                 // for that light
                 .fold(vec![[0., 0., 0.]; COORDS.lights_num()], |mut acc, v| {
@@ -70,7 +68,6 @@ impl Frame3D {
                     acc
                 })
                 .into_iter()
-
                 // Convert everything back to u8s
                 .map(|[r, g, b]| [r as u8, g as u8, b as u8])
                 .collect();
