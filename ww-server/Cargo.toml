@@ -8,12 +8,15 @@ repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
 license = "GPL-3.0"
 
 [dependencies]
+bincode.workspace = true
 cfg-if.workspace = true
 color-eyre.workspace = true
+futures-util = "0.3.28"
 lazy_static.workspace = true
 ron.workspace = true
-tiny_http = { version = "0.12.0", features = ["ssl"] }
-tokio = { workspace = true, features = ["macros", "rt", "sync", "time"] }
+tokio = { workspace = true, features = ["macros", "rt", "signal", "sync", "time"] }
+tokio-stream = { version = "0.1.14", features = ["sync"] }
+tokio-tungstenite = "0.19.0"
 tracing.workspace = true
 tracing-appender = "0.2.2"
 tracing-subscriber.workspace = true

@@ -20,6 +20,7 @@ strum.workspace = true
 tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread", "sync"] }
 tracing.workspace = true
 tracing-subscriber.workspace = true
+tracing-unwrap.workspace = true
 virtual-tree-shared = { path = "../virtual-tree-shared" }
 ww-effects.workspace = true
 ww-frame.workspace = true

@@ -19,6 +19,7 @@ use std::{
     thread,
 };
 use tracing::{debug, error, instrument, trace, warn, Level};
+use tracing_unwrap::{OptionExt, ResultExt};
 use virtual_tree_shared::Message;
 use ww_frame::{FrameType, RGBArray};
 use ww_gift_coords::COORDS;
@@ -32,10 +33,13 @@ fn main() {
 
     let socket_path = env::args()
         .nth(1)
-        .expect("We need a socket path as the first argument");
+        .expect_or_log("We need a socket path as the first argument");
     debug!(?socket_path);
 
-    thread::spawn(move || listen_to_socket(&socket_path));
+    thread::Builder::new()
+        .name("listen-to-virtual-tree-socket".to_string())
+        .spawn(move || listen_to_socket(&socket_path))
+        .unwrap();
 
     run_virtual_tree()
 }
@@ -50,7 +54,7 @@ fn listen_to_socket(socket_path: &str) {
     loop {
         let idx = conn
             .read(&mut buf)
-            .expect("We should be able to read from the socket connection");
+            .expect_or_log("We should be able to read from the socket connection");
         let message: Message = match bincode::deserialize(&buf[..idx]) {
             Ok(msg) => msg,
             Err(e) => match *e {
