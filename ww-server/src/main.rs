@@ -107,24 +107,14 @@ fn handle_request(mut req: Request, client_state: &WrappedClientState) -> Result
     trace!(?msg);
 
     /// Lock the local `client_state` for writing.
-    ///
-    /// NOTE: If you assign this to a variable, remember to drop it before calling
-    /// [`respond_update_client_state`], or else a deadlock will occur.
     macro_rules! write_state {
-        () => {
-            client_state
+        ($name:ident => $body:expr) => {{
+            let mut $name = client_state
                 .write()
-                .expect_or_log("Should be able to write to client state")
-        };
-    }
-
-    /// Lock the local `client_state` for reading.
-    macro_rules! read_state {
-        () => {
-            client_state
-                .read()
-                .expect_or_log("Should be able to read client state")
-        };
+                .expect_or_log("Should be able to write to client state");
+            $body;
+            drop($name);
+        }};
     }
 
     /// Send an `UpdateClientState` response.
@@ -132,8 +122,13 @@ fn handle_request(mut req: Request, client_state: &WrappedClientState) -> Result
         () => {
             req.respond(
                 Response::from_string(
-                    ron::to_string(&ServerToClientMsg::UpdateClientState(read_state!().clone()))
-                        .expect(EXPECT_SERIALIZE_MSG),
+                    ron::to_string(&ServerToClientMsg::UpdateClientState(
+                        client_state
+                            .read()
+                            .expect_or_log("Should be able to write to client state")
+                            .clone(),
+                    ))
+                    .expect(EXPECT_SERIALIZE_MSG),
                 )
                 .with_header(no_cors_header()),
             )?
@@ -150,11 +145,10 @@ fn handle_request(mut req: Request, client_state: &WrappedClientState) -> Result
         ClientToServerMsg::UpdateConfig(new_config) => {
             info!(?new_config, "Client requesting config change");
 
-            let mut client = write_state!();
-            client.effect_config = Some(new_config);
-
-            trace!(?client, "After updating client state config");
-            drop(client);
+            write_state!(state => {
+                state.effect_config = Some(new_config);
+                trace!(?state, "After updating client state config");
+            });
             respond_update_client_state!();
         }
         ClientToServerMsg::ChangeEffect(new_effect) => {
@@ -162,12 +156,11 @@ fn handle_request(mut req: Request, client_state: &WrappedClientState) -> Result
 
             client_state.save_config();
 
-            let mut client = write_state!();
-            client.effect_name = new_effect;
-            client.effect_config = new_effect.map(|effect| effect.config_from_file());
-
-            debug!(?client, "After updating client state effect name");
-            drop(client);
+            write_state!(state => {
+                state.effect_name = new_effect;
+                state.effect_config = new_effect.map(|effect| effect.config_from_file());
+                debug!(?state, "After updating client state effect name");
+            });
 
             SEND_MESSAGE_TO_THREAD
                 .send(ThreadMessage::Restart)
@@ -192,7 +185,7 @@ fn handle_request(mut req: Request, client_state: &WrappedClientState) -> Result
 /// Run the effect in the `state` with `tokio` and listen for messages on the
 /// [`struct@SEND_MESSAGE_TO_THREAD`] channel. Intended to be run in a background thread.
 #[instrument(skip_all)]
-fn run_effect(state: WrappedClientState) {
+fn run_effect(client_state: WrappedClientState) {
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_time()
         .build()
@@ -204,13 +197,16 @@ fn run_effect(state: WrappedClientState) {
 
     info!("Beginning tokio listen and run loop");
 
-    /// Lock the local `state` for reading.
+    /// Lock the local `client_state` for reading.
     macro_rules! read_state {
-        () => {
-            state
+        ($name:ident => $body:expr) => {{
+            let $name = client_state
                 .read()
-                .expect_or_log("Should be able to read client state")
-        };
+                .expect_or_log("Should be able to write to client state");
+            let rv = $body;
+            drop($name);
+            rv
+        }};
     }
 
     local.block_on(&runtime, async move {
@@ -226,9 +222,7 @@ fn run_effect(state: WrappedClientState) {
                         ThreadMessage::Restart => {
                             info!(
                                 "Restarting effect {:?}",
-                                read_state!()
-                                    .effect_name
-                                    .map_or("None", |x| x.effect_name())
+                                read_state!(state => state.effect_name.map_or("None", |x| x.effect_name()))
                             );
                             continue;
                         }
@@ -242,9 +236,7 @@ fn run_effect(state: WrappedClientState) {
                     // We have to get the effect and then drop the lock so that the
                     // `handle_request()` function can actually write to the client state when the
                     // client requests an effect change
-                    let locked_state = read_state!();
-                    let effect_name = locked_state.effect_name;
-                    drop(locked_state);
+                    let effect_name = read_state!(state => state.effect_name);
 
                     if let Some(effect) = effect_name {
                         let effect: EffectDispatchList = effect.into();
