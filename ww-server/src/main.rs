@@ -4,15 +4,23 @@
 mod drivers;
 
 use color_eyre::Result;
+use futures_util::{future, pin_mut, stream::TryStreamExt, StreamExt};
 use lazy_static::lazy_static;
 use std::{
+    io,
+    net::SocketAddr,
     ops::Deref,
     sync::{Arc, RwLock},
     thread,
     time::Duration,
 };
-use tiny_http::{Header, Request, Response};
-use tokio::sync::broadcast;
+use tokio::{
+    net::{TcpListener, TcpStream},
+    signal,
+    sync::broadcast,
+};
+use tokio_stream::wrappers::BroadcastStream;
+use tokio_tungstenite::tungstenite;
 use tracing::{debug, error, info, instrument, trace, warn};
 use tracing_subscriber::{filter::LevelFilter, fmt::Layer, prelude::*, EnvFilter};
 use tracing_unwrap::ResultExt;
@@ -31,6 +39,10 @@ lazy_static! {
     /// The broadcast sender which lets you send messages to the background thread, which is
     /// running the effect itself.
     static ref SEND_MESSAGE_TO_THREAD: broadcast::Sender<ThreadMessage> = broadcast::channel(10).0;
+
+    /// The broadcast sender which lets you send messages between client tasks to broadcast a
+    /// message to all connected clients.
+    static ref SEND_MESSAGE_BETWEEN_CLIENT_TASKS: broadcast::Sender<Vec<u8>> = broadcast::channel(100).0;
 }
 
 /// Possible messages to send to the effect thread.
@@ -86,107 +98,134 @@ impl Drop for WrappedClientState {
     }
 }
 
-/// Create a header that will allow the client to function properly without CORS getting in the way.
-fn no_cors_header() -> Header {
-    Header {
-        field: "Access-Control-Allow-Origin"
-            .parse()
-            .expect_or_log("This &'static str should parse just fine"),
-        value: "*"
-            .parse()
-            .expect_or_log("This &'static str should parse just fine"),
-    }
-}
-
-#[instrument(skip_all, fields(addr = ?req.remote_addr()))]
-fn handle_request(mut req: Request, client_state: &WrappedClientState) -> Result<()> {
-    trace!(?req, "Received a new request");
-
-    let mut body = String::new();
-    req.as_reader().read_to_string(&mut body)?;
-    let msg: ClientToServerMsg = ron::from_str(&body)?;
-
-    trace!(?msg);
-
+/// Handle a single connection.
+#[instrument(skip_all, fields(?addr))]
+async fn handle_connection(
+    socket: TcpStream,
+    addr: SocketAddr,
+    client_state: WrappedClientState,
+) -> Result<()> {
     /// Lock the local `client_state` for writing.
-    ///
-    /// NOTE: If you assign this to a variable, remember to drop it before calling
-    /// [`respond_update_client_state`], or else a deadlock will occur.
     macro_rules! write_state {
-        () => {
-            client_state
+        ($name:ident => $body:expr) => {{
+            let mut $name = client_state
                 .write()
-                .expect_or_log("Should be able to write to client state")
-        };
+                .expect_or_log("Should be able to write to client state");
+            $body;
+            drop($name);
+        }};
     }
 
-    /// Lock the local `client_state` for reading.
-    macro_rules! read_state {
-        () => {
-            client_state
-                .read()
-                .expect_or_log("Should be able to read client state")
-        };
-    }
+    let ws_stream = tokio_tungstenite::accept_async(socket)
+        .await
+        .expect_or_log("Error during WebSocket handshake");
 
-    /// Send an `UpdateClientState` response.
-    macro_rules! respond_update_client_state {
-        () => {
-            req.respond(
-                Response::from_string(
-                    ron::to_string(&ServerToClientMsg::UpdateClientState(read_state!().clone()))
-                        .expect_or_log(EXPECT_SERIALIZE_MSG),
+    info!("Created a new connection");
+
+    let (outgoing, incoming) = ws_stream.split();
+
+    // Read messages from this client and broadcast them down
+    // [`SEND_MESSAGE_BETWEEN_CLIENT_TASKS`].
+    let broadcast_incoming = incoming.try_for_each(|msg| {
+        let send_update_client_state = || {
+            SEND_MESSAGE_BETWEEN_CLIENT_TASKS
+                .send(
+                    bincode::serialize(&ServerToClientMsg::UpdateClientState(
+                        client_state
+                            .read()
+                            .expect_or_log("Should be able to read client state")
+                            .clone(),
+                    ))
+                    .expect_or_log(EXPECT_SERIALIZE_MSG),
                 )
-                .with_header(no_cors_header()),
-            )?
+                .expect_or_log("Should be able to send message down tx")
         };
-    }
 
-    match msg {
-        ClientToServerMsg::RequestUpdate => {
-            // This is debug rather than info because the client does it every second
-            debug!("Client requesting update");
+        let bytes = match msg {
+            tungstenite::Message::Binary(bytes) => bytes,
+            _ => {
+                return future::err(tungstenite::Error::Protocol(
+                    tungstenite::error::ProtocolError::ExpectedFragment(
+                        tungstenite::protocol::frame::coding::Data::Binary,
+                    ),
+                ))
+            }
+        };
 
-            respond_update_client_state!();
-        }
-        ClientToServerMsg::UpdateConfig(new_config) => {
-            info!(?new_config, "Client requesting config change");
+        let msg: ClientToServerMsg = match bincode::deserialize(&bytes) {
+            Ok(x) => x,
+            Err(e) => {
+                error!(?e, "Unable to deserialize client message; disconnecting it");
+                return future::err(tungstenite::Error::Io(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    e,
+                )));
+            }
+        };
 
-            let mut client = write_state!();
-            client.effect_config = Some(new_config);
+        match msg {
+            ClientToServerMsg::RequestUpdate => {
+                // This is debug rather than info because the client does it every second
+                debug!("Client requesting update");
 
-            trace!(?client, "After updating client state config");
-            drop(client);
-            respond_update_client_state!();
-        }
-        ClientToServerMsg::ChangeEffect(new_effect) => {
-            info!(?new_effect, "Client requesting effect change");
+                send_update_client_state();
+            }
+            ClientToServerMsg::UpdateConfig(new_config) => {
+                info!(?new_config, "Client requesting config change");
 
-            client_state.save_config();
+                write_state!(state => {
+                    state.effect_config = Some(new_config);
+                    trace!(?state, "After updating client state config");
+                });
+                send_update_client_state();
+            }
+            ClientToServerMsg::ChangeEffect(new_effect) => {
+                info!(?new_effect, "Client requesting effect change");
 
-            let mut client = write_state!();
-            client.effect_name = new_effect;
-            client.effect_config = new_effect.map(|effect| effect.config_from_file());
+                client_state.save_config();
 
-            debug!(?client, "After updating client state effect name");
-            drop(client);
+                write_state!(state => {
+                    state.effect_name = new_effect;
+                    state.effect_config = new_effect.map(|effect| effect.config_from_file());
+                    debug!(?state, "After updating client state effect name");
+                });
 
-            SEND_MESSAGE_TO_THREAD
-                .send(ThreadMessage::Restart)
-                .expect_or_log("Unable to send ThreadMessage::Restart");
+                SEND_MESSAGE_TO_THREAD
+                    .send(ThreadMessage::Restart)
+                    .expect_or_log("Unable to send ThreadMessage::Restart");
 
-            respond_update_client_state!();
-        }
-        ClientToServerMsg::RestartCurrentEffect => {
-            info!("Client requesting restart current effect");
+                send_update_client_state();
+            }
+            ClientToServerMsg::RestartCurrentEffect => {
+                info!("Client requesting restart current effect");
 
-            SEND_MESSAGE_TO_THREAD
-                .send(ThreadMessage::Restart)
-                .expect_or_log("Unable to send ThreadMessage::Restart");
+                SEND_MESSAGE_TO_THREAD
+                    .send(ThreadMessage::Restart)
+                    .expect_or_log("Unable to send ThreadMessage::Restart");
 
-            respond_update_client_state!();
-        }
+                send_update_client_state();
+            }
+        };
+
+        future::ok(())
+    });
+
+    // Receive messages from other client connections via [`SEND_MESSAGE_BETWEEN_CLIENT_TASKS`] and
+    // forward these messages to this client through the WS outgoing half.
+    let receive_from_other_clients = {
+        let rx = BroadcastStream::new(SEND_MESSAGE_BETWEEN_CLIENT_TASKS.subscribe());
+        rx.map(|bytes| {
+            Ok(tungstenite::Message::Binary(
+                bytes.expect_or_log("Error in receiving message down channel"),
+            ))
+        })
+        .forward(outgoing)
     };
+
+    pin_mut!(broadcast_incoming, receive_from_other_clients);
+    future::select(broadcast_incoming, receive_from_other_clients).await;
+
+    info!("Disconnecting client");
 
     Ok(())
 }
@@ -194,7 +233,7 @@ fn handle_request(mut req: Request, client_state: &WrappedClientState) -> Result
 /// Run the effect in the `state` with `tokio` and listen for messages on the
 /// [`struct@SEND_MESSAGE_TO_THREAD`] channel. Intended to be run in a background thread.
 #[instrument(skip_all)]
-fn run_effect(state: WrappedClientState) {
+fn run_effect(client_state: WrappedClientState) {
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_time()
         .build()
@@ -206,13 +245,16 @@ fn run_effect(state: WrappedClientState) {
 
     info!("Beginning tokio listen and run loop");
 
-    /// Lock the local `state` for reading.
+    /// Lock the local `client_state` for reading.
     macro_rules! read_state {
-        () => {
-            state
+        ($name:ident => $body:expr) => {{
+            let $name = client_state
                 .read()
-                .expect_or_log("Should be able to read client state")
-        };
+                .expect_or_log("Should be able to write to client state");
+            let rv = $body;
+            drop($name);
+            rv
+        }};
     }
 
     local.block_on(&runtime, async move {
@@ -228,9 +270,7 @@ fn run_effect(state: WrappedClientState) {
                         ThreadMessage::Restart => {
                             info!(
                                 "Restarting effect {:?}",
-                                read_state!()
-                                    .effect_name
-                                    .map_or("None", |x| x.effect_name())
+                                read_state!(state => state.effect_name.map_or("None", |x| x.effect_name()))
                             );
                             continue;
                         }
@@ -244,9 +284,7 @@ fn run_effect(state: WrappedClientState) {
                     // We have to get the effect and then drop the lock so that the
                     // `handle_request()` function can actually write to the client state when the
                     // client requests an effect change
-                    let locked_state = read_state!();
-                    let effect_name = locked_state.effect_name;
-                    drop(locked_state);
+                    let effect_name = read_state!(state => state.effect_name);
 
                     if let Some(effect) = effect_name {
                         let effect: EffectDispatchList = effect.into();
@@ -299,31 +337,13 @@ fn init_tracing() {
         .expect_or_log("Setting the global default for tracing should be okay");
 }
 
-#[instrument]
-fn main() {
-    init_tracing();
-
+/// Run the server asynchronously.
+async fn run_server(client_state: WrappedClientState) {
     info!(port = env!("PORT"), "Initialising server");
 
-    let server = match tiny_http::Server::https(
-        concat!("localhost:", env!("PORT")),
-        tiny_http::SslConfig {
-            certificate: include_bytes!(env!("SERVER_SSL_CERT_PATH")).to_vec(),
-            private_key: include_bytes!(env!("SERVER_SSL_KEY_PATH")).to_vec(),
-        },
-    ) {
-        Ok(server) => server,
-        Err(error) => {
-            warn!(
-                ?error,
-                "Error creating HTTPS server; defaulting to HTTP server"
-            );
-            tiny_http::Server::http(concat!("localhost:", env!("PORT")))
-                .expect_or_log("Unable to create HTTP server")
-        }
-    };
-
-    let client_state = WrappedClientState::new();
+    let listener = TcpListener::bind(concat!("localhost:", env!("PORT")))
+        .await
+        .expect_or_log("Unable to start TcpListener");
 
     // Save the effect config every 10 seconds
     thread::Builder::new()
@@ -347,15 +367,32 @@ fn main() {
 
     info!("Server initialised");
 
-    for req in server.incoming_requests() {
-        match handle_request(req, &client_state) {
-            Ok(()) => (),
-            Err(e) => error!(?e, "Error handing request"),
-        };
+    while let Ok((socket, addr)) = listener.accept().await {
+        let client_state = client_state.clone();
+        tokio::spawn(async move {
+            match handle_connection(socket, addr, client_state).await {
+                Ok(_) => (),
+                Err(e) => error!(?e, "Error handling connection"),
+            }
+        });
     }
+}
 
-    info!("Server socket has shut down. Saving config and terminating server");
+#[tokio::main]
+#[instrument]
+async fn main() {
+    init_tracing();
 
-    client_state.save_config();
-    info!("Config saved");
+    let client_state = WrappedClientState::new();
+
+    tokio::select! {
+        biased;
+
+        _ = signal::ctrl_c() => {
+            info!("Recieved SIGINT. Terminating");
+            client_state.save_config();
+            return;
+        }
+        _ = run_server(client_state.clone()) => {}
+    }
 }
