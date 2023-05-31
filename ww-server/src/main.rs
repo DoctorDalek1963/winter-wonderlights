@@ -70,14 +70,15 @@ impl WrappedClientState {
     /// Save the config of the client state.
     #[instrument(skip_all)]
     fn save_config(&self) {
-        info!("Saving config to file");
-
         if let Some(config) = &self
             .read()
             .expect_or_log("Should be able to read client state")
             .effect_config
         {
+            info!(?config, "Saving config to file");
             config.save_to_file(&get_config_filename(config.effect_name()));
+        } else {
+            debug!("Tried to save config but it's None, so skipping");
         }
     }
 }
@@ -165,8 +166,7 @@ async fn handle_connection(
 
         match msg {
             ClientToServerMsg::RequestUpdate => {
-                // This is debug rather than info because the client does it every second
-                debug!("Client requesting update");
+                info!("Client requesting update");
 
                 send_update_client_state();
             }
@@ -296,7 +296,7 @@ fn run_effect(client_state: WrappedClientState) {
                         // TODO: Allow custom pause time
                         tokio::time::sleep(Duration::from_millis(500)).await;
 
-                        info!("Looping effect");
+                        info!("Looping effect {:?}", read_state!(state => state.effect_name.map_or("None", |x| x.effect_name())));
                     } else {
                         driver.display_frame(FrameType::Off);
 

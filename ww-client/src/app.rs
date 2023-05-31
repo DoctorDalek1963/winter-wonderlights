@@ -36,7 +36,7 @@ impl App {
         prokio::Runtime::default().spawn_pinned({
             let message_tx = message_tx.clone();
             move || async move {
-                prokio::time::sleep(Duration::from_millis(500)).await;
+                prokio::time::sleep(Duration::from_millis(1000)).await;
                 match message_tx.send(ClientToServerMsg::RequestUpdate).await {
                     Ok(()) => (),
                     Err(e) => error!(?e, "Error sending message down channel"),
