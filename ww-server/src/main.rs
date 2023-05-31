@@ -7,7 +7,6 @@ use color_eyre::Result;
 use futures_util::{future, pin_mut, stream::TryStreamExt, StreamExt};
 use lazy_static::lazy_static;
 use std::{
-    fmt::write,
     io,
     net::SocketAddr,
     ops::Deref,
@@ -16,7 +15,6 @@ use std::{
     time::Duration,
 };
 use tokio::{
-    io::{AsyncReadExt, AsyncWriteExt, BufReader},
     net::{TcpListener, TcpStream},
     signal,
     sync::broadcast,
@@ -124,6 +122,8 @@ async fn handle_connection(
 
     let (outgoing, incoming) = ws_stream.split();
 
+    // Read messages from this client and broadcast them down
+    // [`SEND_MESSAGE_BETWEEN_CLIENT_TASKS`].
     let broadcast_incoming = incoming.try_for_each(|msg| {
         let send_update_client_state = || {
             SEND_MESSAGE_BETWEEN_CLIENT_TASKS
@@ -208,6 +208,8 @@ async fn handle_connection(
         future::ok(())
     });
 
+    // Receive messages from other client connections via [`SEND_MESSAGE_BETWEEN_CLIENT_TASKS`] and
+    // forward these messages to this client through the WS outgoing half.
     let receive_from_other_clients = {
         let rx = BroadcastStream::new(SEND_MESSAGE_BETWEEN_CLIENT_TASKS.subscribe());
         rx.map(|bytes| {

@@ -43,6 +43,10 @@ build-release driver:
 watch-server flags='':
 	cd {{justfile_directory()}}/ww-server && cargo watch -x "run {{flags}}"
 
+# watch the server with the virtual-tree driver and rerun anytime the code is changed
+watch-server-virtual-tree flags='':
+	cd {{justfile_directory()}}/ww-server && cargo watch -x "run --no-default-features --features driver-virtual-tree {{flags}}"
+
 # serve the client with Trunk
 serve-client flags='':
 	cd {{justfile_directory()}}/ww-client && trunk serve {{flags}}

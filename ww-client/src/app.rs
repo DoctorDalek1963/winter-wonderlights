@@ -1,7 +1,9 @@
 //! This module handles the [`App`] type for the `eframe`-based GUI.
 
 use async_channel::{Receiver, Sender};
-use reqwest::Client;
+use ewebsock::{WsEvent, WsMessage, WsReceiver};
+use futures_channel::oneshot;
+use prokio::time::sleep;
 use std::time::Duration;
 use strum::IntoEnumIterator;
 use tracing::{debug, error, instrument};
@@ -9,12 +11,9 @@ use tracing_unwrap::ResultExt;
 use ww_effects::EffectNameList;
 use ww_shared::{ClientState, ClientToServerMsg, ServerToClientMsg};
 
-/// The `.expect()` error message for serializing a [`ClientToServerMsg`].
-const EXPECT_SERIALIZE_MSG: &str = "Serializing a ClientToServerMsg should never fail";
-
 /// The app type itself.
 pub struct App {
-    /// The receiver end of a channel for [`ServerToClientMsg`].
+    /// The receiver end of a channel used to recieve messages from the server.
     server_rx: Receiver<ServerToClientMsg>,
 
     /// The sender end of a channel used to send messages to the server.
@@ -32,22 +31,25 @@ impl App {
     pub fn new(_cc: &eframe::CreationContext) -> Self {
         let (server_tx, server_rx) = async_channel::unbounded();
         let (message_tx, message_rx) = async_channel::unbounded();
-        let client = Client::new();
 
+        // Get initial state
         prokio::Runtime::default().spawn_pinned({
             let message_tx = message_tx.clone();
             move || async move {
-                loop {
-                    match message_tx.send(ClientToServerMsg::RequestUpdate).await {
-                        Ok(()) => (),
-                        Err(e) => error!(?e, "Error sending message down channel"),
-                    }
-                    prokio::time::sleep(Duration::from_secs(1)).await;
+                prokio::time::sleep(Duration::from_millis(500)).await;
+                match message_tx.send(ClientToServerMsg::RequestUpdate).await {
+                    Ok(()) => (),
+                    Err(e) => error!(?e, "Error sending message down channel"),
                 }
             }
         });
+
+        let (ws_receiver_oneshot_tx, ws_receiver_oneshot_rx) = oneshot::channel();
+
         prokio::Runtime::default()
-            .spawn_pinned(move || Self::send_messages(client, message_rx, server_tx));
+            .spawn_pinned(move || Self::send_messages(message_rx, ws_receiver_oneshot_tx));
+        prokio::Runtime::default()
+            .spawn_pinned(move || Self::receive_messages(server_tx, ws_receiver_oneshot_rx));
 
         Self {
             server_rx,
@@ -58,30 +60,62 @@ impl App {
     }
 
     /// Recieve [`ClientToServerMsg`]s on the channel and send them to the server.
+    ///
+    /// This function also connects to the server using WebSockets and sends the [`WsReceiver`]
+    /// down the given oneshot channel so that [`Self::receive_messages`] can listen to the server.
     #[instrument(skip_all)]
     async fn send_messages(
-        client: Client,
         rx: Receiver<ClientToServerMsg>,
-        tx: Sender<ServerToClientMsg>,
+        ws_receiver_oneshot_tx: oneshot::Sender<WsReceiver>,
     ) {
+        let (mut ws_sender, ws_receiver) =
+            ewebsock::connect(env!("SERVER_URL")).expect_or_log("Should be able to use WebSockets");
+
+        match ws_receiver_oneshot_tx.send(ws_receiver) {
+            Ok(()) => (),
+            Err(_ws_receiver) => {
+                error!("Failed to send WsReceiver down channel");
+                panic!("Failed to send WsReceiver down channel");
+            }
+        };
+
         while let Ok(msg) = rx.recv().await {
-            match client
-                .post(env!("SERVER_URL"))
-                .body(ron::to_string(&msg).expect_or_log(EXPECT_SERIALIZE_MSG))
-                .send()
-                .await
-            {
-                Ok(response) => match response.text().await {
-                    Ok(body) => match ron::from_str(&body) {
-                        Ok(msg) => match tx.send(msg).await {
-                            Ok(()) => (),
-                            Err(e) => error!(?e, "Error sending message down channel"),
-                        },
-                        Err(e) => error!(?e, "Error deserializing message from server"),
-                    },
-                    Err(e) => error!(?e, "Error getting text from response"),
-                },
-                Err(e) => error!(?e, "Error communicating with server"),
+            debug!(?msg, "Sending message to server");
+            ws_sender
+                .send(WsMessage::Binary(bincode::serialize(&msg).expect_or_log(
+                    "Should be able to serialize a ClientToServerMsg",
+                )));
+        }
+    }
+
+    /// Receive [`ServerToClientMsg`]s over the internet and send them down the channel so that
+    /// [`Self::respond_to_server_messages`] can respond to them.
+    #[instrument(skip_all)]
+    async fn receive_messages(
+        tx: Sender<ServerToClientMsg>,
+        ws_receiver_oneshot_rx: oneshot::Receiver<WsReceiver>,
+    ) {
+        let ws_receiver = ws_receiver_oneshot_rx
+            .await
+            .expect_or_log("Should be able to receive WsReceiver down channel");
+
+        loop {
+            if let Some(WsEvent::Message(msg)) = ws_receiver.try_recv() {
+                match msg {
+                    WsMessage::Binary(bytes) => {
+                        let msg: ServerToClientMsg = bincode::deserialize(&bytes)
+                            .expect_or_log("Failed to deserialize bytes of message");
+                        tx.send(msg)
+                            .await
+                            .expect_or_log("Should be able to send ServerToClientMsg down channel");
+                    }
+                    msg => error!(
+                        ?msg,
+                        "Unexpected WebSocket message type - we only expect binary messages"
+                    ),
+                }
+            } else {
+                sleep(Duration::from_millis(10)).await;
             }
         }
     }
