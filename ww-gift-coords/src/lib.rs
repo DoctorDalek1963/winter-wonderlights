@@ -152,6 +152,7 @@ impl GIFTCoords {
 mod tests {
     use super::*;
     use float_cmp::approx_eq;
+    use tracing_unwrap::OptionExt;
 
     impl float_cmp::ApproxEq for GIFTCoords {
         type Margin = float_cmp::F32Margin;
