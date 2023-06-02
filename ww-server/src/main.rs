@@ -17,7 +17,7 @@ use std::{
 use tokio::{
     net::{TcpListener, TcpStream},
     signal,
-    sync::broadcast,
+    sync::{broadcast, oneshot},
 };
 use tokio_stream::wrappers::BroadcastStream;
 use tokio_tungstenite::tungstenite;
@@ -233,15 +233,18 @@ async fn handle_connection(
 /// Run the effect in the `state` with `tokio` and listen for messages on the
 /// [`struct@SEND_MESSAGE_TO_THREAD`] channel. Intended to be run in a background thread.
 #[instrument(skip_all)]
-fn run_effect(client_state: WrappedClientState) {
+fn run_effect(client_state: WrappedClientState, kill_thread: oneshot::Receiver<()>) {
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_time()
         .build()
         .unwrap_or_log();
     let local = tokio::task::LocalSet::new();
 
-    let mut driver = self::drivers::Driver::init();
-    let mut rx = SEND_MESSAGE_TO_THREAD.subscribe();
+    // Safety: This function gets run once in a background thread for the duration of the server,
+    // so this call to `init()` only happens once and is thus safe.
+    let mut driver = unsafe { self::drivers::DriverWrapper::init() };
+
+    let mut thread_message_rx = SEND_MESSAGE_TO_THREAD.subscribe();
 
     info!("Beginning tokio listen and run loop");
 
@@ -257,13 +260,13 @@ fn run_effect(client_state: WrappedClientState) {
         }};
     }
 
-    local.block_on(&runtime, async move {
+    let receive_messages_and_run_effect = async move {
         loop {
             tokio::select! {
                 biased;
 
                 // First, we check if we've received a message on the channel and respond to it if so
-                msg = rx.recv() => {
+                msg = thread_message_rx.recv() => {
                     trace!(?msg, "Received ThreadMessage");
 
                     match msg.expect_or_log("There should not be an error in receiving from the channel") {
@@ -296,7 +299,10 @@ fn run_effect(client_state: WrappedClientState) {
                         // TODO: Allow custom pause time
                         tokio::time::sleep(Duration::from_millis(500)).await;
 
-                        info!("Looping effect {:?}", read_state!(state => state.effect_name.map_or("None", |x| x.effect_name())));
+                        info!(
+                            "Looping effect {:?}",
+                            read_state!(state => state.effect_name.map_or("None", |x| x.effect_name()))
+                        );
                     } else {
                         driver.display_frame(FrameType::Off);
 
@@ -306,6 +312,20 @@ fn run_effect(client_state: WrappedClientState) {
                     }
                 }} => {}
             }
+        }
+    };
+
+    local.block_on(&runtime, async move {
+        tokio::select! {
+            biased;
+
+            // If we get told to kill this thread, then immediately return. This manual return
+            // ensures that `driver` gets dropped, so that its drop impl gets correctly called
+            _ = kill_thread => {
+                return;
+            }
+
+            _ = receive_messages_and_run_effect => {}
         }
     });
 }
@@ -338,7 +358,10 @@ fn init_tracing() {
 }
 
 /// Run the server asynchronously.
-async fn run_server(client_state: WrappedClientState) {
+async fn run_server(
+    client_state: WrappedClientState,
+    kill_run_effect_thread: oneshot::Receiver<()>,
+) {
     info!(port = env!("PORT"), "Initialising server");
 
     let listener = TcpListener::bind(concat!("localhost:", env!("PORT")))
@@ -361,7 +384,7 @@ async fn run_server(client_state: WrappedClientState) {
         .name("run-effect".to_string())
         .spawn({
             let state = client_state.clone();
-            move || run_effect(state)
+            move || run_effect(state, kill_run_effect_thread)
         })
         .unwrap_or_log();
 
@@ -384,12 +407,16 @@ async fn main() {
     init_tracing();
 
     let client_state = WrappedClientState::new();
+    let (kill_run_effect_thread_tx, kill_run_effect_thread_rx) = oneshot::channel();
 
     tokio::select! {
         biased;
 
         _ = signal::ctrl_c() => {
             info!("Recieved SIGINT. Terminating");
+            kill_run_effect_thread_tx
+                .send(())
+                .expect_or_log("Should be able to send () to run-effect thread to kill it");
             client_state.save_config();
             return;
         }
