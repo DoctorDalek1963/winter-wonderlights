@@ -3,7 +3,7 @@
 
 mod drivers;
 
-use color_eyre::Result;
+use color_eyre::{Report, Result};
 use futures_util::{future, pin_mut, stream::TryStreamExt, StreamExt};
 use lazy_static::lazy_static;
 use std::{
@@ -361,7 +361,7 @@ fn init_tracing() {
 async fn run_server(
     client_state: WrappedClientState,
     kill_run_effect_thread: oneshot::Receiver<()>,
-) {
+) -> Result<()> {
     info!(port = env!("PORT"), "Initialising server");
 
     let listener = TcpListener::bind(concat!("localhost:", env!("PORT")))
@@ -380,7 +380,7 @@ async fn run_server(
         })
         .unwrap_or_log();
 
-    thread::Builder::new()
+    let run_effect_thread = thread::Builder::new()
         .name("run-effect".to_string())
         .spawn({
             let state = client_state.clone();
@@ -390,20 +390,42 @@ async fn run_server(
 
     info!("Server initialised");
 
-    while let Ok((socket, addr)) = listener.accept().await {
-        let client_state = client_state.clone();
-        tokio::spawn(async move {
-            match handle_connection(socket, addr, client_state).await {
-                Ok(_) => (),
-                Err(e) => error!(?e, "Error handling connection"),
+    let accept_new_connections = async move {
+        while let Ok((socket, addr)) = listener.accept().await {
+            let client_state = client_state.clone();
+            tokio::spawn(async move {
+                match handle_connection(socket, addr, client_state).await {
+                    Ok(_) => (),
+                    Err(e) => error!(?e, "Error handling connection"),
+                }
+            });
+        }
+    };
+
+    tokio::select! {
+        biased;
+
+        // If the run-effect thread is finished, then the driver has stopped for whatever reason,
+        // so kill the server
+        _ = async move {
+            while let false = run_effect_thread.is_finished() {
+                tokio::time::sleep(Duration::from_millis(500)).await;
             }
-        });
+        } => {
+            error!("run-effect thread has terminated prematurely. Killing server");
+            // TODO: Terminate all client connections
+            return Err(Report::msg("run-effect terminated prematurely"));
+        }
+
+        _ = accept_new_connections => {}
     }
+
+    Ok(())
 }
 
 #[tokio::main]
 #[instrument]
-async fn main() {
+async fn main() -> Result<()> {
     init_tracing();
 
     let client_state = WrappedClientState::new();
@@ -418,8 +440,10 @@ async fn main() {
                 .send(())
                 .expect_or_log("Should be able to send () to run-effect thread to kill it");
             client_state.save_config();
-            return;
+            return Ok(());
         }
-        _ = run_server(client_state.clone()) => {}
+        ret = run_server(client_state.clone(), kill_run_effect_thread_rx) => {
+            return ret;
+        }
     }
 }
