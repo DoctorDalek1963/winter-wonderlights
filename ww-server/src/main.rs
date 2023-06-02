@@ -38,7 +38,7 @@ const SERVER_STATE_FILENAME: &str = "server_state.ron";
 lazy_static! {
     /// The broadcast sender which lets you send messages to the background thread, which is
     /// running the effect itself.
-    static ref SEND_MESSAGE_TO_THREAD: broadcast::Sender<ThreadMessage> = broadcast::channel(10).0;
+    static ref SEND_MESSAGE_TO_RUN_EFFECT_THREAD: broadcast::Sender<ThreadMessage> = broadcast::channel(10).0;
 
     /// The broadcast sender which lets you send messages between client tasks to broadcast a
     /// message to all connected clients.
@@ -99,6 +99,18 @@ impl Drop for WrappedClientState {
     }
 }
 
+/// Terminate all the current client connections.
+#[instrument]
+fn terminate_all_client_connections() {
+    info!("Terminating all client connections");
+    SEND_MESSAGE_BETWEEN_CLIENT_TASKS
+        .send(
+            bincode::serialize(&ServerToClientMsg::TerminateConnection)
+                .expect_or_log(EXPECT_SERIALIZE_MSG),
+        )
+        .expect_or_log("Should be able to send message down SEND_MESSAGE_BETWEEN_CLIENT_TASKS");
+}
+
 /// Handle a single connection.
 #[instrument(skip_all, fields(?addr))]
 async fn handle_connection(
@@ -139,7 +151,9 @@ async fn handle_connection(
                     ))
                     .expect_or_log(EXPECT_SERIALIZE_MSG),
                 )
-                .expect_or_log("Should be able to send message down tx")
+                .expect_or_log(
+                    "Should be able to send message down SEND_MESSAGE_BETWEEN_CLIENT_TASKS",
+                )
         };
 
         let bytes = match msg {
@@ -190,7 +204,7 @@ async fn handle_connection(
                     debug!(?state, "After updating client state effect name");
                 });
 
-                SEND_MESSAGE_TO_THREAD
+                SEND_MESSAGE_TO_RUN_EFFECT_THREAD
                     .send(ThreadMessage::Restart)
                     .expect_or_log("Unable to send ThreadMessage::Restart");
 
@@ -199,7 +213,7 @@ async fn handle_connection(
             ClientToServerMsg::RestartCurrentEffect => {
                 info!("Client requesting restart current effect");
 
-                SEND_MESSAGE_TO_THREAD
+                SEND_MESSAGE_TO_RUN_EFFECT_THREAD
                     .send(ThreadMessage::Restart)
                     .expect_or_log("Unable to send ThreadMessage::Restart");
 
@@ -244,7 +258,7 @@ fn run_effect(client_state: WrappedClientState, kill_thread: oneshot::Receiver<(
     // so this call to `init()` only happens once and is thus safe.
     let mut driver = unsafe { self::drivers::DriverWrapper::init() };
 
-    let mut thread_message_rx = SEND_MESSAGE_TO_THREAD.subscribe();
+    let mut thread_message_rx = SEND_MESSAGE_TO_RUN_EFFECT_THREAD.subscribe();
 
     info!("Beginning tokio listen and run loop");
 
@@ -413,7 +427,6 @@ async fn run_server(
             }
         } => {
             error!("run-effect thread has terminated prematurely. Killing server");
-            // TODO: Terminate all client connections
             return Err(Report::msg("run-effect terminated prematurely"));
         }
 
@@ -431,19 +444,23 @@ async fn main() -> Result<()> {
     let client_state = WrappedClientState::new();
     let (kill_run_effect_thread_tx, kill_run_effect_thread_rx) = oneshot::channel();
 
-    tokio::select! {
+    let ret_val = tokio::select! {
         biased;
 
         _ = signal::ctrl_c() => {
-            info!("Recieved SIGINT. Terminating");
+            info!("Recieved ^C. Now terminating");
             kill_run_effect_thread_tx
                 .send(())
                 .expect_or_log("Should be able to send () to run-effect thread to kill it");
-            client_state.save_config();
-            return Ok(());
+            Ok(())
         }
         ret = run_server(client_state.clone(), kill_run_effect_thread_rx) => {
-            return ret;
+            ret
         }
-    }
+    };
+
+    terminate_all_client_connections();
+    client_state.save_config();
+
+    ret_val
 }

@@ -10,6 +10,9 @@ use ww_effects::list::{EffectConfigDispatchList, EffectNameList};
 pub enum ServerToClientMsg {
     /// Tell the client to update to the new state.
     UpdateClientState(ClientState),
+
+    /// Terminate the connection between the server and the client.
+    TerminateConnection,
 }
 
 /// A message from the client to the server.

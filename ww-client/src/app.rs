@@ -128,6 +128,7 @@ impl App {
 
             match msg {
                 ServerToClientMsg::UpdateClientState(state) => self.state = Some(state),
+                ServerToClientMsg::TerminateConnection => self.state = None,
             }
         }
     }
