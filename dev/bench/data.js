@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1685655142258,
+  "lastUpdate": 1685740753598,
   "repoUrl": "https://github.com/DoctorDalek1963/winter-wonderlights",
   "entries": {
     "Benchmark": [
@@ -719,6 +719,78 @@ window.BENCHMARK_DATA = {
             "name": "(ConvertFrameDriver) LavaLamp",
             "value": 2488991,
             "range": "± 1650",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "committer": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "distinct": true,
+          "id": "050e7ba03854d6df9399ac48472c19d7ac665e94",
+          "message": "Terminate all client connections when the server dies",
+          "timestamp": "2023-06-02T22:09:30+01:00",
+          "tree_id": "441185d6af7b1733c9bba908c1280ba805566d42",
+          "url": "https://github.com/DoctorDalek1963/winter-wonderlights/commit/050e7ba03854d6df9399ac48472c19d7ac665e94"
+        },
+        "date": 1685740752815,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "(SimpleDriver) DebugOneByOne",
+            "value": 49249,
+            "range": "± 2873",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugOneByOne",
+            "value": 109788,
+            "range": "± 4926",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) DebugBinaryIndex",
+            "value": 194097,
+            "range": "± 7944",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugBinaryIndex",
+            "value": 191005,
+            "range": "± 9879",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) MovingPlane",
+            "value": 33942,
+            "range": "± 3184",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) MovingPlane",
+            "value": 3456190,
+            "range": "± 172517",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) LavaLamp",
+            "value": 32307,
+            "range": "± 1236",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) LavaLamp",
+            "value": 2824491,
+            "range": "± 124364",
             "unit": "ns/iter"
           }
         ]
