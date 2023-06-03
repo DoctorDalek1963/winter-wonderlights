@@ -29,9 +29,6 @@ use ww_effects::{traits::get_config_filename, EffectDispatchList};
 use ww_frame::FrameType;
 use ww_shared::{ClientState, ClientToServerMsg, ServerToClientMsg};
 
-/// The `.expect()` error message for serializing a [`ServerToClientMsg`].
-const EXPECT_SERIALIZE_MSG: &str = "Serializing a ServerToClientMsg should never fail";
-
 /// The filename for the server state config.
 const SERVER_STATE_FILENAME: &str = "server_state.ron";
 
@@ -106,7 +103,7 @@ fn terminate_all_client_connections() {
     SEND_MESSAGE_BETWEEN_CLIENT_TASKS
         .send(
             bincode::serialize(&ServerToClientMsg::TerminateConnection)
-                .expect_or_log(EXPECT_SERIALIZE_MSG),
+                .expect_or_log("Serializing a ServerToClientMsg should never fail"),
         )
         .expect_or_log("Should be able to send message down SEND_MESSAGE_BETWEEN_CLIENT_TASKS");
 }
@@ -149,7 +146,7 @@ async fn handle_connection(
                             .expect_or_log("Should be able to read client state")
                             .clone(),
                     ))
-                    .expect_or_log(EXPECT_SERIALIZE_MSG),
+                    .expect_or_log("Serializing a ServerToClientMsg should never fail"),
                 )
                 .expect_or_log(
                     "Should be able to send message down SEND_MESSAGE_BETWEEN_CLIENT_TASKS",
