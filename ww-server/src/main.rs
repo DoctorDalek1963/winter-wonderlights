@@ -134,8 +134,7 @@ async fn handle_connection(
 
     let (outgoing, incoming) = ws_stream.split();
 
-    // Read messages from this client and broadcast them down
-    // [`SEND_MESSAGE_BETWEEN_CLIENT_TASKS`].
+    // Read messages from this client and broadcast them down [`SEND_MESSAGE_BETWEEN_CLIENT_TASKS`].
     let broadcast_incoming = incoming.try_for_each(|msg| {
         let send_update_client_state = || {
             SEND_MESSAGE_BETWEEN_CLIENT_TASKS
@@ -242,7 +241,7 @@ async fn handle_connection(
 }
 
 /// Run the effect in the `state` with `tokio` and listen for messages on the
-/// [`struct@SEND_MESSAGE_TO_THREAD`] channel. Intended to be run in a background thread.
+/// [`struct@SEND_MESSAGE_TO_RUN_EFFECT_THREAD`] channel. Intended to be run in a background thread.
 #[instrument(skip_all)]
 fn run_effect(client_state: WrappedClientState, kill_thread: oneshot::Receiver<()>) {
     let runtime = tokio::runtime::Builder::new_current_thread()
