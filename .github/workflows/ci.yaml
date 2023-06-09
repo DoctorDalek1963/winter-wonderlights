@@ -15,13 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install Rust nightly
-        uses: actions-rs/toolchain@v1
+      - uses: ./.github/setup
         with:
-          toolchain: nightly
-          profile: minimal
           components: rustfmt
 
+      # Debug version information
       - run: |
           rustup --version
           rustfmt --version
@@ -34,7 +32,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
       - uses: ./.github/setup
+        with:
+          targets: wasm32-unknown-unknown
+
       - run: just check
 
   test:
@@ -62,5 +64,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
       - uses: ./.github/setup
+        with:
+          targets: wasm32-unknown-unknown
+
       - run: just build ${{ matrix.driver }}

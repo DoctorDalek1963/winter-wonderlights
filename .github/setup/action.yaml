@@ -1,16 +1,54 @@
+# Taken mostly from: https://github.com/actions-rs/toolchain/issues/216#issuecomment-1291613319
+
 name: 'Setup Rust'
 description: 'Setup Rust for the Winter WonderLights CI'
+
+inputs:
+  targets:
+    required: false
+    description: Extra targets for rustup
+    default: ''
+
+  components:
+    required: false
+    description: Extra components for rustup
+    default: ''
+
+  cache-key:
+    required: false
+    description: Extra key to resolve cache
+    default: ''
+
 runs:
   using: 'composite'
   steps:
-    # TODO: Use minimal profile here (why doesn't it work?) and add input to specify extra components (e.g. for doc-build)
-    - name: Install Rust nightly
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: nightly
+    - name: Install Rust
+      run: |
+        rustup toolchain install nightly --profile minimal --no-self-update
+        rustup default nightly
+      shell: bash
 
-    - name: Add wasm32 target
-      run: rustup target add wasm32-unknown-unknown
+    - uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: ${{ inputs.cache-key }}
+
+    - name: Set environment variables used by toolchain
+      run: |
+        echo CARGO_TERM_COLOR=always >> $GITHUB_ENV
+        echo CARGO_INCREMENTAL=0 >> $GITHUB_ENV
+        echo RUST_BACKTRACE=1 >> $GITHUB_ENV
+
+        rustc --version --verbose
+      shell: bash
+
+    - name: Add rustup targets
+      if: "${{ github.event.inputs.targets != '' }}"
+      run: rustup target add ${{ github.event.inputs.targets }}
+      shell: bash
+
+    - name: Add rustup components
+      if: "${{ github.event.inputs.components != '' }}"
+      run: rustup component add ${{ github.event.inputs.components }}
       shell: bash
 
     - name: Install cargo-binstall
