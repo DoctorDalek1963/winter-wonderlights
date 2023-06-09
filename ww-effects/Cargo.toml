@@ -1,12 +1,12 @@
 [package]
 name = "ww-effects"
 version = "0.1.0-dev"
-authors = ["Dyson Dyson <dyson.dyson@icloud.com>"]
-edition = "2021"
-rust-version = "1.65"
 description = "The effects for Winter WonderLights."
-repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
-license = "GPL-3.0"
+authors.workspace = true
+edition.workspace = true
+publish.workspace = true
+repository.workspace = true
+license.workspace = true
 
 [dependencies]
 cfg-if.workspace = true
