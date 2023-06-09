@@ -37,13 +37,13 @@ runs:
       shell: bash
 
     - name: Add rustup targets
-      #if: "${{ github.event.inputs.targets != '' }}"
-      run: rustup target add ${{ github.event.inputs.targets }}
+      if: "${{ inputs.targets != '' }}"
+      run: rustup target add ${{ inputs.targets }}
       shell: bash
 
     - name: Add rustup components
-      #if: "${{ github.event.inputs.components != '' }}"
-      run: rustup component add ${{ github.event.inputs.components }}
+      if: "${{ inputs.components != '' }}"
+      run: rustup component add ${{ inputs.components }}
       shell: bash
 
     - name: Install cargo-binstall
