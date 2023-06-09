@@ -235,39 +235,38 @@ impl App {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             let new_effect_selected = egui::ComboBox::from_label("Current effect")
-                    .selected_text(
-                        state
-                            .effect_name
-                            .map_or("None", |effect| effect.effect_name()),
-                    )
-                    .show_ui(ui, |ui| {
-                        let selected_none = ui
-                            .selectable_value(&mut state.effect_name, None, "None")
-                            .clicked();
+                .selected_text(
+                    state
+                        .effect_name
+                        .map_or("None", |effect| effect.effect_name()),
+                )
+                .show_ui(ui, |ui| {
+                    let selected_none = ui
+                        .selectable_value(&mut state.effect_name, None, "None")
+                        .clicked();
 
-                        let selected_new_effect = EffectNameList::iter().any(|effect| {
-                            // We remember which value was initially selected and whether this
-                            // value is a new one
-                            let different = Some(effect) != state.effect_name;
-                            let resp = ui.selectable_value(
-                                &mut state.effect_name,
-                                Some(effect),
-                                effect.effect_name(),
-                            );
+                    let selected_new_effect = EffectNameList::iter().any(|effect| {
+                        // We remember which value was initially selected and whether this
+                        // value is a new one
+                        let different = Some(effect) != state.effect_name;
+                        let resp = ui.selectable_value(
+                            &mut state.effect_name,
+                            Some(effect),
+                            effect.effect_name(),
+                        );
 
-                            // If the value is different from the old and has been clicked, then we care
-                            resp.clicked() && different
-                        });
+                        // If the value is different from the old and has been clicked, then we care
+                        resp.clicked() && different
+                    });
 
-                        if selected_new_effect || selected_none {
-                            Some(state.effect_name.clone())
-                        } else {
-                            None
-                        }
-                    })
-                    .inner
-                    //.flatten()
-                    .flatten();
+                    if selected_new_effect || selected_none {
+                        Some(state.effect_name.clone())
+                    } else {
+                        None
+                    }
+                })
+                .inner
+                .flatten();
 
             let restart_effect = ui.button("Restart current effect").clicked();
 
@@ -378,14 +377,20 @@ impl App {
             });
 
             ui.add_space(12.);
-            ui.label(format!("This website is using the Winter WonderLights client version {} and protocol version {}", crate::CRATE_VERSION, ww_shared::CRATE_VERSION));
-            ui.label(format!("However, the server is using Winter WonderLights server version {server_version} and protcol version {server_protocol_version}"));
+            ui.label(format!(
+                "This website is using the Winter WonderLights client version {} and protocol version {}",
+                crate::CRATE_VERSION,
+                ww_shared::CRATE_VERSION
+            ));
+            ui.label(format!("However, the server is using Winter WonderLights server version {server_version} \
+                    and protcol version {server_protocol_version}"));
 
             ui.add_space(12.);
             ui.label("Since the protocol versions are different, we cannot communicate with the server.");
 
             ui.add_space(12.);
-            ui.label("To fix this problem, reload the page and if the problem persists, contact the person who set up Winter WonderLights for your tree.");
+            ui.label("To fix this problem, reload the page and if the problem persists, contact the person who \
+                set up Winter WonderLights for your tree.");
             ui.horizontal_wrapped(|ui| {
                 ui.spacing_mut().item_spacing.x = 0.;
                 ui.label("If you are the person who set this up, try recompiling everything from the most recent tagged commit. See ");
