@@ -5,6 +5,9 @@ mod app;
 use self::app::App;
 use tracing_unwrap::ResultExt;
 
+/// The version of this crate.
+pub const CRATE_VERSION: &str = env!("CARGO_PKG_VERSION");
+
 #[cfg(not(target_family = "wasm"))]
 fn main() {
     tracing_subscriber::fmt::init();

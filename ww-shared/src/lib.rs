@@ -5,9 +5,28 @@ use std::fs;
 use tracing_unwrap::ResultExt;
 use ww_effects::list::{EffectConfigDispatchList, EffectNameList};
 
+/// The version of this crate.
+pub const CRATE_VERSION: &str = env!("CARGO_PKG_VERSION");
+
 /// A message from the server to the client.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum ServerToClientMsg {
+    /// Establish a connection with the client by agreeing on a protocol version and specifying the
+    /// server version for the client's `About` panel.
+    ///
+    /// The protocol version is [`CRATE_VERSION`] and the server version is
+    /// [`ww_server::CRATE_VERSION`](../ww_server/const.CRATE_VERSION.html).
+    EstablishConnection {
+        protocol_version: String,
+        server_version: String,
+    },
+
+    /// Like [`EstablishConnection`](Self::EstablishConnection), but we deny the client based on a protocol version mismatch.
+    DenyConnection {
+        protocol_version: String,
+        server_version: String,
+    },
+
     /// Tell the client to update to the new state.
     UpdateClientState(ClientState),
 
@@ -18,6 +37,11 @@ pub enum ServerToClientMsg {
 /// A message from the client to the server.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum ClientToServerMsg {
+    /// Establish a connection with the server by agreeing on a protocol version.
+    ///
+    /// The protocol version is [`CRATE_VERSION`].
+    EstablishConnection { protocol_version: String },
+
     /// Request an [`UpdateClientState`](ServerToClientMsg::UpdateClientState) message from the server.
     RequestUpdate,
 
