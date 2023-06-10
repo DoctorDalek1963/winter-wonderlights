@@ -151,15 +151,97 @@ mod tests {
             colour: [25, 200, 16],
             fadeoff: 0.14,
         };
+        let blue_plane = FrameObject {
+            object: Object::Plane {
+                normal: Vec3::new(-1.6, 1.99, -0.02).normalize(),
+                k: 0.24,
+                threshold: 0.3,
+            },
+            colour: [0, 12, 186],
+            fadeoff: 0.82,
+        };
+        let red_sphere = FrameObject {
+            object: Object::Sphere {
+                center: Vec3::new(0.01, 0.31, 0.2),
+                radius: 1.2,
+            },
+            colour: [243, 36, 17],
+            fadeoff: 0.1,
+        };
 
-        let single_plane = Frame3D::new(vec![green_plane], false);
+        // Single green plane
 
+        let single_green_plane = Frame3D::new(vec![green_plane.clone()], false);
         insta::with_settings!({
-            info => &single_plane,
-            description => "Rendering a single plane to raw data with no blend",
+            info => &single_green_plane,
+            description => "Rendering a single plane with no blend",
             omit_expression => true,
         }, {
-            insta::assert_ron_snapshot!(single_plane.to_raw_data());
+            insta::assert_ron_snapshot!(single_green_plane.to_raw_data());
+        });
+
+        // Green and blue planes
+
+        let green_and_blue_planes_no_blend =
+            Frame3D::new(vec![green_plane.clone(), blue_plane.clone()], false);
+        insta::with_settings!({
+            info => &green_and_blue_planes_no_blend,
+            description => "Rendering two planes with no blend",
+            omit_expression => true,
+        }, {
+            insta::assert_ron_snapshot!(green_and_blue_planes_no_blend.to_raw_data());
+        });
+
+        let green_and_blue_planes_with_blend =
+            Frame3D::new(vec![green_plane.clone(), blue_plane.clone()], true);
+        insta::with_settings!({
+            info => &green_and_blue_planes_with_blend,
+            description => "Rendering two planes with with blend",
+            omit_expression => true,
+        }, {
+            insta::assert_ron_snapshot!(green_and_blue_planes_with_blend.to_raw_data());
+        });
+
+        // Blue plane and red sphere
+
+        let blue_plane_red_sphere_no_blend =
+            Frame3D::new(vec![blue_plane.clone(), red_sphere.clone()], false);
+        insta::with_settings!({
+            info => &blue_plane_red_sphere_no_blend,
+            description => "Rendering a blue plane and then a red sphere with no blend",
+            omit_expression => true,
+        }, {
+            insta::assert_ron_snapshot!(blue_plane_red_sphere_no_blend.to_raw_data());
+        });
+
+        let red_sphere_blue_plane_no_blend =
+            Frame3D::new(vec![red_sphere.clone(), blue_plane.clone()], false);
+        insta::with_settings!({
+            info => &red_sphere_blue_plane_no_blend,
+            description => "Rendering a red sphere and then a blue plane with no blend",
+            omit_expression => true,
+        }, {
+            insta::assert_ron_snapshot!(red_sphere_blue_plane_no_blend.to_raw_data());
+        });
+
+        let blue_plane_red_sphere_with_blend =
+            Frame3D::new(vec![blue_plane.clone(), red_sphere.clone()], false);
+        insta::with_settings!({
+            info => &blue_plane_red_sphere_with_blend,
+            description => "Rendering a blue plane and then a red sphere with blend",
+            omit_expression => true,
+        }, {
+            insta::assert_ron_snapshot!(blue_plane_red_sphere_with_blend.to_raw_data());
+        });
+
+        let red_sphere_blue_plane_with_blend =
+            Frame3D::new(vec![red_sphere.clone(), blue_plane.clone()], false);
+        insta::with_settings!({
+            info => &red_sphere_blue_plane_with_blend,
+            description => "Rendering a red sphere and then a blue plane with blend",
+            omit_expression => true,
+        }, {
+            insta::assert_ron_snapshot!(red_sphere_blue_plane_with_blend.to_raw_data());
         });
     }
 }
