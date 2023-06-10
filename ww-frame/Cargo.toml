@@ -17,3 +17,6 @@ ww-gift-coords.workspace = true
 
 [dev-dependencies]
 insta.workspace = true
+
+[features]
+insta = []

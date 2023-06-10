@@ -102,20 +102,10 @@ mod effect {
 
             let threshold = self.config.thickness;
             let fadeoff = self.config.fadeoff;
-            let dist_from_bb = 1.3 * (threshold + fadeoff);
 
-            // Start in the middle and reverse with normal vector until outside bounding box
-            let mut point: Vec3 = {
-                let mut p: Vec3 = COORDS.center().into();
-                while COORDS.distance_from_bounding_box(p.into()) < dist_from_bb {
-                    p -= normal * 0.1;
-                }
-                p + normal * 0.1
-            };
-
-            while COORDS.distance_from_bounding_box(point.into()) < dist_from_bb {
-                driver.display_frame(FrameType::Frame3D(Frame3D {
-                    objects: vec![FrameObject {
+            let get_frame = |point| {
+                Frame3D::new(
+                    vec![FrameObject {
                         object: Object::Plane {
                             normal,
                             k: normal.dot(point),
@@ -124,13 +114,57 @@ mod effect {
                         colour,
                         fadeoff,
                     }],
-                    blend: false,
-                }));
+                    false,
+                )
+            };
 
-                // We're going to sleep for 20ms every loop, which gives 50 fps. This means we want to
-                // move 1/50th of the units per second
-                point += (self.config.units_per_second / 50.) * normal;
-                sleep!(Duration::from_millis(20));
+            let (mut point, mut frame): (Vec3, Frame3D) = {
+                const MOVE_PROPORTION: f32 = 0.1;
+
+                // Start in the middle and reverse with normal vector until outside bounding box
+                let mut p: Vec3 = COORDS.center().into();
+                while COORDS.distance_from_bounding_box(p.into()) <= 0. {
+                    p -= normal * MOVE_PROPORTION;
+                }
+
+                let mut frame = get_frame(p);
+
+                // While there are any non-black lights, keep moving the point out
+                while let Some(data) = frame .compute_raw_data().raw_data()
+                    && data
+                        .iter()
+                        .any(|colour| *colour != [0; 3])
+                {
+                    p -= normal * MOVE_PROPORTION;
+                    frame = get_frame(p);
+                }
+                p += normal * MOVE_PROPORTION;
+
+                (p, frame)
+            };
+
+            macro_rules! do_frame {
+                () => {
+                    driver.display_frame(FrameType::Frame3D(frame));
+
+                    // We're going to sleep for 20ms every loop, which gives 50 fps. This means we want to
+                    // move 1/50th of the units per second
+                    point += (self.config.units_per_second / 50.) * normal;
+                    frame = get_frame(point);
+                    sleep!(Duration::from_millis(20));
+                };
+            }
+
+            // Do one frame first to light up some of the lights
+            do_frame!();
+
+            // While not all lights are black, keep moving
+            while let Some(data) = frame.compute_raw_data().raw_data()
+                && !data
+                    .iter()
+                    .all(|colour| *colour == [0; 3])
+            {
+                do_frame!();
             }
         }
     }
@@ -146,7 +180,7 @@ mod tests {
         let mut driver = TestDriver::new(10);
         MovingPlane::default().run(&mut driver).await;
 
-        // The frame moves through the whole tree, and that results in thousands of individual
+        // The plane moves through the whole tree, and that results in thousands of individual
         // frames, which is far too many to inline here
         insta::assert_ron_snapshot!(driver.data);
     }

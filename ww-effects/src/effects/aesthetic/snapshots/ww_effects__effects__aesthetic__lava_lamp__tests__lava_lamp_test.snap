@@ -47,7 +47,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -93,7 +92,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -139,7 +137,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -185,7 +182,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -231,7 +227,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -277,7 +272,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -323,7 +317,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -369,7 +362,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -415,7 +407,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -461,7 +452,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -507,7 +497,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -553,7 +542,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -599,7 +587,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -645,7 +632,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -691,7 +677,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -737,7 +722,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -783,7 +767,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -829,7 +812,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -875,7 +857,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -921,7 +902,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -967,7 +947,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1013,7 +992,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1059,7 +1037,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1105,7 +1082,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1151,7 +1127,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1197,7 +1172,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1243,7 +1217,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1289,7 +1262,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1335,7 +1307,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1381,7 +1352,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1427,7 +1397,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1473,7 +1442,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1519,7 +1487,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1565,7 +1532,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1611,7 +1577,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1657,7 +1622,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1703,7 +1667,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1749,7 +1712,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1795,7 +1757,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1841,7 +1802,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1887,7 +1847,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1933,7 +1892,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -1979,7 +1937,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2025,7 +1982,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2071,7 +2027,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2117,7 +2072,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2163,7 +2117,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2209,7 +2162,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2255,7 +2207,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2301,7 +2252,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2347,7 +2297,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2393,7 +2342,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2439,7 +2387,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2485,7 +2432,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2531,7 +2477,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2577,7 +2522,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2623,7 +2567,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2669,7 +2612,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2715,7 +2657,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2761,7 +2702,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2807,7 +2747,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2853,7 +2792,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2899,7 +2837,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2945,7 +2882,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -2991,7 +2927,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3037,7 +2972,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3083,7 +3017,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3129,7 +3062,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3175,7 +3107,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3221,7 +3152,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3267,7 +3197,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3313,7 +3242,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3359,7 +3287,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3405,7 +3332,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3451,7 +3377,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3497,7 +3422,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3543,7 +3467,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3589,7 +3512,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3635,7 +3557,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3681,7 +3602,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3727,7 +3647,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3773,7 +3692,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3819,7 +3737,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3865,7 +3782,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3911,7 +3827,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -3957,7 +3872,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -4003,7 +3917,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -4049,7 +3962,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -4095,7 +4007,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -4141,7 +4052,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -4187,7 +4097,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -4233,7 +4142,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -4279,7 +4187,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -4325,7 +4232,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -4371,7 +4277,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -4417,7 +4322,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -4463,7 +4367,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -4509,7 +4412,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -4555,7 +4457,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -4601,7 +4502,6 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
   Frame3D(Frame3D(
     objects: [
@@ -4647,6 +4547,5 @@ expression: driver.data
       ),
     ],
     blend: true,
-    pre_computed_raw_data: None,
   )),
 ]

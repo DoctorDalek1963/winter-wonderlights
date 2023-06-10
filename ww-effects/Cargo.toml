@@ -44,3 +44,4 @@ effect-impls = ["effect-trait", "config-impls", "dep:glam", "dep:rand", "dep:tok
 [dev-dependencies]
 insta.workspace = true
 tokio = { workspace = true, features = ["macros", "rt"] }
+ww-frame = { workspace = true, features = ["insta"] }

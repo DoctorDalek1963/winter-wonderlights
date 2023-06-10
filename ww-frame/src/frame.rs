@@ -36,6 +36,7 @@ pub struct Frame3D {
 
     /// Optionally pre-computed data. If an effect needs to compute the raw data first, then it can
     /// just store that data here so the driver doesn't have to re-compute it later.
+    #[cfg_attr(feature = "insta", serde(skip))]
     pre_computed_raw_data: Option<Vec<RGBArray>>,
 }
 
