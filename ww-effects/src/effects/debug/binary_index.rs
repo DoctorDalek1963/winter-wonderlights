@@ -137,7 +137,7 @@ mod effect {
                     .map(|colours_for_this_light| colours_for_this_light[i])
                     .collect();
 
-                driver.display_frame(FrameType::RawData(colours_at_idx.clone()));
+                driver.display_frame(FrameType::RawData(colours_at_idx));
                 sleep!(Duration::from_millis(self.config.light_time_ms));
 
                 driver.clear();
