@@ -1,5 +1,5 @@
 ---
-source: ww-frame/src/lib.rs
+source: ww-frame/src/frame.rs
 description: Rendering a single plane to raw data with no blend
 info:
   objects:

@@ -55,5 +55,7 @@ serve-client flags='':
 test:
 	cd {{justfile_directory()}}/ww-effects && cargo insta test --unreferenced reject --all-features
 	cd {{justfile_directory()}}/ww-effects && cargo insta test --unreferenced reject --all-features --release
+	cd {{justfile_directory()}}/ww-frame && cargo insta test --unreferenced reject --all-features
+	cd {{justfile_directory()}}/ww-frame && cargo insta test --unreferenced reject --all-features --release
 	cd {{justfile_directory()}}/ww-gift-coords && cargo insta test --unreferenced reject --all-features
 	cd {{justfile_directory()}}/ww-gift-coords && cargo insta test --unreferenced reject --all-features --release

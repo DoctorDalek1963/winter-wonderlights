@@ -36,7 +36,7 @@ pub struct Frame3D {
 
     /// Optionally pre-computed data. If an effect needs to compute the raw data first, then it can
     /// just store that data here so the driver doesn't have to re-compute it later.
-    #[cfg_attr(feature = "insta", serde(skip))]
+    #[cfg_attr(any(feature = "insta", test), serde(skip))]
     pre_computed_raw_data: Option<Vec<RGBArray>>,
 }
 
@@ -51,9 +51,26 @@ impl Frame3D {
     }
 
     /// Compute the vec of raw data for this frame, using [`struct@COORDS`] to know where the
-    /// lights are. Use [`Self::to_raw_data`] to get the data out.
+    /// lights are. Use [`Self::to_raw_data`] to get the data out or [`Self::raw_data`] to
+    /// reference the optional data.
     ///
-    /// This function does nothing if [`Self::pre_computed_raw_data`] is already [`Some`].
+    /// This function does nothing if the data was already computed.
+    ///
+    /// This function returns a reference to self to allow things like:
+    /// ```
+    /// #![feature(let_chains)]
+    ///
+    /// # use ww_frame::Frame3D;
+    /// # fn do_something(_: &Vec<[u8; 3]>) -> bool { true }
+    /// # let mut frame = Frame3D::new(vec![], false);
+    /// while let Some(data) = frame.compute_raw_data().raw_data() && do_something(data) {
+    ///     // Do stuff
+    ///     # break;
+    /// }
+    /// ```
+    /// Admittedly this API isn't very ergonomic and this function should ideally return a
+    /// reference to the computed data, but the borrow checker didn't like that, so we're currently
+    /// using this bodge.
     pub fn compute_raw_data(&mut self) -> &mut Self {
         if self.pre_computed_raw_data.is_some() {
             return self;
@@ -111,9 +128,9 @@ impl Frame3D {
         )
     }
 
-    /// Get a reference to the internal optional pre-computed data.
-    pub fn raw_data(&self) -> &Option<Vec<RGBArray>> {
-        &self.pre_computed_raw_data
+    /// Get an optional reference to the internal pre-computed data.
+    pub fn raw_data(&self) -> Option<&Vec<RGBArray>> {
+        self.pre_computed_raw_data.as_ref()
     }
 }
 
