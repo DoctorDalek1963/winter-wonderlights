@@ -97,12 +97,6 @@ mod effect {
         type Config = DebugBinaryIndexConfig;
 
         async fn run(self, driver: &mut dyn Driver) {
-            #[derive(Debug)]
-            enum Binary {
-                Zero,
-                One,
-            }
-
             driver.clear();
 
             // Get the simple binary versions of the index of each number in the range
@@ -117,9 +111,9 @@ mod effect {
                 .len();
 
             // Now we pad out all the elements and convert them to colours
-            let binary_for_each_light: Vec<Vec<Binary>> = binary_index_vecs
+            let colours_for_each_light: Vec<Vec<RGBArray>> = binary_index_vecs
                 .into_iter()
-                .map(|nums: Vec<char>| -> Vec<Binary> {
+                .map(|nums: Vec<char>| -> Vec<RGBArray> {
                     // This vec has the right length, so we just have to copy the actual numbers into
                     // the end of it.
                     let mut v = vec!['0'; binary_number_length];
@@ -128,32 +122,19 @@ mod effect {
                     // Now map each number char to a colour
                     v.into_iter()
                         .map(|c| match c {
-                            '0' => Binary::Zero,
-                            '1' => Binary::One,
+                            '0' => self.config.zero_color,
+                            '1' => self.config.one_color,
                             _ => unreachable!("Binary numbers should only contain '0' and '1'"),
                         })
                         .collect()
                 })
                 .collect();
 
-            assert!(
-                binary_for_each_light
-                    .iter()
-                    .map(Vec::len)
-                    .all(|n| n == binary_number_length),
-                "Every Vec<RGBTuple> in the list must be the same length"
-            );
-
-            trace!(?binary_for_each_light);
-
             // Now actually display the colours on the lights
             for i in 0..binary_number_length {
-                let colours_at_idx: Vec<RGBArray> = binary_for_each_light
+                let colours_at_idx: Vec<RGBArray> = colours_for_each_light
                     .iter()
-                    .map(|cols| match cols[i] {
-                        Binary::Zero => self.config.zero_color,
-                        Binary::One => self.config.one_color,
-                    })
+                    .map(|colours_for_this_light| colours_for_this_light[i])
                     .collect();
 
                 driver.display_frame(FrameType::RawData(colours_at_idx.clone()));
