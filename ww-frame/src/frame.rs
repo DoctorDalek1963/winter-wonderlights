@@ -29,15 +29,35 @@ pub struct Frame3D {
     ///
     /// An object later in the vec will override any object previous in the list. No blending of
     /// colours is performed.
-    pub objects: Vec<FrameObject>,
+    objects: Vec<FrameObject>,
 
     /// Whether to blend objects together.
-    pub blend: bool,
+    blend: bool,
+
+    /// Optionally pre-computed data. If an effect needs to compute the raw data first, then it can
+    /// just store that data here so the driver doesn't have to re-compute it later.
+    pre_computed_raw_data: Option<Vec<RGBArray>>,
 }
 
 impl Frame3D {
-    /// Convert the frame to a raw data vec, using [`struct@COORDS`] to know where the lights are.
-    pub fn to_raw_data(&self) -> Vec<RGBArray> {
+    /// Create a new frame.
+    pub fn new(objects: Vec<FrameObject>, blend: bool) -> Self {
+        Self {
+            objects,
+            blend,
+            pre_computed_raw_data: None,
+        }
+    }
+
+    /// Compute the vec of raw data for this frame, using [`struct@COORDS`] to know where the
+    /// lights are. Use [`Self::to_raw_data`] to get the data out.
+    ///
+    /// This function does nothing if [`Self::pre_computed_raw_data`] is already [`Some`].
+    pub fn compute_raw_data(&mut self) -> &mut Self {
+        if self.pre_computed_raw_data.is_some() {
+            return self;
+        }
+
         let mut data: Vec<RGBArray> = vec![[0, 0, 0]; COORDS.lights_num()];
         trace!(?data, "Before");
 
@@ -78,7 +98,21 @@ impl Frame3D {
         }
 
         trace!(?data, "After");
-        data
+        self.pre_computed_raw_data = Some(data);
+        self
+    }
+
+    /// Return the raw data for this frame.
+    pub fn to_raw_data(mut self) -> Vec<RGBArray> {
+        self.compute_raw_data();
+        self.pre_computed_raw_data.expect(
+            "pre_computed_raw_data must be populated since compute_raw_data() has been called",
+        )
+    }
+
+    /// Get a reference to the internal optional pre-computed data.
+    pub fn raw_data(&self) -> &Option<Vec<RGBArray>> {
+        &self.pre_computed_raw_data
     }
 }
 
@@ -100,10 +134,7 @@ mod tests {
             fadeoff: 0.14,
         };
 
-        let single_plane = Frame3D {
-            objects: vec![green_plane],
-            blend: false,
-        };
+        let single_plane = Frame3D::new(vec![green_plane], false);
 
         insta::with_settings!({
             info => &single_plane,

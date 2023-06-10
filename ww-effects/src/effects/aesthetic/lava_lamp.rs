@@ -176,10 +176,7 @@ mod effect {
                     })
                     .collect();
 
-                driver.display_frame(FrameType::Frame3D(Frame3D {
-                    objects: sphere_frame_objects,
-                    blend: true,
-                }));
+                driver.display_frame(FrameType::Frame3D(Frame3D::new(sphere_frame_objects, true)));
 
                 for sphere in spheres.iter_mut() {
                     sphere.centre += 0.05 * sphere.movement_direction;
