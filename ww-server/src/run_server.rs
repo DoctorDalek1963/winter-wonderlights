@@ -7,10 +7,24 @@ use crate::{
 use color_eyre::{Report, Result};
 use futures_util::{future, pin_mut, stream::TryStreamExt, StreamExt};
 use lazy_static::lazy_static;
-use std::{io, net::SocketAddr, thread, time::Duration};
+use rustls_pemfile::{certs, pkcs8_private_keys};
+use std::{
+    fs::File,
+    io::{self, BufReader},
+    net::SocketAddr,
+    path::Path,
+    sync::Arc,
+    thread,
+    time::Duration,
+};
 use tokio::{
-    net::{TcpListener, TcpStream},
+    io::{AsyncRead, AsyncWrite},
+    net::TcpListener,
     sync::{broadcast, oneshot},
+};
+use tokio_rustls::{
+    rustls::{self, Certificate, PrivateKey},
+    TlsAcceptor,
 };
 use tokio_stream::wrappers::BroadcastStream;
 use tokio_tungstenite::tungstenite;
@@ -39,7 +53,7 @@ pub fn terminate_all_client_connections() {
 /// Handle a single connection.
 #[instrument(skip_all, fields(?addr))]
 async fn handle_connection(
-    socket: TcpStream,
+    socket: impl AsyncRead + AsyncWrite + Unpin,
     addr: SocketAddr,
     client_state: WrappedClientState,
 ) -> Result<()> {
@@ -198,6 +212,20 @@ async fn handle_connection(
     Ok(())
 }
 
+/// Read the file at the given path and try to read it as a list of SSL certificates.
+fn load_certs(path: &Path) -> io::Result<Vec<Certificate>> {
+    certs(&mut BufReader::new(File::open(path)?))
+        .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "Invalid certificate"))
+        .map(|mut certs| certs.drain(..).map(Certificate).collect())
+}
+
+/// Read the file at the given path and try to read it as a list of SSL private keys.
+fn load_keys(path: &Path) -> io::Result<Vec<PrivateKey>> {
+    pkcs8_private_keys(&mut BufReader::new(File::open(path)?))
+        .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "Invalid key"))
+        .map(|mut keys| keys.drain(..).map(PrivateKey).collect())
+}
+
 /// Run the server asynchronously.
 pub async fn run_server(
     client_state: WrappedClientState,
@@ -205,7 +233,23 @@ pub async fn run_server(
 ) -> Result<()> {
     info!(port = env!("PORT"), "Initialising server");
 
-    let listener = TcpListener::bind(concat!("localhost:", env!("PORT")))
+    let certs = load_certs(&Path::new(env!("SERVER_SSL_CERT_PATH")))
+        .expect("Unable to load SSL certificates");
+    let mut keys =
+        load_keys(&Path::new(env!("SERVER_SSL_KEY_PATH"))).expect("Unable to load SSL keys");
+    assert!(certs.len() > 0, "We need to have at least one certificate");
+    assert!(keys.len() > 0, "We need to have at least one key");
+
+    debug!(?certs, ?keys);
+
+    let tls_config = rustls::ServerConfig::builder()
+        .with_safe_defaults()
+        .with_no_client_auth()
+        .with_single_cert(certs, keys.remove(0))
+        .expect_or_log("Unable to create rustls config");
+    let tls_acceptor = TlsAcceptor::from(Arc::new(tls_config));
+
+    let listener = TcpListener::bind(concat!("0.0.0.0:", env!("PORT")))
         .await
         .expect_or_log("Unable to start TcpListener");
 
@@ -233,9 +277,14 @@ pub async fn run_server(
 
     let accept_new_connections = async move {
         while let Ok((socket, addr)) = listener.accept().await {
+            let accepted_socket = tls_acceptor
+                .accept(socket)
+                .await
+                .expect("Should be able to accept TLS connection");
+
             let client_state = client_state.clone();
             tokio::spawn(async move {
-                match handle_connection(socket, addr, client_state).await {
+                match handle_connection(accepted_socket, addr, client_state).await {
                     Ok(_) => (),
                     Err(e) => error!(?e, "Error handling connection"),
                 }
