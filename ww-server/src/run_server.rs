@@ -18,8 +18,7 @@ use std::{
     time::Duration,
 };
 use tokio::{
-    io::{AsyncRead, AsyncWrite},
-    net::TcpListener,
+    net::{TcpListener, TcpStream},
     sync::{broadcast, oneshot},
 };
 use tokio_rustls::{
@@ -53,7 +52,8 @@ pub fn terminate_all_client_connections() {
 /// Handle a single connection.
 #[instrument(skip_all, fields(?addr))]
 async fn handle_connection(
-    socket: impl AsyncRead + AsyncWrite + Unpin,
+    tls_acceptor: TlsAcceptor,
+    socket: TcpStream,
     addr: SocketAddr,
     client_state: WrappedClientState,
 ) -> Result<()> {
@@ -67,6 +67,11 @@ async fn handle_connection(
             drop($name);
         }};
     }
+
+    let socket = tls_acceptor
+        .accept(socket)
+        .await
+        .expect_or_log("Should be able to accept TLS connection");
 
     let ws_stream = tokio_tungstenite::accept_async(socket)
         .await
@@ -234,9 +239,9 @@ pub async fn run_server(
     info!(port = env!("PORT"), "Initialising server");
 
     let certs = load_certs(&Path::new(env!("SERVER_SSL_CERT_PATH")))
-        .expect("Unable to load SSL certificates");
+        .expect_or_log("Unable to load SSL certificates");
     let mut keys =
-        load_keys(&Path::new(env!("SERVER_SSL_KEY_PATH"))).expect("Unable to load SSL keys");
+        load_keys(&Path::new(env!("SERVER_SSL_KEY_PATH"))).expect_or_log("Unable to load SSL keys");
     assert!(certs.len() > 0, "We need to have at least one certificate");
     assert!(keys.len() > 0, "We need to have at least one key");
 
@@ -277,14 +282,11 @@ pub async fn run_server(
 
     let accept_new_connections = async move {
         while let Ok((socket, addr)) = listener.accept().await {
-            let accepted_socket = tls_acceptor
-                .accept(socket)
-                .await
-                .expect("Should be able to accept TLS connection");
-
+            let tls_acceptor = tls_acceptor.clone();
             let client_state = client_state.clone();
+
             tokio::spawn(async move {
-                match handle_connection(accepted_socket, addr, client_state).await {
+                match handle_connection(tls_acceptor, socket, addr, client_state).await {
                     Ok(_) => (),
                     Err(e) => error!(?e, "Error handling connection"),
                 }
