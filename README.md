@@ -6,6 +6,57 @@ Parker](https://www.youtube.com/watch?v=TvlpIojusBE).
 
 ## Quickstart
 
+#### Pre-requisites
+
+To run Winter WonderLights, you will first need a small computer like a Raspberry Pi. You will then
+need to setup a web server like [nginx](https://nginx.org/en/) or
+[Apache](https://httpd.apache.org/) on it and choose a port number for the Winter WonderLights
+server. Any port number between 10000 and 65535 will do. Make sure to allow this port as well as
+ports 80 and 443 through the firewall on the Raspberry Pi. You will also need to port-forward these
+3 ports if you want to allow other people to access the server without connecting to the Wi-Fi.
+
+You will also need encryption in the form of an SSL certificate/key pair. You can get
+this for free from [Let's Encrypt](https://letsencrypt.org/) and use `certbot` to keep it up to
+date automatically.
+
+If you want the server to be public, then you will also need a fixed DNS address, which you can get
+for free from [No-IP](https://www.noip.com/) (make sure to setup the DUC properly). If you only
+want people to access the server from your home Wi-Fi, then you'll just need the IP address of the
+Raspberry Pi.
+
+#### The `.env` file
+
+You need a file called `.env` in the root of the project folder.
+
+If you just want to use the tree, the `.env` file should look like this:
+```bash
+# Server
+export DATA_DIR=/path/to/winter/wonderlights/data
+export SERVER_SSL_CERT_PATH=/path/to/ssl/certificate.pem
+export SERVER_SSL_KEY_PATH=/path/to/ssl/privatekey.pem
+
+export PORT=23120
+
+# Client
+export SERVER_URL=wss://my.server.net:${PORT}
+```
+
+If you're just using the project at home and all clients will be on your home Wi-Fi, then you can
+use the local IP of the server (Raspberry Pi) instead of a DNS address for the `SERVER_URL`.
+
+If you want to develop Winter WonderLights, the `.env` file should look like this:
+```bash
+# Server
+export DATA_DIR=/path/to/project/folder/data
+export SERVER_SSL_CERT_PATH=/dev/null
+export SERVER_SSL_KEY_PATH=/dev/null
+
+export PORT=23120
+
+# Client
+export SERVER_URL=ws://localhost:${PORT}
+```
+
 #### Dependencies
 
 To compile the program yourself, you will need [Rust](https://rustup.rs/) and you will need to
@@ -26,8 +77,7 @@ cargo binstall just trunk
 ```
 replacing `binstall` with `install` if you want to compile from scratch.
 
-If you're setting up for development, also install `cargo-insta` and update the `DATA_DIR` variable
-in `.env`.
+If you're setting up for development, also install `cargo-insta`.
 
 #### Compiling the program
 
