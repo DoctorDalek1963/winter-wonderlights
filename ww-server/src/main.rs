@@ -86,7 +86,11 @@ fn init_tracing() {
             Layer::new()
                 .with_writer(std::io::stdout)
                 .with_ansi(true)
-                .with_filter(EnvFilter::from_default_env().add_directive(LevelFilter::INFO.into())),
+                .with_filter(
+                    EnvFilter::builder()
+                        .with_default_directive(LevelFilter::INFO.into())
+                        .from_env_lossy(),
+                ),
         );
 
     tracing::subscriber::set_global_default(subscriber)
