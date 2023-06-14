@@ -14,7 +14,7 @@ bincode.workspace = true
 cfg-if.workspace = true
 eframe = { version = "0.22.0", features = ["persistence"] }
 egui.workspace = true
-ewebsock = "0.2.0"
+ewebsock = { version = "0.2.0", features = ["tls"] }
 futures-channel = "0.3.28"
 prokio = "0.1.0"
 ron.workspace = true
