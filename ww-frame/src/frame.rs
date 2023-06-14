@@ -2,6 +2,7 @@
 
 use crate::{FrameObject, RGBArray};
 use serde::{Deserialize, Serialize};
+use std::fmt;
 use tracing::trace;
 use ww_gift_coords::COORDS;
 
@@ -23,7 +24,7 @@ pub enum FrameType {
 }
 
 /// A 3D frame, made of several objects.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct Frame3D {
     /// The vec of objects in the frame.
     ///
@@ -38,6 +39,16 @@ pub struct Frame3D {
     /// just store that data here so the driver doesn't have to re-compute it later.
     #[cfg_attr(any(feature = "insta", test), serde(skip))]
     pre_computed_raw_data: Option<Vec<RGBArray>>,
+}
+
+impl fmt::Debug for Frame3D {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Frame3D")
+            .field("objects", &self.objects)
+            .field("blend", &self.blend)
+            //.field("pre_computed_raw_data", &self.pre_computed_raw_data)
+            .finish()
+    }
 }
 
 impl Frame3D {
