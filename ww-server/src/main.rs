@@ -4,13 +4,19 @@ mod drivers;
 mod run_effect;
 mod run_server;
 
+use chrono::naive::NaiveDate;
 use color_eyre::Result;
+use regex::Regex;
 use std::{
+    fs::{self, DirEntry},
     ops::Deref,
+    process::Command,
     sync::{Arc, RwLock},
+    time::Duration,
 };
 use tokio::{signal, sync::oneshot};
 use tracing::{debug, info, instrument, warn};
+use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::{filter::LevelFilter, fmt::Layer, prelude::*, EnvFilter};
 use tracing_unwrap::ResultExt;
 use ww_effects::traits::get_config_filename;
@@ -19,8 +25,23 @@ use ww_shared::ClientState;
 /// The version of this crate.
 pub const CRATE_VERSION: &str = env!("CARGO_PKG_VERSION");
 
+/// The directory for the server's log files.
+const LOG_DIR: &str = concat!(env!("DATA_DIR"), "/logs");
+
+/// The common prefix for the server's log files.
+const LOG_PREFIX: &str = "server.log";
+
 /// The filename for the server state config.
 const SERVER_STATE_FILENAME: &str = "server_state.ron";
+
+lazy_static::lazy_static! {
+    /// A RegEx to match against the filenames of the server's log files and extract the date parts.
+    static ref SERVER_LOG_REGEX: Regex = Regex::new(&{
+        let mut s = regex::escape(LOG_PREFIX);
+        s.push_str(r"\.(\d{4})-(\d{2})-(\d{2})$");
+        s
+    }).expect("Regex should compile successfully");
+}
 
 /// A simple wrapper struct to hold the client state.
 #[derive(Clone, Debug)]
@@ -67,9 +88,9 @@ impl Drop for WrappedClientState {
 }
 
 /// Initialise a subscriber for tracing to log to `stdout` and a file.
-fn init_tracing() {
-    let appender =
-        tracing_appender::rolling::daily(concat!(env!("DATA_DIR"), "/logs"), "server.log");
+fn init_tracing() -> WorkerGuard {
+    let (appender, guard) =
+        tracing_appender::non_blocking(tracing_appender::rolling::daily(LOG_DIR, LOG_PREFIX));
 
     let subscriber = tracing_subscriber::registry()
         .with(
@@ -95,15 +116,73 @@ fn init_tracing() {
 
     tracing::subscriber::set_global_default(subscriber)
         .expect_or_log("Setting the global default for tracing should be okay");
+
+    guard
+}
+
+/// Compress all log files older than the given number of days using `gzip`.
+#[instrument]
+fn zip_old_log_files(days: u64) {
+    let today = chrono::offset::Local::now().date_naive();
+
+    // Look through everything in the log files folder and filter it down to just the log files and
+    // parse their dates, and then filter down to only the log files which are older than the given
+    // number of days
+    let log_files = fs::read_dir(LOG_DIR)
+        .expect_or_log(&format!("Should be able to read entries in {LOG_DIR}"))
+        .filter_map(|file_result| match file_result {
+            Ok(dir_entry)
+                if dir_entry
+                    .file_type()
+                    .is_ok_and(|filetype| filetype.is_file()) =>
+            {
+                dir_entry
+                    .file_name()
+                    .to_str()
+                    .map(|name| -> Option<(DirEntry, NaiveDate)> {
+                        let captures = SERVER_LOG_REGEX.captures(name)?;
+
+                        let year = captures.get(1)?.as_str().parse().ok()?;
+                        let month = captures.get(2)?.as_str().parse().ok()?;
+                        let day = captures.get(3)?.as_str().parse().ok()?;
+
+                        Some((dir_entry, NaiveDate::from_ymd_opt(year, month, day)?))
+                    })
+                    .flatten()
+            }
+            _ => None,
+        })
+        .filter_map(|(file, date)| {
+            if (today - date).num_days() > days as i64 {
+                Some(file.path())
+            } else {
+                None
+            }
+        });
+
+    Command::new("gzip")
+        .args(log_files)
+        .spawn()
+        .expect_or_log("Should be able to run `gzip` on old log files");
 }
 
 #[tokio::main]
 #[instrument]
 async fn main() -> Result<()> {
-    init_tracing();
+    // _guard gets dropped at the end of main so that the logs get flushed to the file
+    let _guard = init_tracing();
 
     let client_state = WrappedClientState::new();
     let (kill_run_effect_thread_tx, kill_run_effect_thread_rx) = oneshot::channel();
+
+    tokio::spawn(async move {
+        loop {
+            zip_old_log_files(3);
+
+            // Sleep for 1 day
+            tokio::time::sleep(Duration::from_secs(60 * 60 * 24)).await;
+        }
+    });
 
     let ret_val = tokio::select! {
         biased;
