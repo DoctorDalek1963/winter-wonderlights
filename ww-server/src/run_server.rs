@@ -220,9 +220,6 @@ fn load_certs(path: &Path) -> io::Result<Vec<Certificate>> {
 
 /// Read the file at the given path and try to read it as a list of SSL private keys.
 fn load_keys(path: &Path) -> io::Result<Vec<PrivateKey>> {
-    //pkcs8_private_keys(&mut BufReader::new(File::open(path)?))
-    //.map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "Invalid key"))
-    //.map(|mut keys| keys.drain(..).map(PrivateKey).collect())
     rustls_pemfile::read_all(&mut BufReader::new(File::open(path)?))
         .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "Invalid keys"))
         .map(|mut keys| {
