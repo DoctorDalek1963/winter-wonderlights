@@ -15,7 +15,7 @@ use std::{
     time::Duration,
 };
 use tokio::{signal, sync::oneshot};
-use tracing::{debug, info, instrument, warn};
+use tracing::{debug, error, info, instrument, warn};
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::{filter::LevelFilter, fmt::Layer, prelude::*, EnvFilter};
 use tracing_unwrap::ResultExt;
@@ -128,7 +128,7 @@ fn zip_old_log_files(days: u64) {
     // Look through everything in the log files folder and filter it down to just the log files and
     // parse their dates, and then filter down to only the log files which are older than the given
     // number of days
-    let log_files = fs::read_dir(LOG_DIR)
+    let log_files: Vec<_> = fs::read_dir(LOG_DIR)
         .expect_or_log(&format!("Should be able to read entries in {LOG_DIR}"))
         .filter_map(|file_result| match file_result {
             Ok(dir_entry)
@@ -158,12 +158,19 @@ fn zip_old_log_files(days: u64) {
             } else {
                 None
             }
-        });
+        })
+        .collect();
 
-    Command::new("gzip")
-        .args(log_files)
-        .spawn()
-        .expect_or_log("Should be able to run `gzip` on old log files");
+    if log_files.len() > 0 {
+        let gzip_command = Command::new("gzip")
+            .args(log_files)
+            .spawn()
+            .expect_or_log("Should be able to run `gzip` on old log files");
+
+        if let Some(stderr) = gzip_command.stderr {
+            error!(?stderr, "gzip command failed when zipping old log files")
+        }
+    }
 }
 
 #[tokio::main]
