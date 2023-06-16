@@ -14,6 +14,7 @@ pub mod list {
         DebugOneByOne,
         DebugBinaryIndex,
         MovingPlane,
+        SplitPlane,
         LavaLamp,
     }
 }

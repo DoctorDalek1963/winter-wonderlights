@@ -73,6 +73,26 @@ impl FrameObject {
                     }
                 }
             }
+
+            Object::SplitPlane {
+                normal,
+                k,
+                positive_side_colour,
+                negative_side_colour,
+            } => {
+                for (light_colour, &point) in data.iter_mut().zip(COORDS.coords()) {
+                    // Get the signed distance from this point to the plane
+                    let signed_dist = (normal.dot(point.into()) - k) / normal.length();
+                    tracing::debug!(?point, ?signed_dist, "Distance from point to plane");
+
+                    // If distance is less than the threshold, then it's part of the plane
+                    if signed_dist <= 0. {
+                        *light_colour = positive_side_colour;
+                    } else {
+                        *light_colour = negative_side_colour;
+                    }
+                }
+            }
         }
     }
 
@@ -108,6 +128,25 @@ pub enum Object {
         /// The maximum distance from this object where lights will be counted as part of the
         /// object.
         threshold: f32,
+    },
+
+    /// A plane where every point one side gets one colour, and every point on the other side gets
+    /// a different colour.
+    ///
+    /// When used as part of a [`FrameObject`], the [`colour`](FrameObject::colour) field of the
+    /// `FrameObject` is ignored and the colours of this variant are used instead.
+    SplitPlane {
+        /// The normal vector of the plane.
+        normal: Vec3,
+
+        /// The result of dotting the direction vector with any point on the plane.
+        k: f32,
+
+        /// The colour given to points on the positive side of the plane.
+        positive_side_colour: RGBArray,
+
+        /// The colour given to points on the negative side of the plane.
+        negative_side_colour: RGBArray,
     },
 
     /// A sphere with a center and radius.
