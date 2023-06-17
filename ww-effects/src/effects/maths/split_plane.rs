@@ -42,7 +42,7 @@ mod config {
             Self {
                 side_a_colour: [244, 29, 9],
                 side_b_colour: [26, 234, 23],
-                rotation_speed: 1.,
+                rotation_speed: 0.5,
                 rotation_axis_z_rotation_degrees: 0.,
                 rotation_axis_z_height_offset: 0.,
             }
@@ -111,6 +111,7 @@ mod config {
 #[cfg(feature = "effect-impls")]
 mod effect {
     use super::*;
+    use ww_gift_coords::COORDS;
 
     /// Spin a split plane around a point in the center of the tree.
     #[derive(Clone, Debug, PartialEq, BaseEffect)]
@@ -131,21 +132,52 @@ mod effect {
         type Config = SplitPlaneConfig;
 
         async fn run(mut self, driver: &mut dyn Driver) {
-            driver.display_frame(FrameType::Frame3D(Frame3D::new(
-                vec![FrameObject {
-                    object: Object::SplitPlane {
-                        normal: Vec3::splat(1.).normalize(),
-                        k: 1.,
-                        positive_side_colour: self.config.side_a_colour,
-                        negative_side_colour: self.config.side_b_colour,
-                    },
-                    colour: [0; 3],
-                    fadeoff: 0.,
-                }],
-                false,
-            )));
+            let middle_point = Vec3::new(
+                0.,
+                0.,
+                COORDS.max_z() / 2. + self.config.rotation_axis_z_height_offset,
+            );
 
-            sleep!(Duration::from_secs(5));
+            let rotation_axis: Vec3 =
+                (Quat::from_rotation_z(self.config.rotation_axis_z_rotation_degrees.to_radians())
+                    * Vec3::X)
+                    .normalize();
+
+            let mut normal = Vec3::Z;
+
+            #[cfg(any(test, feature = "bench"))]
+            let mut counter: u8 = 0;
+
+            loop {
+                driver.display_frame(FrameType::Frame3D(Frame3D::new(
+                    vec![FrameObject {
+                        object: Object::SplitPlane {
+                            normal,
+                            k: normal.dot(middle_point),
+                            positive_side_colour: self.config.side_a_colour,
+                            negative_side_colour: self.config.side_b_colour,
+                        },
+                        colour: [0; 3],
+                        fadeoff: 0.,
+                    }],
+                    false,
+                )));
+
+                normal =
+                    Quat::from_axis_angle(rotation_axis, self.config.rotation_speed / 10.) * normal;
+                debug!(?normal);
+                //trace!(length = normal.clone().length());
+
+                sleep!(Duration::from_millis(100));
+
+                #[cfg(any(test, feature = "bench"))]
+                {
+                    counter += 1;
+                    if counter > 100 {
+                        break;
+                    }
+                }
+            }
         }
     }
 }

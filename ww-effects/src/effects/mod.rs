@@ -79,7 +79,7 @@ pub(crate) mod prelude {
             traits::Effect,
         };
         pub use effect_proc_macros::BaseEffect;
-        pub use glam::Vec3;
+        pub use glam::{Quat, Vec3};
         pub use rand::{rngs::StdRng, Rng};
         pub use std::time::Duration;
         pub use tracing::{debug, error, info, instrument, trace, warn};
