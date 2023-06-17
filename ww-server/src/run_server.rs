@@ -180,6 +180,8 @@ async fn handle_connection(
             ClientToServerMsg::RestartCurrentEffect => {
                 info!("Client requesting restart current effect");
 
+                client_state.save_config();
+
                 SEND_MESSAGE_TO_RUN_EFFECT_THREAD
                     .send(ThreadMessage::Restart)
                     .expect_or_log("Unable to send ThreadMessage::Restart");
