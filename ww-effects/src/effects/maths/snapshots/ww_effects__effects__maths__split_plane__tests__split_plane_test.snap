@@ -1,0 +1,1622 @@
+---
+source: ww-effects/src/effects/maths/split_plane.rs
+expression: driver.data
+---
+[
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, 0.0, 1.0),
+          k: 1.7960396,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.0049999794, 0.99998754),
+          k: 1.7961714,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.009999834, 0.9999501),
+          k: 1.7963837,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.014999439, 0.99988765),
+          k: 1.7966306,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.01999867, 0.9998002),
+          k: 1.7968951,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.0249974, 0.99968773),
+          k: 1.7971671,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.029995507, 0.9995503),
+          k: 1.7974396,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.034992862, 0.99938786),
+          k: 1.7977073,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.039989345, 0.99920046),
+          k: 1.797966,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.04498483, 0.99898803),
+          k: 1.7982125,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.049979188, 0.9987506),
+          k: 1.7984436,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.0549723, 0.99848825),
+          k: 1.798657,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.059964035, 0.99820095),
+          k: 1.7988502,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.06495427, 0.9978887),
+          k: 1.7990215,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.069942884, 0.99755144),
+          k: 1.7991687,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.07492975, 0.99718934),
+          k: 1.7992907,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.07991475, 0.9968023),
+          k: 1.7993854,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.08489774, 0.9963903),
+          k: 1.7994517,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.08987861, 0.9959534),
+          k: 1.7994884,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.09485724, 0.99549156),
+          k: 1.7994943,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.09983349, 0.9950049),
+          k: 1.7994678,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.10480725, 0.9944933),
+          k: 1.7994081,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.10977839, 0.99395686),
+          k: 1.7993141,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.11474678, 0.99339557),
+          k: 1.799185,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.11971231, 0.9928094),
+          k: 1.7990197,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.12467484, 0.9921985),
+          k: 1.7988174,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.12963426, 0.99156284),
+          k: 1.7985773,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.13459045, 0.99090236),
+          k: 1.7982982,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.13954325, 0.9902171),
+          k: 1.7979798,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.14449257, 0.989507),
+          k: 1.7976209,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.14943828, 0.9887722),
+          k: 1.797221,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.15438026, 0.9880127),
+          k: 1.796779,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.15931839, 0.9872285),
+          k: 1.796295,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.16425253, 0.9864196),
+          k: 1.7957677,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.16918257, 0.9855861),
+          k: 1.7951965,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.17410837, 0.9847279),
+          k: 1.7945809,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.1790298, 0.9838451),
+          k: 1.7939202,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.18394677, 0.9829377),
+          k: 1.7932138,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.18885915, 0.9820057),
+          k: 1.7924612,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.1937668, 0.9810492),
+          k: 1.7916617,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.19866961, 0.98006815),
+          k: 1.7908148,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.20356746, 0.97906256),
+          k: 1.7899199,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.20846021, 0.9780325),
+          k: 1.7889764,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.21334776, 0.97697806),
+          k: 1.7879841,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.21822998, 0.97589916),
+          k: 1.7869422,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.22310674, 0.9747959),
+          k: 1.7858503,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.22797792, 0.9736682),
+          k: 1.7847078,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.2328434, 0.97251624),
+          k: 1.7835143,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.23770306, 0.97133994),
+          k: 1.7822694,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.24255677, 0.9701393),
+          k: 1.7809722,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.24740441, 0.96891445),
+          k: 1.779623,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.25224587, 0.9676653),
+          k: 1.7782205,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.25708106, 0.96639204),
+          k: 1.776765,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.2619098, 0.9650946),
+          k: 1.7752557,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.266732, 0.9637731),
+          k: 1.773692,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.27154756, 0.96242744),
+          k: 1.772074,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.27635628, 0.9610577),
+          k: 1.7704009,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.2811581, 0.959664),
+          k: 1.7686725,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.28595287, 0.95824623),
+          k: 1.7668881,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.2907405, 0.9568046),
+          k: 1.7650477,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.29552084, 0.95533895),
+          k: 1.7631506,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.30029383, 0.95384943),
+          k: 1.7611966,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.3050593, 0.95233613),
+          k: 1.7591853,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.30981717, 0.950799),
+          k: 1.7571163,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.31456727, 0.94923806),
+          k: 1.7549893,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.31930953, 0.9476534),
+          k: 1.7528039,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.3240438, 0.94604504),
+          k: 1.7505597,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.32876998, 0.944413),
+          k: 1.7482564,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.33348796, 0.9427574),
+          k: 1.7458937,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.3381976, 0.94107825),
+          k: 1.7434715,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.34289876, 0.9393755),
+          k: 1.740989,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.34759134, 0.93764937),
+          k: 1.7384462,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.35227525, 0.93589973),
+          k: 1.7358426,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.35695034, 0.9341267),
+          k: 1.733178,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.36161652, 0.9323303),
+          k: 1.7304523,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.36627364, 0.93051064),
+          k: 1.727665,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.3709216, 0.9286677),
+          k: 1.7248158,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.3755603, 0.92680156),
+          k: 1.7219044,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.38018963, 0.9249122),
+          k: 1.7189305,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.38480943, 0.9229998),
+          k: 1.7158939,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.38941962, 0.92106426),
+          k: 1.7127942,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.39402005, 0.91910565),
+          k: 1.7096312,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.39861065, 0.9171241),
+          k: 1.7064048,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.40319127, 0.9151196),
+          k: 1.7031144,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.4077618, 0.91309226),
+          k: 1.6997602,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.4123222, 0.9110421),
+          k: 1.6963416,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.41687226, 0.90896916),
+          k: 1.6928585,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.4214119, 0.90687346),
+          k: 1.6893107,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.425941, 0.9047551),
+          k: 1.6856977,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.43045944, 0.9026142),
+          k: 1.6820196,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.43496713, 0.90045065),
+          k: 1.6782761,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.43946394, 0.8982646),
+          k: 1.6744668,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.44394976, 0.89605606),
+          k: 1.6705917,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.4484245, 0.8938252),
+          k: 1.6666504,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.452888, 0.89157194),
+          k: 1.662643,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.4573402, 0.8892964),
+          k: 1.6585689,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.461781, 0.88699865),
+          k: 1.6544282,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.46621022, 0.8846787),
+          k: 1.6502206,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.47062778, 0.8823367),
+          k: 1.6459458,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.47503358, 0.8799726),
+          k: 1.6416038,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: SplitPlane(
+          normal: Vec3(0.0, -0.4794275, 0.8775864),
+          k: 1.6371943,
+          blend: 0.05,
+          positive_side_colour: (244, 29, 9),
+          negative_side_colour: (26, 234, 23),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.0,
+      ),
+    ],
+    blend: false,
+  )),
+]

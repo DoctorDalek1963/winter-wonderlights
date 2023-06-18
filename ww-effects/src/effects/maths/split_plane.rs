@@ -242,7 +242,6 @@ mod tests {
     use crate::{traits::Effect, TestDriver};
 
     #[tokio::test]
-    #[ignore = "SplitPlane is not properly implemented yet"]
     async fn split_plane_test() {
         let mut driver = TestDriver::new(10);
         SplitPlane::default().run(&mut driver).await;
