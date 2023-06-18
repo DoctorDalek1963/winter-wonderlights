@@ -67,6 +67,9 @@ pub(crate) mod prelude {
         // From ww-frame
         pub type RGBArray = [u8; 3];
 
+        /// The default spacing between UI elements.
+        pub const UI_SPACING: f32 = 10.;
+
         /// Display a colour picker widget with associated label.
         pub fn colour_picker(
             ui: &mut egui::Ui,

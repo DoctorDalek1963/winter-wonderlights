@@ -65,6 +65,7 @@ mod config {
     impl EffectConfig for SplitPlaneConfig {
         fn render_options_gui(&mut self, _ctx: &egui::Context, ui: &mut egui::Ui) -> bool {
             ui.label(RichText::new("SplitPlane config").heading());
+            ui.add_space(UI_SPACING);
 
             let mut config_changed = false;
 
@@ -116,8 +117,12 @@ mod config {
                 )
                 .changed();
 
+            ui.add_space(UI_SPACING);
+
             config_changed |= colour_picker(ui, &mut self.side_a_colour, "Side A colour").changed();
             config_changed |= colour_picker(ui, &mut self.side_b_colour, "Side B colour").changed();
+
+            ui.add_space(UI_SPACING);
 
             if ui.button("Reset to defaults").clicked() {
                 *self = Self::default();

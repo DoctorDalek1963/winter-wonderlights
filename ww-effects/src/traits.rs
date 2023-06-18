@@ -57,10 +57,13 @@ pub trait EffectConfig:
     /// ```ignore
     /// fn render_options_gui(&mut self, _ctx: &Context, ui: &mut Ui) {
     ///     ui.label(RichText::new("EffectName config").heading());
+    ///     ui.add_space(UI_SPACING);
     ///
     ///     let mut config_changed = false;
     ///
     ///     // Implementation here...
+    ///
+    ///     ui.add_space(UI_SPACING);
     ///
     ///     if ui.button("Reset to defaults").clicked() {
     ///         *self = Self::default();

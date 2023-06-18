@@ -40,6 +40,7 @@ mod config {
     impl EffectConfig for MovingPlaneConfig {
         fn render_options_gui(&mut self, _ctx: &egui::Context, ui: &mut egui::Ui) -> bool {
             ui.label(RichText::new("MovingPlane config").heading());
+            ui.add_space(UI_SPACING);
 
             let mut config_changed = false;
 
@@ -50,12 +51,16 @@ mod config {
                         .text("Speed (units/s)"),
                 )
                 .changed();
+
             config_changed |= ui
                 .add(egui::Slider::new(&mut self.thickness, 0.0..=0.5).text("Thickness"))
                 .changed();
+
             config_changed |= ui
                 .add(egui::Slider::new(&mut self.fadeoff, 0.0..=0.25).text("Fadeoff"))
                 .changed();
+
+            ui.add_space(UI_SPACING);
 
             if ui.button("Reset to defaults").clicked() {
                 *self = Self::default();

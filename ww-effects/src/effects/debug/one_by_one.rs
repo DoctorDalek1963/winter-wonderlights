@@ -38,6 +38,7 @@ mod config {
     impl EffectConfig for DebugOneByOneConfig {
         fn render_options_gui(&mut self, _ctx: &egui::Context, ui: &mut egui::Ui) -> bool {
             ui.label(RichText::new("DebugOneByOne config").heading());
+            ui.add_space(UI_SPACING);
 
             let mut config_changed = false;
 
@@ -57,7 +58,11 @@ mod config {
                 )
                 .changed();
 
+            ui.add_space(UI_SPACING);
+
             config_changed |= colour_picker(ui, &mut self.colour, "Colour").changed();
+
+            ui.add_space(UI_SPACING);
 
             if ui.button("Reset to defaults").clicked() {
                 *self = Self::default();
