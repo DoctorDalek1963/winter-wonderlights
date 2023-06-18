@@ -2,7 +2,7 @@
 
 use proc_macro::TokenStream;
 use proc_macro2::{Ident as Ident2, TokenStream as TokenStream2};
-use quote::quote;
+use quote::{format_ident, quote};
 use syn::{parse_macro_input, DeriveInput};
 
 /// Derive the `BaseEffect` trait.
@@ -10,11 +10,14 @@ pub fn derive_base_effect(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let struct_name = input.ident;
     let sealed_impl = create_sealed_impl(&struct_name);
+    let config_ident = format_ident!("{}Config", struct_name);
 
     quote! {
         #sealed_impl
 
         impl crate::traits::BaseEffect for #struct_name {
+            type Config = #config_ident;
+
             fn effect_name() -> &'static str {
                 stringify!(#struct_name)
             }
@@ -25,7 +28,7 @@ pub fn derive_base_effect(input: TokenStream) -> TokenStream {
 
             fn from_file() -> Self {
                 Self {
-                    config: <Self as crate::traits::Effect>::Config::from_file(
+                    config: Self::Config::from_file(
                         &<Self as crate::traits::Effect>::config_filename()
                     ),
                     ..<Self as ::std::default::Default>::default()

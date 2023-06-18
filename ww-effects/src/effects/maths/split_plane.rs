@@ -155,8 +155,6 @@ mod effect {
     }
 
     impl Effect for SplitPlane {
-        type Config = SplitPlaneConfig;
-
         async fn run(self, driver: &mut dyn Driver) {
             let middle_point = Vec3::new(
                 0.,

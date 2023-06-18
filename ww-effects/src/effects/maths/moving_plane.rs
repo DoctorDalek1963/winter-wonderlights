@@ -99,8 +99,6 @@ mod effect {
     }
 
     impl Effect for MovingPlane {
-        type Config = MovingPlaneConfig;
-
         async fn run(mut self, driver: &mut dyn Driver) {
             let colour: RGBArray = self.rng.gen();
             let normal: Vec3 = random_vector(&mut self.rng);

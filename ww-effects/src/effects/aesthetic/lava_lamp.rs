@@ -135,9 +135,6 @@ mod effect {
     }
 
     impl Effect for LavaLamp {
-        type Config = LavaLampConfig;
-
-        #[instrument(skip_all)]
         async fn run(mut self, driver: &mut dyn Driver) {
             // Spawn some spheres (number in config?) and gradually change their sizes and colours over
             // time while moving them all up and down at random speeds

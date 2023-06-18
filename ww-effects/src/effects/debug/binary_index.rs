@@ -91,8 +91,6 @@ mod effect {
     }
 
     impl Effect for DebugBinaryIndex {
-        type Config = DebugBinaryIndexConfig;
-
         async fn run(self, driver: &mut dyn Driver) {
             driver.clear();
 

@@ -86,8 +86,6 @@ mod effect {
     }
 
     impl Effect for DebugOneByOne {
-        type Config = DebugOneByOneConfig;
-
         async fn run(self, driver: &mut dyn Driver) {
             driver.clear();
 

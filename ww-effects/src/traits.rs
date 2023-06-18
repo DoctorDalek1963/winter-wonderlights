@@ -108,6 +108,9 @@ pub trait EffectConfig:
 /// [`effect_proc_macros::BaseEffect`].
 #[cfg(feature = "effect-trait")]
 pub trait BaseEffect: Default + private::Sealed {
+    /// The type of this effect's config.
+    type Config: EffectConfig;
+
     /// The name of the effect, used for config files and GUI editting.
     fn effect_name() -> &'static str;
 
@@ -143,9 +146,6 @@ pub trait BaseEffect: Default + private::Sealed {
 /// The trait implemented by all effects, which defines how to run them.
 #[cfg(feature = "effect-trait")]
 pub trait Effect: BaseEffect {
-    /// The type of this effect's config.
-    type Config: EffectConfig;
-
     /// The filename for the config file of this effect.
     fn config_filename() -> String {
         get_config_filename(Self::effect_name())
