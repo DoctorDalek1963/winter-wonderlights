@@ -21,6 +21,11 @@ mod config {
         /// The colour of the other side of the split plane.
         pub side_b_colour: RGBArray,
 
+        /// The level of blending between the two colours.
+        ///
+        /// See [`ww_frame::object::Object::SplitPlane::blend`](../../../../../ww_frame/object/enum.Object.html#variant.SplitPlane.field.blend).
+        pub colour_blend: f32,
+
         /// The speed of rotation around the axis of rotation, measured in radians per second in
         /// the anti-clockwise direction.
         pub rotation_speed: f32,
@@ -48,6 +53,7 @@ mod config {
             Self {
                 side_a_colour: [244, 29, 9],
                 side_b_colour: [26, 234, 23],
+                colour_blend: 0.05,
                 rotation_speed: 0.5,
                 rotation_axis_z_rotation_degrees: 0.,
                 rotation_axis_height_center_offset: 0.,
@@ -61,6 +67,17 @@ mod config {
             ui.label(RichText::new("SplitPlane config").heading());
 
             let mut config_changed = false;
+
+            config_changed |= ui
+                .add(
+                    egui::Slider::new(&mut self.colour_blend, 0.0..=0.2)
+                        .clamp_to_range(false)
+                        .text("Colour blend"),
+                )
+                .changed();
+            if self.colour_blend < 0. {
+                self.colour_blend = 0.;
+            }
 
             config_changed |= ui
                 .add(
@@ -94,6 +111,7 @@ mod config {
                         0.0..=60.,
                     )
                     .suffix("s")
+                    .clamp_to_range(false)
                     .text("Rotation axis vertical oscillation period"),
                 )
                 .changed();
@@ -182,6 +200,7 @@ mod effect {
                         object: Object::SplitPlane {
                             normal,
                             k: normal.dot(point_on_plane),
+                            blend: self.config.colour_blend,
                             positive_side_colour: self.config.side_a_colour,
                             negative_side_colour: self.config.side_b_colour,
                         },
