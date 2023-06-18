@@ -63,6 +63,9 @@ pub(crate) mod prelude {
         pub use effect_proc_macros::Sealed;
         pub use egui::{Align, Layout, RichText, Vec2};
         pub use serde::{Deserialize, Serialize};
+
+        // From ww-frame
+        pub type RGBArray = [u8; 3];
     }
 
     #[cfg(feature = "config-impls")]
@@ -76,13 +79,13 @@ pub(crate) mod prelude {
             traits::Effect,
         };
         pub use effect_proc_macros::BaseEffect;
-        pub use glam::Vec3;
+        pub use glam::{Quat, Vec3};
         pub use rand::{rngs::StdRng, Rng};
         pub use std::time::Duration;
         pub use tracing::{debug, error, info, instrument, trace, warn};
         pub use tracing_unwrap::{OptionExt, ResultExt};
         pub use ww_driver_trait::Driver;
-        pub use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object, RGBArray};
+        pub use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object};
     }
 
     #[cfg(feature = "effect-impls")]
@@ -102,7 +105,7 @@ pub mod effects {
     pub use super::{
         aesthetic::LavaLamp,
         debug::{DebugBinaryIndex, DebugOneByOne},
-        maths::MovingPlane,
+        maths::{MovingPlane, SplitPlane},
     };
 }
 
@@ -115,6 +118,6 @@ pub mod configs {
     pub use super::{
         aesthetic::LavaLampConfig,
         debug::{DebugBinaryIndexConfig, DebugOneByOneConfig},
-        maths::MovingPlaneConfig,
+        maths::{MovingPlaneConfig, SplitPlaneConfig},
     };
 }
