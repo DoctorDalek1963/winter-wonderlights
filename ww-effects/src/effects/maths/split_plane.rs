@@ -219,7 +219,7 @@ mod effect {
 
                 normal = Quat::from_axis_angle(rotation_axis, self.config.rotation_speed / 100.)
                     * normal;
-                debug!(?normal);
+                trace!(?normal);
                 //trace!(length = normal.clone().length());
 
                 sleep!(Duration::from_millis(10));
