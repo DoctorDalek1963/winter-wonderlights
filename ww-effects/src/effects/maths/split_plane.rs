@@ -116,23 +116,8 @@ mod config {
                 )
                 .changed();
 
-            ui.allocate_ui_with_layout(
-                Vec2::splat(0.),
-                Layout::left_to_right(Align::Center),
-                |ui| {
-                    ui.label("Side A colour");
-                    config_changed |= ui.color_edit_button_srgb(&mut self.side_a_colour).changed();
-                },
-            );
-
-            ui.allocate_ui_with_layout(
-                Vec2::splat(0.),
-                Layout::left_to_right(Align::Center),
-                |ui| {
-                    ui.label("Side B colour");
-                    config_changed |= ui.color_edit_button_srgb(&mut self.side_b_colour).changed();
-                },
-            );
+            config_changed |= colour_picker(ui, &mut self.side_a_colour, "Side A colour").changed();
+            config_changed |= colour_picker(ui, &mut self.side_b_colour, "Side B colour").changed();
 
             if ui.button("Reset to defaults").clicked() {
                 *self = Self::default();

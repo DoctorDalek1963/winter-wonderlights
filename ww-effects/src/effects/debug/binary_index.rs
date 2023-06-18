@@ -52,6 +52,7 @@ mod config {
                         .text("Light time"),
                 )
                 .changed();
+
             config_changed |= ui
                 .add(
                     egui::Slider::new(&mut self.dark_time_ms, 0..=1500)
@@ -60,17 +61,8 @@ mod config {
                 )
                 .changed();
 
-            ui.allocate_ui_with_layout(
-                Vec2::splat(0.),
-                Layout::left_to_right(Align::Center),
-                |ui| {
-                    ui.label("Zero color: ");
-                    config_changed |= ui.color_edit_button_srgb(&mut self.zero_color).changed();
-
-                    ui.label("One color: ");
-                    config_changed |= ui.color_edit_button_srgb(&mut self.one_color).changed();
-                },
-            );
+            config_changed |= colour_picker(ui, &mut self.zero_color, "Zero colour").changed();
+            config_changed |= colour_picker(ui, &mut self.one_color, "One colour").changed();
 
             if ui.button("Reset to defaults").clicked() {
                 *self = Self::default();

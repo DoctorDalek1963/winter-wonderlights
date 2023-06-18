@@ -22,7 +22,7 @@ mod config {
         pub dark_time_ms: u64,
 
         /// The color for the current light.
-        pub color: [u8; 3],
+        pub colour: [u8; 3],
     }
 
     impl Default for DebugOneByOneConfig {
@@ -30,7 +30,7 @@ mod config {
             Self {
                 light_time_ms: 1000,
                 dark_time_ms: 100,
-                color: [255, 255, 255],
+                colour: [255, 255, 255],
             }
         }
     }
@@ -48,6 +48,7 @@ mod config {
                         .text("Light time"),
                 )
                 .changed();
+
             config_changed |= ui
                 .add(
                     egui::Slider::new(&mut self.dark_time_ms, 0..=1500)
@@ -56,14 +57,7 @@ mod config {
                 )
                 .changed();
 
-            ui.allocate_ui_with_layout(
-                Vec2::splat(0.),
-                Layout::left_to_right(Align::Center),
-                |ui| {
-                    ui.label("Color: ");
-                    config_changed |= ui.color_edit_button_srgb(&mut self.color).changed();
-                },
-            );
+            config_changed |= colour_picker(ui, &mut self.colour, "Colour").changed();
 
             if ui.button("Reset to defaults").clicked() {
                 *self = Self::default();
@@ -97,7 +91,7 @@ mod effect {
 
             // Display the color on each LED, then blank it, pausing between each one.
             for i in 0..count {
-                data[i] = self.config.color;
+                data[i] = self.config.colour;
                 driver.display_frame(FrameType::RawData(data.clone()));
                 data[i] = [0, 0, 0];
                 sleep!(Duration::from_millis(self.config.light_time_ms));

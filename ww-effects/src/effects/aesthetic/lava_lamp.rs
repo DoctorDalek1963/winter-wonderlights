@@ -46,18 +46,12 @@ mod config {
             config_changed |= ui
                 .add(egui::Slider::new(&mut self.fadeoff, 0.0..=1.5).text("Fadeoff"))
                 .changed();
+
             config_changed |= ui
                 .add(egui::Slider::new(&mut self.variation, 1..=255).text("Colour variation"))
                 .changed();
 
-            ui.allocate_ui_with_layout(
-                Vec2::splat(0.),
-                Layout::left_to_right(Align::Center),
-                |ui| {
-                    ui.label("Base colour: ");
-                    config_changed |= ui.color_edit_button_srgb(&mut self.base_colour).changed();
-                },
-            );
+            config_changed |= colour_picker(ui, &mut self.base_colour, "Base colour").changed();
 
             if ui.button("Reset to defaults").clicked() {
                 *self = Self::default();

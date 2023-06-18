@@ -66,6 +66,23 @@ pub(crate) mod prelude {
 
         // From ww-frame
         pub type RGBArray = [u8; 3];
+
+        /// Display a colour picker widget with associated label.
+        pub fn colour_picker(
+            ui: &mut egui::Ui,
+            colour: &mut RGBArray,
+            label: impl Into<egui::WidgetText>,
+        ) -> egui::Response {
+            ui.allocate_ui_with_layout(
+                egui::Vec2::splat(0.),
+                egui::Layout::left_to_right(egui::Align::Center),
+                |ui| {
+                    ui.label(label);
+                    ui.color_edit_button_srgb(colour)
+                },
+            )
+            .inner
+        }
     }
 
     #[cfg(feature = "config-impls")]
@@ -85,6 +102,7 @@ pub(crate) mod prelude {
         pub use tracing::{debug, error, info, instrument, trace, warn};
         pub use tracing_unwrap::{OptionExt, ResultExt};
         pub use ww_driver_trait::Driver;
+        use ww_frame::RGBArray;
         pub use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object};
     }
 
