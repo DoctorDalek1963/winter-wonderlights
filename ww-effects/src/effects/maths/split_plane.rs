@@ -190,7 +190,8 @@ mod effect {
             loop {
                 let point_on_plane = if self.config.rotation_axis_vertical_oscillation_period != 0.
                 {
-                    middle_point + max_oscillation_offset * oscillation_base.sin()
+                    let sin = oscillation_base.sin();
+                    middle_point + max_oscillation_offset * sin * sin.abs().sqrt()
                 } else {
                     middle_point
                 };
