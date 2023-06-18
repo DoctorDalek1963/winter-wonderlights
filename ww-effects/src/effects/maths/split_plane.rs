@@ -30,11 +30,17 @@ mod config {
         /// degrees.
         pub rotation_axis_z_rotation_degrees: f32,
 
-        /// The rotation axis is always parallel to the floor. When this value is 0, the rotation
-        /// axis will be vertically in the middle of the tree. Positive values move the rotation
-        /// axis up and negative values move it down. Measured in GIFT coordinate space, so a
-        /// distance of 1 is the radius of the base of the tree.
-        pub rotation_axis_z_height_offset: f32,
+        /// The rotation axis is always parallel to the floor. When this value is 0, the middle of
+        /// the rotation axis oscillation will be vertically in the middle of the tree. Positive
+        /// values move the middle point up and negative values move it down. Measured in GIFT
+        /// coordinate space, so a distance of 1 is the radius of the base of the tree.
+        pub rotation_axis_height_center_offset: f32,
+
+        /// The number of seconds taken for a full vertical oscillation of the rotation axis.
+        ///
+        /// A negative period should just make it oscillate in reverse, since we're using sin, but
+        /// that behaviour should not be relied on.
+        pub rotation_axis_vertical_oscillation_period: f32,
     }
 
     impl Default for SplitPlaneConfig {
@@ -44,7 +50,8 @@ mod config {
                 side_b_colour: [26, 234, 23],
                 rotation_speed: 0.5,
                 rotation_axis_z_rotation_degrees: 0.,
-                rotation_axis_z_height_offset: 0.,
+                rotation_axis_height_center_offset: 0.,
+                rotation_axis_vertical_oscillation_period: 30.,
             }
         }
     }
@@ -74,9 +81,20 @@ mod config {
 
             config_changed |= ui
                 .add(
-                    egui::Slider::new(&mut self.rotation_axis_z_height_offset, -2.0..=2.0)
+                    egui::Slider::new(&mut self.rotation_axis_height_center_offset, -2.0..=2.0)
                         .clamp_to_range(false)
-                        .text("Rotation axis z height offset"),
+                        .text("Rotation axis height center offset"),
+                )
+                .changed();
+
+            config_changed |= ui
+                .add(
+                    egui::Slider::new(
+                        &mut self.rotation_axis_vertical_oscillation_period,
+                        0.0..=60.,
+                    )
+                    .suffix("s")
+                    .text("Rotation axis vertical oscillation period"),
                 )
                 .changed();
 
@@ -131,12 +149,15 @@ mod effect {
     impl Effect for SplitPlane {
         type Config = SplitPlaneConfig;
 
-        async fn run(mut self, driver: &mut dyn Driver) {
+        async fn run(self, driver: &mut dyn Driver) {
             let middle_point = Vec3::new(
                 0.,
                 0.,
-                COORDS.max_z() / 2. + self.config.rotation_axis_z_height_offset,
+                COORDS.max_z() / 2. + self.config.rotation_axis_height_center_offset,
             );
+
+            let mut oscillation_base: f32 = 0.0;
+            let max_oscillation_offset = 0.9 * (COORDS.max_z() / 2.);
 
             let rotation_axis: Vec3 =
                 (Quat::from_rotation_z(self.config.rotation_axis_z_rotation_degrees.to_radians())
@@ -149,11 +170,18 @@ mod effect {
             let mut counter: u8 = 0;
 
             loop {
+                let point_on_plane = if self.config.rotation_axis_vertical_oscillation_period != 0.
+                {
+                    middle_point + max_oscillation_offset * oscillation_base.sin()
+                } else {
+                    middle_point
+                };
+
                 driver.display_frame(FrameType::Frame3D(Frame3D::new(
                     vec![FrameObject {
                         object: Object::SplitPlane {
                             normal,
-                            k: normal.dot(middle_point),
+                            k: normal.dot(point_on_plane),
                             positive_side_colour: self.config.side_a_colour,
                             negative_side_colour: self.config.side_b_colour,
                         },
@@ -163,12 +191,18 @@ mod effect {
                     false,
                 )));
 
-                normal =
-                    Quat::from_axis_angle(rotation_axis, self.config.rotation_speed / 10.) * normal;
+                if self.config.rotation_axis_vertical_oscillation_period != 0. {
+                    oscillation_base += std::f32::consts::TAU
+                        / self.config.rotation_axis_vertical_oscillation_period
+                        / 100.;
+                }
+
+                normal = Quat::from_axis_angle(rotation_axis, self.config.rotation_speed / 100.)
+                    * normal;
                 debug!(?normal);
                 //trace!(length = normal.clone().length());
 
-                sleep!(Duration::from_millis(100));
+                sleep!(Duration::from_millis(10));
 
                 #[cfg(any(test, feature = "bench"))]
                 {
