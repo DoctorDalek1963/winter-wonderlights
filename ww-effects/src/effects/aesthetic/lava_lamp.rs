@@ -12,7 +12,7 @@ use crate::effects::prelude::*;
 mod config {
     use super::*;
 
-    /// The config for the lava lamp effect.
+    /// The config for the [`LavaLamp`] effect.
     #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, BaseEffectConfig)]
     pub struct LavaLampConfig {
         /// The base colour of the spheres.

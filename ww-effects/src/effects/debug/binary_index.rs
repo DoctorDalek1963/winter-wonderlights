@@ -12,7 +12,7 @@ use crate::effects::prelude::*;
 mod config {
     use super::*;
 
-    /// The config for the binary index effect; includes timing and colors.
+    /// The config for the [`DebugBinaryIndex`] effect; includes timing and colors.
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, BaseEffectConfig)]
     pub struct DebugBinaryIndexConfig {
         /// The number of milliseconds that the lights are on for.

@@ -12,7 +12,7 @@ use crate::effects::prelude::*;
 mod config {
     use super::*;
 
-    /// The config for the `DebugOneByOne` effect; includes timing and the color.
+    /// The config for the [`DebugOneByOne`] effect; includes timing and colour.
     #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, BaseEffectConfig)]
     pub struct DebugOneByOneConfig {
         /// The number of milliseconds that the light is on for.

@@ -12,7 +12,7 @@ use crate::effects::prelude::*;
 mod config {
     use super::*;
 
-    /// The config for the moving plane effect; includes speed.
+    /// The config for the [`MovingPlane`] effect; includes speed.
     #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, BaseEffectConfig)]
     pub struct MovingPlaneConfig {
         /// How many units (in GIFT coords) that the plane moves in one second.
