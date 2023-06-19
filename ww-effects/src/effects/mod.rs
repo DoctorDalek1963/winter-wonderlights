@@ -60,7 +60,7 @@ pub(crate) mod prelude {
     #[cfg(feature = "config-impls")]
     pub(crate) mod config_prelude {
         pub use crate::traits::EffectConfig;
-        pub use effect_proc_macros::Sealed;
+        pub use effect_proc_macros::BaseEffectConfig;
         pub use egui::{Align, Layout, RichText, Vec2};
         pub use serde::{Deserialize, Serialize};
 

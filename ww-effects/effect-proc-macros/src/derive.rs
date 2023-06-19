@@ -1,7 +1,7 @@
 //! Handle deriving traits.
 
 use proc_macro::TokenStream;
-use proc_macro2::{Ident as Ident2, TokenStream as TokenStream2};
+use proc_macro2::{Ident as Ident2, Literal, TokenStream as TokenStream2};
 use quote::{format_ident, quote};
 use syn::{parse_macro_input, DeriveInput};
 
@@ -39,10 +39,37 @@ pub fn derive_base_effect(input: TokenStream) -> TokenStream {
     .into()
 }
 
-/// Derive the `Sealed` trait.
-pub fn derive_sealed(input: TokenStream) -> TokenStream {
+/// Derive the `BaseEffectConfig` trait.
+pub fn derive_base_effect_config(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
-    create_sealed_impl(&input.ident).into()
+    let struct_name = input.ident;
+    let sealed_impl = create_sealed_impl(&struct_name);
+    let heading = Literal::string(&struct_name.to_string().replace("Config", ""));
+
+    quote! {
+        #sealed_impl
+
+        impl crate::traits::BaseEffectConfig for #struct_name {
+            fn render_full_options_gui(&mut self, ctx: &::egui::Context, ui: &mut ::egui::Ui) -> bool {
+                ui.label(egui::RichText::new(#heading).heading());
+                ui.add_space(crate::effects::prelude::UI_SPACING);
+
+                let mut config_changed = false;
+
+                config_changed |= self.render_options_gui(ctx, ui);
+
+                ui.add_space(crate::effects::prelude::UI_SPACING);
+
+                if ui.button("Reset to defaults").clicked() {
+                    *self = Self::default();
+                    config_changed = true;
+                }
+
+                config_changed
+            }
+        }
+    }
+    .into()
 }
 
 /// Create an implementation of `Sealed` for a type with the given name.

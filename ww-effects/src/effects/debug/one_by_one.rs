@@ -13,7 +13,7 @@ mod config {
     use super::*;
 
     /// The config for the `DebugOneByOne` effect; includes timing and the color.
-    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Sealed)]
+    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, BaseEffectConfig)]
     pub struct DebugOneByOneConfig {
         /// The number of milliseconds that the light is on for.
         pub light_time_ms: u64,

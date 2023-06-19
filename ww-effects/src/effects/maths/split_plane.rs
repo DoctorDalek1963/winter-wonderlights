@@ -13,7 +13,7 @@ mod config {
     use super::*;
 
     /// The config for the [`SplitPlane`] effect.
-    #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Sealed)]
+    #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, BaseEffectConfig)]
     pub struct SplitPlaneConfig {
         /// The colour of one side of the split plane.
         pub side_a_colour: RGBArray,

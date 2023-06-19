@@ -34,47 +34,35 @@ pub fn get_config_filename(effect_name: &str) -> String {
 #[cfg(any(feature = "config-trait", feature = "effect-trait"))]
 pub(crate) mod private {
     #[cfg(doc)]
-    use super::{BaseEffect, Effect, EffectConfig};
+    use super::{BaseEffect, BaseEffectConfig, Effect, EffectConfig};
 
-    /// This trait restricts implementors of [`Effect`], [`BaseEffect`], and [`EffectConfig`] to only
-    /// be in this crate. This restriction is needed so that
+    /// This trait restricts implementors of [`Effect`], [`BaseEffect`], [`BaseEffectConfig`], and
+    /// [`EffectConfig`] to only be in this crate. This restriction is needed so that
     /// [`EffectNameList`](../list/enum.EffectNameList.html) and friends have variants for all the
     /// effects.
     pub trait Sealed {}
 }
 
-/// This trait is needed by all structs that want to act as configuration for effects.
-#[cfg(feature = "config-trait")]
-pub trait EffectConfig:
+/// A trait needed for all implemtors of [`EffectConfig`]. This trait should be derived with
+/// [`effect_proc_macros::BaseEffectConfig`].
+pub trait BaseEffectConfig:
     Clone + Default + PartialEq + Serialize + for<'de> Deserialize<'de> + private::Sealed
 {
-    /// Render the GUI to edit the config of this effect and return whether the config has changed.
-    /// The default implementation returns false.
-    ///
-    /// If you implement this for an effect, the implementation should look something like the one
-    /// below.
-    ///
-    /// ```ignore
-    /// fn render_options_gui(&mut self, _ctx: &Context, ui: &mut Ui) {
-    ///     ui.label(RichText::new("EffectName config").heading());
-    ///     ui.add_space(UI_SPACING);
-    ///
-    ///     let mut config_changed = false;
-    ///
-    ///     // Implementation here...
-    ///
-    ///     ui.add_space(UI_SPACING);
-    ///
-    ///     if ui.button("Reset to defaults").clicked() {
-    ///         *self = Self::default();
-    ///         config_changed = true;
-    ///     }
-    ///
-    ///     config_changed
-    /// }
-    /// ```
+    /// Render the full options GUI, with a heading at the top and a "Reset to default" button at
+    /// the bottom. The [derived
+    /// implementation](../../effect_proc_macros/derive.BaseEffectConfig.html) will call [`<Self as
+    /// EffectConfig>::render_options_gui`](EffectConfig::render_options_gui) in the middle.
     #[allow(unused_variables)]
-    fn render_options_gui(&mut self, _ctx: &Context, ui: &mut Ui) -> bool {
+    fn render_full_options_gui(&mut self, ctx: &Context, ui: &mut Ui) -> bool;
+}
+
+/// This trait is needed by all structs that want to act as configuration for effects.
+#[cfg(feature = "config-trait")]
+pub trait EffectConfig: BaseEffectConfig {
+    /// Render the GUI to edit the config of this effect and return whether the config has changed.
+    /// The default implementation just returns false.
+    #[allow(unused_variables)]
+    fn render_options_gui(&mut self, ctx: &Context, ui: &mut Ui) -> bool {
         false
     }
 

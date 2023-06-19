@@ -7,20 +7,23 @@ mod generate_lists_and_impls;
 
 /// Derive the [`BaseEffect`](../ww_effects/traits/trait.BaseEffect.html) trait for the given type.
 ///
-/// This derivation assumes that the type has a field `config` of type `<Self as Effect>::Config`
+/// This derivation assumes that the type has a field `config` of type `<Self as
+/// BaseEffect>::Config` (see [`BaseEffect::Config`](../ww_effects/traits/trait.BaseEffect.html))
 /// and it loads that config from the file and uses `<Self as Default>` for all the other fields.
-/// It also assumes that `Self: Effect`.
 ///
-/// See [`Effect`](../ww_effects/traits/trait.Effect.html).
+/// The type must also implement [`Effect`](../ww_effects/traits/trait.Effect.html).
 #[proc_macro_derive(BaseEffect)]
 pub fn derive_base_effect(input: TokenStream) -> TokenStream {
     derive::derive_base_effect(input)
 }
 
-/// Derive the `Sealed` trait for this type.
-#[proc_macro_derive(Sealed)]
-pub fn derive_sealed(input: TokenStream) -> TokenStream {
-    derive::derive_sealed(input)
+/// Derive the [`BaseEffectConfig`](../ww_effects/traits/trait.BaseEffectConfig.html) trait for the
+/// given type.
+///
+/// The type must also implement [`EffectConfig`](../ww_effects/traits/trait.EffectConfig.html).
+#[proc_macro_derive(BaseEffectConfig)]
+pub fn derive_base_effect_config(input: TokenStream) -> TokenStream {
+    derive::derive_base_effect_config(input)
 }
 
 /// Given a list of effect names separated by commas, generate the `EffectNameList` and friends for

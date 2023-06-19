@@ -13,7 +13,7 @@ mod config {
     use super::*;
 
     /// The config for the binary index effect; includes timing and colors.
-    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Sealed)]
+    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, BaseEffectConfig)]
     pub struct DebugBinaryIndexConfig {
         /// The number of milliseconds that the lights are on for.
         pub light_time_ms: u64,
