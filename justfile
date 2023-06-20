@@ -27,7 +27,7 @@ check:
 # into nightly
 
 # run clippy over the whole project
-clippy:
+clippy args='':
 	cargo clippy --no-deps -- \
 	-W clippy::cargo \
 	-W clippy::complexity \
@@ -153,7 +153,8 @@ clippy:
 	-W clippy::unwrap-used \
 	-W clippy::useless-let-if-seq \
 	-W clippy::use-self \
-	-W clippy::zero-sized-map-values
+	-W clippy::zero-sized-map-values \
+	{{args}}
 
 # build the docs and optionally open them
 doc-build open='':
