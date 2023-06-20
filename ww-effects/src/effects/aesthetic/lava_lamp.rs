@@ -8,6 +8,7 @@ pub use effect::LavaLamp;
 
 use crate::effects::prelude::*;
 
+/// Contains the config for the [`LavaLamp`] effect.
 #[cfg(feature = "config-impls")]
 mod config {
     use super::*;
@@ -68,6 +69,7 @@ mod config {
     }
 }
 
+/// Contains the [`LavaLamp`] effect itself.
 #[cfg(feature = "effect-impls")]
 mod effect {
     use super::*;
@@ -80,12 +82,13 @@ mod effect {
         /// The position of the centre of the sphere.
         centre: Vec3,
 
-        // The radius of the sphere.
+        /// The radius of the sphere.
         radius: f32,
 
         /// The colour offset of this sphere. Added to the base colour to get the colour of the sphere.
         colour_offset: IVec3,
 
+        /// The direction that the sphere is currently moving in.
         movement_direction: Vec3,
     }
 
@@ -174,7 +177,7 @@ mod effect {
 
                 driver.display_frame(FrameType::Frame3D(Frame3D::new(sphere_frame_objects, true)));
 
-                for sphere in spheres.iter_mut() {
+                for sphere in &mut spheres {
                     sphere.centre += 0.05 * sphere.movement_direction;
                     sphere.movement_direction = (sphere.movement_direction
                         + 0.01 * random_vector(&mut self.rng))

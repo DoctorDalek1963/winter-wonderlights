@@ -1,5 +1,7 @@
 //! This crate handles messages sent between the server and the client.
 
+#![feature(lint_reasons)]
+
 use serde::{Deserialize, Serialize};
 use std::fs;
 use tracing_unwrap::ResultExt;

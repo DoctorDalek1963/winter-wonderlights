@@ -10,6 +10,8 @@
 //! x and y values. This means th minimum z values is 0, and the maximum z value depends on the
 //! other coordinates.
 
+#![feature(lint_reasons)]
+
 use color_eyre::Result;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
@@ -42,7 +44,7 @@ pub struct GIFTCoords {
 
 impl GIFTCoords {
     /// Create a set of GIFT coordinates by normalising a list of integer coordinates.
-    pub fn from_int_coords(int_coords: &Vec<(i32, i32, i32)>) -> Option<Self> {
+    pub fn from_int_coords(int_coords: &[(i32, i32, i32)]) -> Option<Self> {
         let xs = int_coords.iter().map(|&(x, _, _)| x);
         let ys = int_coords.iter().map(|&(_, y, _)| y);
         let zs = int_coords.iter().map(|&(_, _, z)| z);
@@ -87,6 +89,11 @@ impl GIFTCoords {
     /// Read the coordinate list from a file.
     ///
     /// The file should be a `Vec<(f32, f32, f32)>` encoded with `bincode`.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the file can't be read or if it can't be
+    /// deserialized.
     pub fn from_file(filename: &str) -> Result<Self> {
         let coords: Vec<(f32, f32, f32)> = bincode::deserialize(&fs::read(filename)?)?;
         let max_z = coords.iter().fold(0.0, |acc, &(_, _, z)| f32::max(acc, z));
@@ -100,6 +107,11 @@ impl GIFTCoords {
     }
 
     /// Save the coordinate list to the given file.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the data can't be serialized or if the file can't be
+    /// written to.
     pub fn save_to_file(&self, filename: &str) -> Result<()> {
         let data = bincode::serialize(&self.coords)?;
         fs::write(filename, data)?;
@@ -131,19 +143,19 @@ impl GIFTCoords {
     }
 
     /// The vec of coordinates themselves.
-    pub const fn coords(&self) -> &Vec<PointF> {
+    pub fn coords(&self) -> &Vec<PointF> {
         &self.coords
     }
 
     /// The maximum z value.
     ///
     /// The minimum z value is 0, and the minimum and maximum x and y values and -1 and 1.
-    pub const fn max_z(&self) -> f32 {
+    pub fn max_z(&self) -> f32 {
         self.max_z
     }
 
     /// The total number of lights.
-    pub const fn lights_num(&self) -> usize {
+    pub fn lights_num(&self) -> usize {
         self.lights_num
     }
 }

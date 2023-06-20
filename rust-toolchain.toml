@@ -1,3 +1,5 @@
 [toolchain]
-channel = "nightly"
+# Bytemuck fails to compile as of 2023-06-20 and even though `rustc --version`
+# says 2023-06-19, explicitly pinning the toolchain fixes it
+channel = "nightly-2023-06-19"
 targets = ["wasm32-unknown-unknown"]

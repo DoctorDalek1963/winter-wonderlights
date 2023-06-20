@@ -8,6 +8,7 @@ pub use effect::SplitPlane;
 
 use crate::effects::prelude::*;
 
+/// Contains the config for the [`SplitPlane`] effect.
 #[cfg(feature = "config-impls")]
 mod config {
     use super::*;
@@ -134,6 +135,7 @@ mod config {
     }
 }
 
+/// Contains the [`SplitPlane`] effect itself.
 #[cfg(feature = "effect-impls")]
 mod effect {
     use super::*;

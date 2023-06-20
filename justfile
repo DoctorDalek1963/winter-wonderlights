@@ -22,6 +22,10 @@ check:
 	@just _check
 	@just _check --release
 
+# TODO: Deny clippy::allow-attributes-without-reason when
+# https://github.com/rust-lang/rust-clippy/issues/10377 actually gets merged
+# into nightly
+
 # run clippy over the whole project
 clippy:
 	cargo clippy --no-deps -- \
@@ -34,9 +38,10 @@ clippy:
 	-A clippy::restriction \
 	-W clippy::style \
 	-W clippy::suspicious \
+	-A clippy::cognitive-complexity \
 	-A clippy::derivable-impls \
 	-A clippy::needless-update \
-	-D clippy::allow-attributes-without-reason \
+	-A clippy::allow-attributes-without-reason \
 	-D clippy::dbg-macro \
 	-D clippy::empty-structs-with-brackets \
 	-D clippy::get-unwrap \
@@ -62,7 +67,6 @@ clippy:
 	-W clippy::checked-conversions \
 	-W clippy::clear-with-drain \
 	-W clippy::cloned-instead-of-copied \
-	-W clippy::cognitive-complexity \
 	-W clippy::collection-is-never-read \
 	-W clippy::debug-assert-with-mut-call \
 	-W clippy::derive-partial-eq-without-eq \

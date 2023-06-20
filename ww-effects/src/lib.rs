@@ -3,6 +3,7 @@
 
 #![feature(async_fn_in_trait)]
 #![feature(let_chains)]
+#![feature(lint_reasons)]
 // Duration is imported and unused for tests and benchmarks because of the sleep macro
 #![cfg_attr(any(test, feature = "bench"), allow(unused_imports))]
 

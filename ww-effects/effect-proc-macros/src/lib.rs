@@ -1,4 +1,6 @@
-//! Provide macros for working with effects in Winter WonderLights.
+//! Provide macros for working with effects in `Winter WonderLights`.
+
+#![feature(lint_reasons)]
 
 use proc_macro::TokenStream;
 
