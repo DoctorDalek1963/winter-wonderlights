@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1687373882636,
+  "lastUpdate": 1687375028531,
   "repoUrl": "https://github.com/DoctorDalek1963/winter-wonderlights",
   "entries": {
     "Benchmark": [
@@ -2279,6 +2279,90 @@ window.BENCHMARK_DATA = {
             "name": "(ConvertFrameDriver) LavaLamp",
             "value": 3190152,
             "range": "± 34043",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "committer": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "distinct": true,
+          "id": "feb6fd847d45a84473c24d664a602f4eb3aaac52",
+          "message": "Install rustup clippy component in CI",
+          "timestamp": "2023-06-21T20:12:10+01:00",
+          "tree_id": "7bd620fc2abbba965f883252615e437c74c3f503",
+          "url": "https://github.com/DoctorDalek1963/winter-wonderlights/commit/feb6fd847d45a84473c24d664a602f4eb3aaac52"
+        },
+        "date": 1687375027444,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "(SimpleDriver) DebugOneByOne",
+            "value": 59312,
+            "range": "± 2147",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugOneByOne",
+            "value": 138774,
+            "range": "± 5688",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) DebugBinaryIndex",
+            "value": 197076,
+            "range": "± 12817",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugBinaryIndex",
+            "value": 195899,
+            "range": "± 6636",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) MovingPlane",
+            "value": 3299226,
+            "range": "± 186129",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) MovingPlane",
+            "value": 3383936,
+            "range": "± 166012",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) SplitPlane",
+            "value": 3903,
+            "range": "± 211",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) SplitPlane",
+            "value": 244756,
+            "range": "± 13292",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) LavaLamp",
+            "value": 35105,
+            "range": "± 1614",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) LavaLamp",
+            "value": 3335888,
+            "range": "± 137251",
             "unit": "ns/iter"
           }
         ]
