@@ -54,8 +54,6 @@ pub(crate) use rng;
 ///
 /// This module automatically handles `config-impls` and `effect-impls` features.
 #[cfg(any(feature = "config-impls", feature = "effect-impls"))]
-#[allow(clippy::pub_use)]
-#[allow(unused_imports)]
 pub(crate) mod prelude {
     /// A prelude for the [`EffectConfig`] implementations.
     #[cfg(feature = "config-impls")]
@@ -106,7 +104,6 @@ pub(crate) mod prelude {
         pub use tracing::{debug, error, info, instrument, trace, warn};
         pub use tracing_unwrap::{OptionExt, ResultExt};
         pub use ww_driver_trait::Driver;
-        use ww_frame::RGBArray;
         pub use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object};
     }
 

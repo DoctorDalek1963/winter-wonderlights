@@ -3,7 +3,7 @@
 #![feature(lint_reasons)]
 #![allow(
     clippy::future_not_send,
-    reason = "The client primarily runs on Wasm, so multithreading async tasks is not possible"
+    reason = "the client primarily runs on Wasm, so multithreading async tasks is not possible"
 )]
 
 mod app;
