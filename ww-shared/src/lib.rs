@@ -19,13 +19,21 @@ pub enum ServerToClientMsg {
     /// The protocol version is [`CRATE_VERSION`] and the server version is
     /// [`ww_server::CRATE_VERSION`](../ww_server/const.CRATE_VERSION.html).
     EstablishConnection {
+        /// The version number of the protocol, which is the version of this crate that the server
+        /// was compiled with.
         protocol_version: String,
+
+        /// The version number of the server binary.
         server_version: String,
     },
 
     /// Like [`EstablishConnection`](Self::EstablishConnection), but we deny the client based on a protocol version mismatch.
     DenyConnection {
+        /// The version number of the protocol, which is the version of this crate that the server
+        /// was compiled with.
         protocol_version: String,
+
+        /// The version number of the server binary.
         server_version: String,
     },
 
@@ -42,7 +50,11 @@ pub enum ClientToServerMsg {
     /// Establish a connection with the server by agreeing on a protocol version.
     ///
     /// The protocol version is [`CRATE_VERSION`].
-    EstablishConnection { protocol_version: String },
+    EstablishConnection {
+        /// The version number of the protocol, which is the version of this crate that the client
+        /// was compiled with.
+        protocol_version: String,
+    },
 
     /// Request an [`UpdateClientState`](ServerToClientMsg::UpdateClientState) message from the server.
     RequestUpdate,
