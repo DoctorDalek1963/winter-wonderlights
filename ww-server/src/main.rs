@@ -1,4 +1,6 @@
-//! This binary crate runs the server for Winter WonderLights.
+//! This binary crate runs the server for `Winter WonderLights`.
+
+#![feature(lint_reasons)]
 
 mod drivers;
 mod run_effect;
@@ -75,7 +77,7 @@ impl Deref for WrappedClientState {
     type Target = RwLock<ClientState>;
 
     fn deref(&self) -> &Self::Target {
-        &*self.0
+        &self.0
     }
 }
 
@@ -83,7 +85,7 @@ impl Drop for WrappedClientState {
     fn drop(&mut self) {
         self.read()
             .unwrap_or_log()
-            .save_to_file(SERVER_STATE_FILENAME)
+            .save_to_file(SERVER_STATE_FILENAME);
     }
 }
 
@@ -139,7 +141,7 @@ fn zip_old_log_files(days: u64) {
                 dir_entry
                     .file_name()
                     .to_str()
-                    .map(|name| -> Option<(DirEntry, NaiveDate)> {
+                    .and_then(|name| -> Option<(DirEntry, NaiveDate)> {
                         let captures = SERVER_LOG_REGEX.captures(name)?;
 
                         let year = captures.get(1)?.as_str().parse().ok()?;
@@ -148,7 +150,6 @@ fn zip_old_log_files(days: u64) {
 
                         Some((dir_entry, NaiveDate::from_ymd_opt(year, month, day)?))
                     })
-                    .flatten()
             }
             _ => None,
         })
@@ -161,14 +162,14 @@ fn zip_old_log_files(days: u64) {
         })
         .collect();
 
-    if log_files.len() > 0 {
+    if !log_files.is_empty() {
         let gzip_command = Command::new("gzip")
             .args(log_files)
             .spawn()
             .expect_or_log("Should be able to run `gzip` on old log files");
 
         if let Some(stderr) = gzip_command.stderr {
-            error!(?stderr, "gzip command failed when zipping old log files")
+            error!(?stderr, "gzip command failed when zipping old log files");
         }
     }
 }

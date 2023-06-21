@@ -3,8 +3,14 @@
 
 #![feature(async_fn_in_trait)]
 #![feature(let_chains)]
-// Duration is imported and unused for tests and benchmarks because of the sleep macro
-#![cfg_attr(any(test, feature = "bench"), allow(unused_imports))]
+#![feature(lint_reasons)]
+#![cfg_attr(
+    any(test, feature = "bench"),
+    allow(
+        unused_imports,
+        reason = "std::time::Duration is imported for effects but unused in tests and benchmarks because of sleep!()"
+    )
+)]
 
 pub mod list {
     //! This module contains list enums for effects and their configs, in name and dispatch (instance

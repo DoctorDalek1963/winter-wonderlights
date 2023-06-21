@@ -41,6 +41,10 @@ pub struct Frame3D {
     pre_computed_raw_data: Option<Vec<RGBArray>>,
 }
 
+#[allow(
+    clippy::missing_fields_in_debug,
+    reason = "pre_computed_raw_data is intentionally left out, since it is just noise"
+)]
 impl fmt::Debug for Frame3D {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Frame3D")
@@ -132,6 +136,7 @@ impl Frame3D {
     }
 
     /// Return the raw data for this frame.
+    #[must_use = "this method returns the raw data; to compute the raw data in place, use compute_raw_data()"]
     pub fn to_raw_data(mut self) -> Vec<RGBArray> {
         self.compute_raw_data();
         self.pre_computed_raw_data.expect(

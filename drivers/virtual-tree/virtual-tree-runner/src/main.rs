@@ -5,6 +5,8 @@
 //! is necessary because Bevy needs `winit`, which needs to be run on the main thread, so we use
 //! the main thread of a different application.
 
+#![feature(lint_reasons)]
+
 mod bevy_setup;
 
 use self::bevy_setup::{add_tree_to_world, setup, LightIndex};
@@ -41,7 +43,7 @@ fn main() {
         .spawn(move || listen_to_socket(&socket_path))
         .unwrap_or_log();
 
-    run_virtual_tree()
+    run_virtual_tree();
 }
 
 /// Listen to the given socket and update [`CURRENT_FRAME`] when the socket tells us to update the
@@ -50,7 +52,7 @@ fn main() {
 fn listen_to_socket(socket_path: &str) {
     let mut conn = LocalSocketStream::connect(socket_path)
         .expect_or_log(&format!("Unable to connect to socket at {socket_path:?}"));
-    let mut buf = [0u8; 5180]; // 5kB
+    let mut buf = [0_u8; 5180]; // 5kB
 
     loop {
         let idx = conn

@@ -62,7 +62,9 @@ impl FrameObject {
                         let dx = point.0 - center.x;
                         let dy = point.1 - center.y;
                         let dz = point.2 - center.z;
-                        f32::sqrt(dx * dx + dy * dy + dz * dz)
+
+                        // 3D Pythagoras
+                        f32::sqrt(dx.mul_add(dx, dy.mul_add(dy, dz * dz)))
                     };
                     trace!(?point, ?dist, "Distance from point to center");
 

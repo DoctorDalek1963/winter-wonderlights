@@ -8,6 +8,7 @@ pub use effect::DebugBinaryIndex;
 
 use crate::effects::prelude::*;
 
+/// Contains the config for the [`DebugBinaryIndex`] effect.
 #[cfg(feature = "config-impls")]
 mod config {
     use super::*;
@@ -79,12 +80,13 @@ mod config {
     }
 }
 
+/// Contains the [`DebugBinaryIndex`] effect itself.
 #[cfg(feature = "effect-impls")]
 mod effect {
     use super::*;
 
     /// Make each light flash its index in binary.
-    #[derive(Clone, Debug, Default, PartialEq, BaseEffect)]
+    #[derive(Clone, Debug, Default, PartialEq, Eq, BaseEffect)]
     pub struct DebugBinaryIndex {
         /// The config for this effect.
         config: DebugBinaryIndexConfig,

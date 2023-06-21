@@ -52,7 +52,7 @@ pub fn terminate_all_client_connections() {
 /// Handle a single connection.
 #[instrument(skip_all, fields(?addr))]
 async fn handle_connection(
-    socket: impl AsyncRead + AsyncWrite + Unpin,
+    socket: impl AsyncRead + AsyncWrite + Unpin + Send,
     addr: SocketAddr,
     client_state: WrappedClientState,
 ) -> Result<()> {
@@ -97,15 +97,12 @@ async fn handle_connection(
             ))
         };
 
-        let bytes = match msg {
-            tungstenite::Message::Binary(bytes) => bytes,
-            _ => {
-                return future::err(tungstenite::Error::Protocol(
-                    tungstenite::error::ProtocolError::ExpectedFragment(
-                        tungstenite::protocol::frame::coding::Data::Binary,
-                    ),
-                ))
-            }
+        let tungstenite::Message::Binary(bytes) = msg else {
+            return future::err(tungstenite::Error::Protocol(
+                tungstenite::error::ProtocolError::ExpectedFragment(
+                    tungstenite::protocol::frame::coding::Data::Binary,
+                ),
+            ));
         };
 
         let msg: ClientToServerMsg = match bincode::deserialize(&bytes) {
@@ -217,19 +214,19 @@ async fn handle_connection(
 fn load_certs(path: &Path) -> io::Result<Vec<Certificate>> {
     rustls_pemfile::certs(&mut BufReader::new(File::open(path)?))
         .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "Invalid certificate"))
-        .map(|mut certs| certs.drain(..).map(Certificate).collect())
+        .map(|certs| certs.into_iter().map(Certificate).collect())
 }
 
 /// Read the file at the given path and try to read it as a list of SSL private keys.
 fn load_keys(path: &Path) -> io::Result<Vec<PrivateKey>> {
-    rustls_pemfile::read_all(&mut BufReader::new(File::open(path)?))
+    use rustls_pemfile::{read_all, Item::*};
+
+    read_all(&mut BufReader::new(File::open(path)?))
         .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "Invalid keys"))
-        .map(|mut keys| {
-            keys.drain(..)
+        .map(|keys| {
+            keys.into_iter()
                 .filter_map(|item| match item {
-                    rustls_pemfile::Item::RSAKey(key) => Some(PrivateKey(key)),
-                    rustls_pemfile::Item::PKCS8Key(key) => Some(PrivateKey(key)),
-                    rustls_pemfile::Item::ECKey(key) => Some(PrivateKey(key)),
+                    RSAKey(key) | PKCS8Key(key) | ECKey(key) => Some(PrivateKey(key)),
                     _ => None,
                 })
                 .collect()
@@ -245,18 +242,19 @@ fn load_keys(path: &Path) -> io::Result<Vec<PrivateKey>> {
 /// localhost. But in production, the client web browser normally wants an encrypted connection.
 #[instrument]
 fn make_tls_acceptor() -> Result<TlsAcceptor> {
-    let certs = load_certs(&Path::new(
+    let certs = load_certs(Path::new(
         option_env!("SERVER_SSL_CERT_PATH")
-            .ok_or(Report::msg("We need a path for the certificate file"))?,
+            .ok_or_else(|| Report::msg("We need a path for the certificate file"))?,
     ))?;
-    let mut keys = load_keys(&Path::new(
-        option_env!("SERVER_SSL_KEY_PATH").ok_or(Report::msg("We need a path for the key file"))?,
+    let mut keys = load_keys(Path::new(
+        option_env!("SERVER_SSL_KEY_PATH")
+            .ok_or_else(|| Report::msg("We need a path for the key file"))?,
     ))?;
 
-    if certs.len() == 0 {
+    if certs.is_empty() {
         return Err(Report::msg("We need to have at least one certificate"));
     }
-    if keys.len() == 0 {
+    if keys.is_empty() {
         return Err(Report::msg("We need to have at least one key"));
     }
 
@@ -354,7 +352,7 @@ pub async fn run_server(
         // If the run-effect thread is finished, then the driver has stopped for whatever reason,
         // so kill the server
         _ = async move {
-            while let false = run_effect_thread.is_finished() {
+            while !run_effect_thread.is_finished() {
                 tokio::time::sleep(Duration::from_millis(500)).await;
             }
         } => {

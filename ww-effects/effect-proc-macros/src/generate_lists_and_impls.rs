@@ -51,7 +51,7 @@ fn get_effect_names(input: TokenStream) -> Result<Vec<Ident>> {
     let mut effect_names: Vec<Ident> = Vec::new();
     let mut last_elem_was_ident = false;
 
-    for tt in input.into_iter() {
+    for tt in input {
         match tt {
             TokenTree::Ident(ident) => {
                 if last_elem_was_ident {
@@ -85,7 +85,7 @@ fn get_effect_names(input: TokenStream) -> Result<Vec<Ident>> {
 }
 
 /// Create the `*NameList` enums for the effects and configs.
-fn create_name_lists(effect_names: &Vec<Ident>, config_names: &Vec<Ident>) -> TokenStream {
+fn create_name_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
     let effect_items: Vec<_> = effect_names
         .iter()
         .map(|ident| {
@@ -137,7 +137,7 @@ fn create_name_lists(effect_names: &Vec<Ident>, config_names: &Vec<Ident>) -> To
 }
 
 /// Create the `*DispatchList` enums for the effects and configs.
-fn create_dispatch_lists(effect_names: &Vec<Ident>, config_names: &Vec<Ident>) -> TokenStream {
+fn create_dispatch_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
     let effect_items: Vec<_> = effect_names
         .iter()
         .map(|ident| {
@@ -185,7 +185,7 @@ fn create_dispatch_lists(effect_names: &Vec<Ident>, config_names: &Vec<Ident>) -
 }
 
 /// Implement methods on the lists.
-fn impl_lists(effect_names: &Vec<Ident>, config_names: &Vec<Ident>) -> TokenStream {
+fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
     let effect_name_list_effect_names: Vec<_> = effect_names
         .iter()
         .map(|ident| {
@@ -413,7 +413,7 @@ fn impl_lists(effect_names: &Vec<Ident>, config_names: &Vec<Ident>) -> TokenStre
 }
 
 /// Implement the `From<T>` trait to convert between the lists.
-fn impl_from_lists(effect_names: &Vec<Ident>) -> TokenStream {
+fn impl_from_lists(effect_names: &[Ident]) -> TokenStream {
     let effect_name_list_to_dispatch: Vec<_> = effect_names
         .iter()
         .map(|ident| {

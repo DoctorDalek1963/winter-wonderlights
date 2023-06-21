@@ -6,6 +6,7 @@ use ww_frame::FrameType;
 
 /// A simple debug driver that just logs all its input with tracing at the info level.
 pub struct DebugDriver {
+    /// The number of lights used for the debug driver.
     pub lights_num: usize,
 }
 

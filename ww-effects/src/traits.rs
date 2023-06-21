@@ -52,7 +52,6 @@ pub trait BaseEffectConfig:
     /// the bottom. The [derived
     /// implementation](../../effect_proc_macros/derive.BaseEffectConfig.html) will call [`<Self as
     /// EffectConfig>::render_options_gui`](EffectConfig::render_options_gui) in the middle.
-    #[allow(unused_variables)]
     fn render_full_options_gui(&mut self, ctx: &Context, ui: &mut Ui) -> bool;
 }
 
@@ -61,10 +60,7 @@ pub trait BaseEffectConfig:
 pub trait EffectConfig: BaseEffectConfig {
     /// Render the GUI to edit the config of this effect and return whether the config has changed.
     /// The default implementation just returns false.
-    #[allow(unused_variables)]
-    fn render_options_gui(&mut self, ctx: &Context, ui: &mut Ui) -> bool {
-        false
-    }
+    fn render_options_gui(&mut self, ctx: &Context, ui: &mut Ui) -> bool;
 
     /// Load the effect configuration from the config file, or use the default if the file is
     /// unavailable. Also save the default to the file for future editing.

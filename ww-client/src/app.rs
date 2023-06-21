@@ -169,10 +169,9 @@ impl App {
             debug!(?msg, "Responding to server message");
 
             match msg {
-                ServerToClientMsg::EstablishConnection {
-                    protocol_version: _,
-                    server_version,
-                } => self.tracked_server_version = Some(server_version),
+                ServerToClientMsg::EstablishConnection { server_version, .. } => {
+                    self.tracked_server_version = Some(server_version);
+                }
 
                 ServerToClientMsg::DenyConnection {
                     protocol_version,
@@ -211,7 +210,7 @@ impl App {
                     }
                 }
                 ServerToClientMsg::TerminateConnection => {
-                    self.state = AppState::WaitingForConnection
+                    self.state = AppState::WaitingForConnection;
                 }
             }
         }
@@ -260,7 +259,7 @@ impl App {
                     });
 
                     if selected_new_effect || selected_none {
-                        Some(state.effect_name.clone())
+                        Some(state.effect_name)
                     } else {
                         None
                     }
@@ -272,9 +271,7 @@ impl App {
 
             let effect_config_changed = if let Some(config) = &mut state.effect_config {
                 ui.separator();
-                config
-                    .render_options_gui(ctx.into(), ui)
-                    .then_some(config.clone())
+                config.render_options_gui(ctx, ui).then_some(config.clone())
             } else {
                 None
             };
@@ -286,7 +283,6 @@ impl App {
 
                 self.async_runtime.spawn_pinned({
                     let message_tx = self.message_tx.clone();
-                    let name = name.clone();
 
                     move || async move {
                         message_tx
@@ -319,7 +315,6 @@ impl App {
 
                 self.async_runtime.spawn_pinned({
                     let message_tx = self.message_tx.clone();
-                    let config = config.clone();
 
                     move || async move {
                         message_tx
@@ -407,18 +402,12 @@ impl eframe::App for App {
 
         match &self.state {
             AppState::WaitingForConnection => self.display_gui_waiting_for_connection(ctx),
-            AppState::Connected {
-                state: _,
-                server_version: _,
-            } => self.display_gui_connected(ctx),
-            AppState::ProtocolMismatch {
-                server_version: _,
-                server_protocol_version: _,
-            } => self.display_gui_protocol_mismatch(ctx),
+            AppState::Connected { .. } => self.display_gui_connected(ctx),
+            AppState::ProtocolMismatch { .. } => self.display_gui_protocol_mismatch(ctx),
         };
 
         // We need to constantly be repainting the GUI so that new server messages are always
-        // processed.
+        // processed
         ctx.request_repaint();
     }
 }

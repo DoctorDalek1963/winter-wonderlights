@@ -178,7 +178,8 @@ fn create_tree_branch(
         let dy = (py - qy).abs();
         let dz = (pz - qz).abs();
 
-        f32::sqrt(dx * dx + dy * dy + dz * dz)
+        // 3D Pythagoras
+        f32::sqrt(dx.mul_add(dx, dy.mul_add(dy, dz * dz)))
     };
     let midpoint = ((px + qx) / 2., (py + qy) / 2., (pz + qz) / 2.);
 

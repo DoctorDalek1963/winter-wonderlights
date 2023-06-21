@@ -2,6 +2,8 @@
 //!
 //! It's structured like this to avoid dependency cycles.
 
+#![feature(lint_reasons)]
+
 use ww_frame::FrameType;
 
 /// The trait implemented by all drivers.

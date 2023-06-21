@@ -8,6 +8,7 @@ pub use effect::MovingPlane;
 
 use crate::effects::prelude::*;
 
+/// Contains the config for the [`MovingPlane`] effect.
 #[cfg(feature = "config-impls")]
 mod config {
     use super::*;
@@ -72,6 +73,7 @@ mod config {
     }
 }
 
+/// Contains the [`MovingPlane`] effect itself.
 #[cfg(feature = "effect-impls")]
 mod effect {
     use super::*;
@@ -122,6 +124,8 @@ mod effect {
             };
 
             let (mut point, mut frame): (Vec3, Frame3D) = {
+                /// The proportion of the length of the normal vector that we move the center point
+                /// back by until it's outside of the tree.
                 const MOVE_PROPORTION: f32 = 0.1;
 
                 // Start in the middle and reverse with normal vector until outside bounding box
@@ -146,12 +150,13 @@ mod effect {
                 (p, frame)
             };
 
+            /// Display a single frame, update the mutable variables for the next frame, then sleep.
             macro_rules! do_frame {
                 () => {
                     driver.display_frame(FrameType::Frame3D(frame));
 
-                    // We're going to sleep for 20ms every loop, which gives 50 fps. This means we want to
-                    // move 1/50th of the units per second
+                    // We're going to sleep for 20ms every loop, which gives 50 fps. This means we
+                    // want to move 1/50th of the units per second
                     point += (self.config.units_per_second / 50.) * normal;
                     frame = get_frame(point);
                     sleep!(Duration::from_millis(20));

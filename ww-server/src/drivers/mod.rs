@@ -70,7 +70,7 @@ impl Drop for DriverWrapper {
 impl Driver for DriverWrapper {
     #[inline]
     fn display_frame(&mut self, frame: FrameType) {
-        self.0.display_frame(frame)
+        self.0.display_frame(frame);
     }
 
     #[inline]

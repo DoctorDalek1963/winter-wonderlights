@@ -1,5 +1,7 @@
 //! This crate provides a [`VirtualTreeDriver`] for use in `ww-server`.
 
+#![feature(lint_reasons)]
+
 use interprocess::local_socket::{LocalSocketListener, LocalSocketStream, NameTypeSupport};
 use std::{
     io::{self, Write},

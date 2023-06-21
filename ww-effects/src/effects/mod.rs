@@ -54,17 +54,16 @@ pub(crate) use rng;
 ///
 /// This module automatically handles `config-impls` and `effect-impls` features.
 #[cfg(any(feature = "config-impls", feature = "effect-impls"))]
-#[allow(unused_imports)]
 pub(crate) mod prelude {
     /// A prelude for the [`EffectConfig`] implementations.
     #[cfg(feature = "config-impls")]
-    pub(crate) mod config_prelude {
+    pub mod config_prelude {
         pub use crate::traits::EffectConfig;
         pub use effect_proc_macros::BaseEffectConfig;
         pub use egui::{Align, Layout, RichText, Vec2};
         pub use serde::{Deserialize, Serialize};
 
-        // From ww-frame
+        /// See [`ww_frame::RGBArray`](../../../../ww_frame/type.RGBArray.html).
         pub type RGBArray = [u8; 3];
 
         /// The default spacing between UI elements.
@@ -93,7 +92,7 @@ pub(crate) mod prelude {
 
     /// A prelude for the [`Effect`] implementations.
     #[cfg(feature = "effect-impls")]
-    pub(crate) mod effect_prelude {
+    pub mod effect_prelude {
         pub(crate) use crate::{
             effects::{rng, sleep},
             traits::Effect,
@@ -105,7 +104,6 @@ pub(crate) mod prelude {
         pub use tracing::{debug, error, info, instrument, trace, warn};
         pub use tracing_unwrap::{OptionExt, ResultExt};
         pub use ww_driver_trait::Driver;
-        use ww_frame::RGBArray;
         pub use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object};
     }
 
@@ -121,6 +119,10 @@ pub mod maths;
 pub use self::effects::*;
 
 /// This module re-exports all the [`Effect`] implementors.
+#[allow(
+    clippy::module_inception,
+    reason = "this module re-exports all the Effect types, so this name makes sense"
+)]
 #[cfg(feature = "effect-impls")]
 pub mod effects {
     pub use super::{

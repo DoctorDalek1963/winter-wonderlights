@@ -8,6 +8,7 @@ pub use effect::DebugOneByOne;
 
 use crate::effects::prelude::*;
 
+/// Contains the config for the [`DebugOneByOne`] effect.
 #[cfg(feature = "config-impls")]
 mod config {
     use super::*;
@@ -74,12 +75,13 @@ mod config {
     }
 }
 
+/// Contains the [`DebugOneByOne`] effect itself.
 #[cfg(feature = "effect-impls")]
 mod effect {
     use super::*;
 
     /// Light up each light individually, one-by-one.
-    #[derive(Clone, Debug, Default, PartialEq, BaseEffect)]
+    #[derive(Clone, Debug, Default, PartialEq, Eq, BaseEffect)]
     pub struct DebugOneByOne {
         /// The config for this effect.
         config: DebugOneByOneConfig,
