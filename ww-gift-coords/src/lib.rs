@@ -133,7 +133,8 @@ impl GIFTCoords {
             let dy = (-1. - y).max(0.).max(y - 1.);
             let dz = (-z).max(0.).max(z - self.max_z);
 
-            f32::sqrt(dx * dx + dy * dy + dz * dz)
+            // 3D Pythagoras
+            f32::sqrt(dx.mul_add(dx, dy.mul_add(dy, dz * dz)))
         }
     }
 
@@ -215,7 +216,7 @@ mod tests {
                     &int_coords
                         .iter()
                         .map(|&(x, y, z)| (x + 500, y, z))
-                        .collect()
+                        .collect::<Vec<_>>()
                 )
                 .unwrap_or_log(),
                 gift_coords()
@@ -229,7 +230,7 @@ mod tests {
                     &int_coords
                         .iter()
                         .map(|&(x, y, z)| (x - 493, y + 112, z + 1000))
-                        .collect()
+                        .collect::<Vec<_>>()
                 )
                 .unwrap_or_log(),
                 gift_coords()
