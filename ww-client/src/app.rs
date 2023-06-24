@@ -3,17 +3,19 @@
 use async_channel::{Receiver, Sender};
 use egui::RichText;
 use ewebsock::{WsEvent, WsMessage, WsReceiver};
-use futures_channel::oneshot;
 use prokio::time::sleep;
-use std::time::Duration;
+use std::{
+    sync::{Arc, RwLock},
+    time::Duration,
+};
 use strum::IntoEnumIterator;
-use tracing::{debug, error, instrument, warn};
+use tracing::{debug, error, info, instrument, warn};
 use tracing_unwrap::ResultExt;
 use ww_effects::EffectNameList;
 use ww_shared::{ClientState, ClientToServerMsg, ServerToClientMsg};
 
 /// The current state of the app and its connection to the server.
-#[derive(Debug)]
+#[derive(Clone, Debug, PartialEq)]
 enum AppState {
     /// We're currently waiting to connect to the server. [`ServerToClientMsg::EstablishConnection`] has not yet been received.
     WaitingForConnection,
@@ -46,8 +48,12 @@ pub struct App {
     /// The sender end of a channel used to send messages to the server.
     message_tx: Sender<ClientToServerMsg>,
 
+    /// The transmitter end of a broadcast channel which can signal when to try to reconnect to the
+    /// server.
+    reconnect_tx: async_broadcast::Sender<()>,
+
     /// The state of the client.
-    state: AppState,
+    state: Arc<RwLock<AppState>>,
 
     /// An async runtime used to send async messages.
     async_runtime: prokio::Runtime,
@@ -63,101 +69,165 @@ impl App {
         let (server_tx, server_rx) = async_channel::unbounded();
         let (message_tx, message_rx) = async_channel::unbounded();
 
-        // Get initial state
-        prokio::Runtime::default().spawn_pinned({
+        let (reconnect_tx, reconnect_rx) = async_broadcast::broadcast(1);
+
+        let state = Arc::new(RwLock::new(AppState::WaitingForConnection));
+        let async_runtime = prokio::Runtime::default();
+
+        // Connect to the server
+        async_runtime.spawn_pinned({
             let message_tx = message_tx.clone();
+            let mut reconnect_rx = reconnect_rx.clone();
+            let reconnect_tx = reconnect_tx.clone();
+            let state = state.clone();
+
             move || async move {
-                prokio::time::sleep(Duration::from_millis(800)).await;
-                match message_tx
-                    .send(ClientToServerMsg::EstablishConnection {
-                        protocol_version: ww_shared::CRATE_VERSION.to_string(),
-                    })
-                    .await
-                {
-                    Ok(()) => (),
-                    Err(e) => error!(?e, "Error sending message down channel"),
-                };
-                prokio::time::sleep(Duration::from_millis(500)).await;
-                match message_tx.send(ClientToServerMsg::RequestUpdate).await {
-                    Ok(()) => (),
-                    Err(e) => error!(?e, "Error sending message down channel"),
-                };
+                Self::send_establish_connection(message_tx.clone()).await;
+
+                loop {
+                    if reconnect_rx.try_recv().is_ok() {
+                        Self::send_establish_connection(message_tx.clone()).await;
+                        continue;
+                    }
+
+                    // This is done to ensure the lock isn't held across an await point
+                    let reconnect = matches!(state.try_read(), Ok(state) if *state == AppState::WaitingForConnection);
+                    if reconnect {
+                        reconnect_tx
+                            .broadcast(())
+                            .await
+                            .expect_or_log("Should be able to send () down reconnect channel");
+                    }
+
+                    sleep(Duration::from_secs(1)).await;
+                }
             }
         });
 
-        let (ws_receiver_oneshot_tx, ws_receiver_oneshot_rx) = oneshot::channel();
+        let (ws_receiver_oneshot_tx, ws_receiver_oneshot_rx) = async_channel::bounded(1);
 
-        prokio::Runtime::default()
-            .spawn_pinned(move || Self::send_messages(message_rx, ws_receiver_oneshot_tx));
-        prokio::Runtime::default()
-            .spawn_pinned(move || Self::receive_messages(server_tx, ws_receiver_oneshot_rx));
+        async_runtime.spawn_pinned({
+            let reconnect_rx = reconnect_rx.clone();
+            move || Self::send_messages_to_server(message_rx, ws_receiver_oneshot_tx, reconnect_rx)
+        });
+        async_runtime.spawn_pinned({
+            move || {
+                Self::receive_messages_from_server(server_tx, ws_receiver_oneshot_rx, reconnect_rx)
+            }
+        });
 
         Self {
             server_rx,
             message_tx,
-            state: AppState::WaitingForConnection,
-            async_runtime: prokio::Runtime::default(),
+            reconnect_tx,
+            state,
+            async_runtime,
             tracked_server_version: None,
         }
+    }
+
+    /// Send the [`ClientToServerMsg::EstablishConnection`] message down the channel.
+    #[instrument(skip_all)]
+    async fn send_establish_connection(tx: Sender<ClientToServerMsg>) {
+        info!("Sending EstablishConnection down channel");
+
+        match tx
+            .send(ClientToServerMsg::EstablishConnection {
+                protocol_version: ww_shared::CRATE_VERSION.to_string(),
+            })
+            .await
+        {
+            Ok(()) => (),
+            Err(e) => error!(?e, "Error sending message down channel"),
+        };
     }
 
     /// Recieve [`ClientToServerMsg`]s on the channel and send them to the server.
     ///
     /// This function also connects to the server using WebSockets and sends the [`WsReceiver`]
-    /// down the given oneshot channel so that [`Self::receive_messages`] can listen to the server.
+    /// down the given channel so that [`Self::receive_messages_from_server`] can listen to the server.
     #[instrument(skip_all)]
-    async fn send_messages(
+    async fn send_messages_to_server(
         rx: Receiver<ClientToServerMsg>,
-        ws_receiver_oneshot_tx: oneshot::Sender<WsReceiver>,
+        ws_receiver_tx: Sender<WsReceiver>,
+        mut reconnect_rx: async_broadcast::Receiver<()>,
     ) {
-        let (mut ws_sender, ws_receiver) =
-            ewebsock::connect(env!("SERVER_URL")).expect_or_log("Should be able to use WebSockets");
+        loop {
+            let (mut ws_sender, ws_receiver) = ewebsock::connect(env!("SERVER_URL"))
+                .expect_or_log("Should be able to use WebSockets");
 
-        match ws_receiver_oneshot_tx.send(ws_receiver) {
-            Ok(()) => (),
-            Err(_ws_receiver) => {
-                error!("Failed to send WsReceiver down channel");
-                panic!("Failed to send WsReceiver down channel");
+            match ws_receiver_tx.send(ws_receiver).await {
+                Ok(()) => (),
+                Err(error) => {
+                    error!(?error, "Failed to send WsReceiver down channel");
+                    panic!("Failed to send WsReceiver down channel");
+                }
+            };
+
+            sleep(Duration::from_millis(500)).await;
+
+            loop {
+                if reconnect_rx.try_recv().is_ok() {
+                    // Try to connect again with ewebsock::connect() at the top of this function
+                    debug!("Trying to reconnect to server");
+                    drop(ws_sender);
+                    break;
+                }
+
+                //while let Ok(msg) = rx.recv().await {
+                if let Ok(msg) = rx.try_recv() {
+                    debug!(?msg, "Sending message to server");
+                    ws_sender
+                        .send(WsMessage::Binary(bincode::serialize(&msg).expect_or_log(
+                            "Should be able to serialize a ClientToServerMsg",
+                        )));
+                } else {
+                    sleep(Duration::from_millis(10)).await;
+                }
             }
-        };
-
-        while let Ok(msg) = rx.recv().await {
-            debug!(?msg, "Sending message to server");
-            ws_sender
-                .send(WsMessage::Binary(bincode::serialize(&msg).expect_or_log(
-                    "Should be able to serialize a ClientToServerMsg",
-                )));
         }
     }
 
     /// Receive [`ServerToClientMsg`]s over the internet and send them down the channel so that
     /// [`Self::respond_to_server_messages`] can respond to them.
     #[instrument(skip_all)]
-    async fn receive_messages(
+    async fn receive_messages_from_server(
         tx: Sender<ServerToClientMsg>,
-        ws_receiver_oneshot_rx: oneshot::Receiver<WsReceiver>,
+        ws_receiver_rx: Receiver<WsReceiver>,
+        mut reconnect_rx: async_broadcast::Receiver<()>,
     ) {
-        let ws_receiver = ws_receiver_oneshot_rx
-            .await
-            .expect_or_log("Should be able to receive WsReceiver down channel");
-
         loop {
-            if let Some(WsEvent::Message(msg)) = ws_receiver.try_recv() {
-                match msg {
-                    WsMessage::Binary(bytes) => {
-                        let msg: ServerToClientMsg = bincode::deserialize(&bytes)
-                            .expect_or_log("Failed to deserialize bytes of message");
-                        tx.send(msg)
-                            .await
-                            .expect_or_log("Should be able to send ServerToClientMsg down channel");
-                    }
-                    msg => error!(
-                        ?msg,
-                        "Unexpected WebSocket message type - we only expect binary messages"
-                    ),
+            let ws_receiver = ws_receiver_rx
+                .recv()
+                .await
+                .expect_or_log("Should be able to receive WsReceiver down channel");
+
+            loop {
+                if reconnect_rx.try_recv().is_ok() {
+                    // Try to receive a new ws_receiver
+                    debug!("Trying to reconnect to server");
+                    drop(ws_receiver);
+                    break;
                 }
-            } else {
-                sleep(Duration::from_millis(10)).await;
+
+                // Try to receive a message over the WebSocket and send it to `respond_to_server_messages`
+                if let Some(WsEvent::Message(msg)) = ws_receiver.try_recv() {
+                    match msg {
+                        WsMessage::Binary(bytes) => {
+                            let msg: ServerToClientMsg = bincode::deserialize(&bytes)
+                                .expect_or_log("Failed to deserialize bytes of message");
+                            tx.send(msg).await.expect_or_log(
+                                "Should be able to send ServerToClientMsg down channel",
+                            );
+                        }
+                        msg => error!(
+                            ?msg,
+                            "Unexpected WebSocket message type - we only expect binary messages"
+                        ),
+                    }
+                } else {
+                    sleep(Duration::from_millis(10)).await;
+                }
             }
         }
     }
@@ -183,7 +253,7 @@ impl App {
                         ?server_version,
                         "Protocol version mismatch"
                     );
-                    self.state = AppState::ProtocolMismatch {
+                    *self.state.write().unwrap_or_log() = AppState::ProtocolMismatch {
                         server_version,
                         server_protocol_version: protocol_version,
                     };
@@ -191,7 +261,7 @@ impl App {
 
                 ServerToClientMsg::UpdateClientState(state) => {
                     if let Some(server_version) = &self.tracked_server_version {
-                        self.state = AppState::Connected {
+                        *self.state.write().unwrap_or_log() = AppState::Connected {
                             state,
                             server_version: server_version.clone(),
                         }
@@ -210,7 +280,15 @@ impl App {
                     }
                 }
                 ServerToClientMsg::TerminateConnection => {
-                    self.state = AppState::WaitingForConnection;
+                    *self.state.write().unwrap_or_log() = AppState::WaitingForConnection;
+
+                    let reconnect_tx = self.reconnect_tx.clone();
+                    self.async_runtime.spawn_pinned(move || async move {
+                        reconnect_tx
+                            .broadcast(())
+                            .await
+                            .expect_or_log("Should be able to send () down reconnect channel");
+                    });
                 }
             }
         }
@@ -228,8 +306,8 @@ impl App {
     /// is [`AppState::Connected`] and will panic if it's not.
     #[instrument(skip_all)]
     fn display_gui_connected(&mut self, ctx: &eframe::egui::Context) {
-        let AppState::Connected { state, server_version } = &mut self.state else {
-            panic!("App::display_gui_connected must only be called when state == AppState::Connected, not {:?}", self.state);
+        let AppState::Connected { state, server_version } = &mut *self.state.write().unwrap_or_log() else {
+            panic!("App::display_gui_connected must only be called when state == AppState::Connected, not {:?}", self.state.read().unwrap_or_log());
         };
 
         egui::CentralPanel::default().show(ctx, |ui| {
@@ -362,8 +440,8 @@ impl App {
     /// [`AppState::ProtocolMismatch`] and will panic if it's not.
     #[instrument(skip_all)]
     fn display_gui_protocol_mismatch(&mut self, ctx: &eframe::egui::Context) {
-        let AppState::ProtocolMismatch { server_version, server_protocol_version } = &self.state else {
-            panic!("App::display_gui_protocol_mismatch must only be called when state == AppState::ProtocolMismatch, not {:?}", self.state);
+        let AppState::ProtocolMismatch { server_version, server_protocol_version } = &*self.state.read().unwrap_or_log() else {
+            panic!("App::display_gui_protocol_mismatch must only be called when state == AppState::ProtocolMismatch, not {:?}", self.state.read());
         };
 
         egui::CentralPanel::default().show(ctx, |ui| {
@@ -400,7 +478,8 @@ impl eframe::App for App {
     fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
         self.respond_to_server_messages();
 
-        match &self.state {
+        let state = self.state.read().unwrap_or_log().clone();
+        match state {
             AppState::WaitingForConnection => self.display_gui_waiting_for_connection(ctx),
             AppState::Connected { .. } => self.display_gui_connected(ctx),
             AppState::ProtocolMismatch { .. } => self.display_gui_protocol_mismatch(ctx),

@@ -130,6 +130,7 @@ async fn handle_connection(
                         protocol_version: ww_shared::CRATE_VERSION.to_string(),
                         server_version: crate::CRATE_VERSION.to_string(),
                     });
+                    send_update_client_state();
                 } else {
                     warn!(
                         client_protocol_version = protocol_version,

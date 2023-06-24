@@ -9,13 +9,14 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
+async-broadcast = "0.5.1"
 async-channel = "1.8.0"
 bincode.workspace = true
 cfg-if.workspace = true
 eframe = { version = "0.22.0", features = ["persistence"] }
 egui.workspace = true
 ewebsock = { version = "0.2.0", features = ["tls"] }
-futures-channel = "0.3.28"
+futures = "0.3.28"
 prokio = "0.1.0"
 ron.workspace = true
 strum.workspace = true
