@@ -97,7 +97,7 @@ pub(crate) mod prelude {
             effects::{rng, sleep},
             traits::Effect,
         };
-        pub use effect_proc_macros::BaseEffect;
+        pub use effect_proc_macros::{end_loop_in_test_or_bench, BaseEffect};
         pub use glam::{Quat, Vec3};
         pub use rand::{rngs::StdRng, Rng};
         pub use std::time::Duration;

@@ -5,6 +5,7 @@
 use proc_macro::TokenStream;
 
 mod derive;
+mod end_loop;
 mod generate_lists_and_impls;
 
 /// Derive the [`BaseEffect`](../ww_effects/traits/trait.BaseEffect.html) trait for the given type.
@@ -33,4 +34,10 @@ pub fn derive_base_effect_config(input: TokenStream) -> TokenStream {
 #[proc_macro]
 pub fn generate_lists_and_impls(input: TokenStream) -> TokenStream {
     generate_lists_and_impls::generate_lists_and_impls(input)
+}
+
+/// End a loop after 100 iterations in test or benchmark builds.
+#[proc_macro_attribute]
+pub fn end_loop_in_test_or_bench(_args: TokenStream, input: TokenStream) -> TokenStream {
+    end_loop::end_loop_in_test_or_bench(input.into()).into()
 }

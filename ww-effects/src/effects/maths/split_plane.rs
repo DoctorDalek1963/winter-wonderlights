@@ -174,9 +174,7 @@ mod effect {
 
             let mut normal = Vec3::Z;
 
-            #[cfg(any(test, feature = "bench"))]
-            let mut counter: u8 = 0;
-
+            #[end_loop_in_test_or_bench]
             loop {
                 let point_on_plane = if self.config.rotation_axis_vertical_oscillation_period != 0.
                 {
@@ -214,14 +212,6 @@ mod effect {
                 //trace!(length = normal.clone().length());
 
                 sleep!(Duration::from_millis(10));
-
-                #[cfg(any(test, feature = "bench"))]
-                {
-                    counter += 1;
-                    if counter > 100 {
-                        break;
-                    }
-                }
             }
         }
     }

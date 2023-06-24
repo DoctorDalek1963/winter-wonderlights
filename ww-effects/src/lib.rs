@@ -4,6 +4,8 @@
 #![feature(async_fn_in_trait)]
 #![feature(let_chains)]
 #![feature(lint_reasons)]
+#![feature(proc_macro_hygiene)]
+#![feature(stmt_expr_attributes)]
 #![cfg_attr(
     any(test, feature = "bench"),
     allow(

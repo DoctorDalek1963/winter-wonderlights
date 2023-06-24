@@ -164,9 +164,7 @@ mod effect {
             }
             trace!(?spheres);
 
-            #[cfg(any(test, feature = "bench"))]
-            let mut counter: u8 = 0;
-
+            #[end_loop_in_test_or_bench]
             loop {
                 let sphere_frame_objects = spheres
                     .iter()
@@ -192,14 +190,6 @@ mod effect {
                 }
 
                 sleep!(Duration::from_millis(100));
-
-                #[cfg(any(test, feature = "bench"))]
-                {
-                    counter += 1;
-                    if counter > 100 {
-                        break;
-                    }
-                }
             }
         }
     }
