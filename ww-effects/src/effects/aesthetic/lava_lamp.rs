@@ -138,6 +138,10 @@ mod effect {
     }
 
     impl Effect for LavaLamp {
+        #[allow(
+            clippy::semicolon_if_nothing_returned,
+            reason = "this is a bodge for #[end_loop_in_test_or_bench]"
+        )]
         async fn run(mut self, driver: &mut dyn Driver) {
             // Spawn some spheres (number in config?) and gradually change their sizes and colours over
             // time while moving them all up and down at random speeds

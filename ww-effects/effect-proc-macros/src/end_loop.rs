@@ -44,7 +44,12 @@ pub fn end_loop_in_test_or_bench(input: TokenStream) -> TokenStream {
                 }
             };
 
+            // TODO: Fix this clippy trigger or make the #[allow] actually work properly
             quote! {
+                #[allow(
+                    clippy::semicolon_if_nothing_returned,
+                    reason = "false positive"
+                )]
                 {
                     #[cfg(any(test, feature = "bench"))]
                     let mut end_loop_in_test_or_bench_counter = 0u8;

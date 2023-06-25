@@ -157,6 +157,10 @@ mod effect {
     }
 
     impl Effect for SplitPlane {
+        #[allow(
+            clippy::semicolon_if_nothing_returned,
+            reason = "this is a bodge for #[end_loop_in_test_or_bench]"
+        )]
         async fn run(self, driver: &mut dyn Driver) {
             let middle_point = Vec3::new(
                 0.,
