@@ -36,6 +36,9 @@ ww-shared.workspace = true
 # driver-virtual-tree
 virtual-tree = { path = "../drivers/virtual-tree", optional = true }
 
+# driver-raspi-ws2811
+raspi-ws2811 = { path = "../drivers/raspi-ws2811", optional = true }
+
 [features]
 # To let rust-analyzer run faster
 default = ["driver-debug"]
@@ -45,3 +48,6 @@ driver-debug = []
 
 # Display the effect on a virtual tree render with Bevy - uses `coords.gift` to work out where the lights are.
 driver-virtual-tree = ["dep:virtual-tree"]
+
+# Display the effect on WS2811 RGB LEDs on a Raspberry Pi.
+driver-raspi-ws2811 = ["dep:raspi-ws2811"]

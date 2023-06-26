@@ -1,0 +1,16 @@
+[package]
+name = "raspi-ws2811"
+version = "0.1.0-dev"
+description = "The Winter WonderLights driver for the WS2811 RGB LEDs for the Raspberry Pi."
+authors.workspace = true
+edition.workspace = true
+publish.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+rppal = "0.14.1"
+tracing.workspace = true
+ww-driver-trait.workspace = true
+ww-frame.workspace = true
+ww-gift-coords.workspace = true
