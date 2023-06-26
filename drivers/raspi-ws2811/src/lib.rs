@@ -23,6 +23,7 @@ impl Ws2811Driver {
     /// Initialise the lights on GPIO pin 18, assuming high speed mode.
     #[instrument]
     pub fn init() -> Self {
+        /// Handle the given error by logging an appropriate error message and panicking.
         macro_rules! handle_error {
             ($error:ident) => {{
                 match $error {
@@ -72,6 +73,7 @@ impl Ws2811Driver {
 
     /// Send the given bits, highest bit first.
     fn send_bits(&mut self, bits: u8) {
+        /// Mask off the bits and send the appropriate bit on the data line.
         macro_rules! send_mask {
             ($mask:literal) => {
                 if bits & $mask == $mask {
@@ -82,14 +84,14 @@ impl Ws2811Driver {
             };
         }
 
-        send_mask!(0b10000000);
-        send_mask!(0b01000000);
-        send_mask!(0b00100000);
-        send_mask!(0b00010000);
-        send_mask!(0b00001000);
-        send_mask!(0b00000100);
-        send_mask!(0b00000010);
-        send_mask!(0b00000001);
+        send_mask!(0b1000_0000);
+        send_mask!(0b0100_0000);
+        send_mask!(0b0010_0000);
+        send_mask!(0b0001_0000);
+        send_mask!(0b0000_1000);
+        send_mask!(0b0000_0100);
+        send_mask!(0b0000_0010);
+        send_mask!(0b0000_0001);
     }
 
     /// Send the RGB colour down the data line.
