@@ -95,6 +95,7 @@ pub fn run_effect(client_state: WrappedClientState, kill_thread: oneshot::Receiv
                         // TODO: Allow custom pause time
                         tokio::time::sleep(Duration::from_millis(500)).await;
 
+                        client_state.save_config();
                         info!(
                             "Looping effect {:?}",
                             read_state!(state => state.effect_name.map_or("None", |x| x.effect_name()))
@@ -118,7 +119,10 @@ pub fn run_effect(client_state: WrappedClientState, kill_thread: oneshot::Receiv
             // If we get told to kill this thread, then immediately return. This manual return
             // ensures that `driver` gets dropped, so that its drop impl gets correctly called
             _ = kill_thread => {
-                #[allow(clippy::needless_return, reason = "this explicit return is clearer than an implicit one")]
+                #[allow(
+                    clippy::needless_return,
+                    reason = "this explicit return is clearer than an implicit one"
+                )]
                 return;
             }
 

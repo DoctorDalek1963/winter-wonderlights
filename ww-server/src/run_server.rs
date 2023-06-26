@@ -298,14 +298,14 @@ pub async fn run_server(
         .await
         .expect_or_log("Unable to start TcpListener");
 
-    // Save the effect config every 10 seconds
+    // Save the effect config every minute
     thread::Builder::new()
         .name("client-state-save-config".to_string())
         .spawn({
             let state = client_state.clone();
             move || loop {
                 state.save_config();
-                thread::sleep(Duration::from_secs(10));
+                thread::sleep(Duration::from_secs(60));
             }
         })
         .unwrap_or_log();

@@ -83,6 +83,7 @@ impl Deref for WrappedClientState {
 
 impl Drop for WrappedClientState {
     fn drop(&mut self) {
+        self.save_config();
         self.read()
             .unwrap_or_log()
             .save_to_file(SERVER_STATE_FILENAME);
