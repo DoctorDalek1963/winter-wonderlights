@@ -9,8 +9,9 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
-rppal = "0.14.1"
+rs_ws281x = "0.4.4"
 tracing.workspace = true
+tracing-unwrap.workspace = true
 ww-driver-trait.workspace = true
 ww-frame.workspace = true
 ww-gift-coords.workspace = true

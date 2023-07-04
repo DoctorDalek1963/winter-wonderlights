@@ -1,112 +1,85 @@
 //! This crate provides a driver to run WS2811 RGB LEDs on a Raspberry Pi.
 //!
 //! See <https://pdf1.alldatasheet.com/datasheet-pdf/view/1132633/WORLDSEMI/WS2811.html> for the
-//! datasheet.
+//! datasheet and <https://docs.rs/rs_ws281x/0.4.4/rs_ws281x> for the backend used to power this
+//! driver.
 
 #![feature(lint_reasons)]
 
-use rppal::gpio::{Error, Gpio, OutputPin};
-use std::{thread, time::Duration};
-use tracing::{error, instrument};
+use rs_ws281x::{ChannelBuilder, Controller, ControllerBuilder, StripType};
+use tracing::instrument;
+use tracing_unwrap::ResultExt;
 use ww_driver_trait::Driver;
 use ww_frame::FrameType;
 use ww_gift_coords::COORDS;
 
+/// The frequency of the signal to the LEDs in Hz.
+///
+/// 800_000 is a good default but it should never go below 400_000.
+const FREQUENCY: u32 = 800_000;
+
+/// The channel number for DMA.
+///
+/// 10 is a good default but you MUST AVOID 0, 1, 2, 3, 5, 6, or 7.
+/// Make sure this DMA channel is not already in use.
+const DMA_CHANNEL_NUMBER: i32 = 10;
+
+/// The GPIO pin number of the pin to send data down.
+///
+/// 18 is a good default but this can be any pin which is capable of any of PCM, PWM, or SPI. See
+/// <https://pinout.xyz> for details on which pins support these.
+const GPIO_PIN_NUMBER: i32 = 18;
+
+/// The type of the LED strip.
+///
+/// `Ws2811Rgb` is a good default but see
+/// <https://docs.rs/rs_ws281x/0.4.4/rs_ws281x/enum.StripType.html> for all the options.
+const STRIP_TYPE: StripType = StripType::Ws2811Rgb;
+
 /// A driver that can run WS2811 RGB LEDs on a Raspberry Pi.
 pub struct Ws2811Driver {
-    /// The pin to output data on.
-    pin: OutputPin,
+    /// The internal controller for the LEDs.
+    controller: Controller,
 }
 
-// TODO: Allow specifying things like pin number and high/low speed mode in build.rs
 impl Ws2811Driver {
-    /// Initialise the lights on GPIO pin 18, assuming high speed mode.
+    /// Initialise the driver.
     #[instrument]
     pub fn init() -> Self {
-        /// Handle the given error by logging an appropriate error message and panicking.
-        macro_rules! handle_error {
-            ($error:ident) => {{
-                match $error {
-                    Error::UnknownModel => error!("Unknown model. driver-raspi-ws2811 only works on Raspberry Pis which are supported by rppal. Is this a Raspberry Pi?"),
-                    Error::PinUsed(_) | Error::PinNotAvailable(_) => error!("Pin unavailable. Please free up GPIO pin 18 and try again"),
-                    Error::PermissionDenied(msg) => error!(?msg, "Permission denied. Please enable GPIO pin access for the current user or run as root"),
-                    error => error!(?error, "Unknown error when initialising driver"),
-                };
-                panic!("Error when initialising driver. See logs for more info.");
-            }};
+        let controller = ControllerBuilder::new()
+            .freq(FREQUENCY)
+            .dma(DMA_CHANNEL_NUMBER)
+            .channel(
+                0,
+                ChannelBuilder::new()
+                    .pin(GPIO_PIN_NUMBER)
+                    .count(COORDS.lights_num() as _)
+                    .strip_type(STRIP_TYPE)
+                    .brightness(255)
+                    .build(),
+            )
+            .build()
+            .expect_or_log("Failed to build controller for raspi-ws2811 driver");
+
+        Self { controller }
+    }
+
+    /// Display the given RGB colours on the lights.
+    #[instrument(skip_all)]
+    fn display_colours(&mut self, colours: &[[u8; 3]]) {
+        let leds = self.controller.leds_mut(0);
+
+        for (idx, &[r, g, b]) in colours.into_iter().enumerate() {
+            if let Some(colour) = leds.get_mut(idx) {
+                *colour = [b, g, r, 0];
+            } else {
+                break;
+            }
         }
 
-        let gpio = match Gpio::new() {
-            Ok(gpio) => gpio,
-            Err(error) => handle_error!(error),
-        };
-
-        let pin = match gpio.get(18) {
-            Ok(pin) => pin.into_output_low(),
-            Err(error) => handle_error!(error),
-        };
-
-        Self { pin }
-    }
-
-    /// Send a 0 bit down the data line.
-    fn send_0_bit(&mut self) {
-        self.pin.set_high();
-        thread::sleep(Duration::from_nanos(250));
-        self.pin.set_low();
-        thread::sleep(Duration::from_nanos(1000));
-    }
-
-    /// Send a 1 bit down the data line.
-    fn send_1_bit(&mut self) {
-        self.pin.set_high();
-        thread::sleep(Duration::from_nanos(600));
-        self.pin.set_low();
-        thread::sleep(Duration::from_nanos(650));
-    }
-
-    /// Send a reset signal down the data line.
-    fn send_reset(&mut self) {
-        self.pin.set_low();
-        thread::sleep(Duration::from_micros(51));
-    }
-
-    /// Send the given bits, highest bit first.
-    fn send_bits(&mut self, bits: u8) {
-        /// Mask off the bits and send the appropriate bit on the data line.
-        macro_rules! send_mask {
-            ($mask:literal) => {
-                if bits & $mask == $mask {
-                    self.send_1_bit();
-                } else {
-                    self.send_0_bit();
-                }
-            };
-        }
-
-        send_mask!(0b1000_0000);
-        send_mask!(0b0100_0000);
-        send_mask!(0b0010_0000);
-        send_mask!(0b0001_0000);
-        send_mask!(0b0000_1000);
-        send_mask!(0b0000_0100);
-        send_mask!(0b0000_0010);
-        send_mask!(0b0000_0001);
-    }
-
-    /// Send the RGB colour down the data line.
-    fn send_rgb(&mut self, [red, green, blue]: [u8; 3]) {
-        self.send_bits(red);
-        self.send_bits(green);
-        self.send_bits(blue);
-    }
-
-    /// Send the given colours and then send the reset signal.
-    fn send_colours_and_reset(&mut self, colours: &[[u8; 3]]) {
-        for rgb in colours {
-            self.send_rgb(*rgb);
-        }
-        self.send_reset();
+        self.controller
+            .render()
+            .expect_or_log("Should be able to render LEDs through controller");
     }
 }
 
@@ -117,7 +90,7 @@ impl Driver for Ws2811Driver {
             FrameType::RawData(data) => data,
             FrameType::Frame3D(frame) => frame.to_raw_data(),
         };
-        self.send_colours_and_reset(&colours);
+        self.display_colours(&colours);
     }
 
     #[inline]
