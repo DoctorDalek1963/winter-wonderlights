@@ -15,7 +15,7 @@ use ww_gift_coords::COORDS;
 
 /// The frequency of the signal to the LEDs in Hz.
 ///
-/// 800_000 is a good default but it should never go below 400_000.
+/// 800,000 is a good default but it should never go below 400,000.
 const FREQUENCY: u32 = 800_000;
 
 /// The channel number for DMA.
@@ -69,7 +69,7 @@ impl Ws2811Driver {
     fn display_colours(&mut self, colours: &[[u8; 3]]) {
         let leds = self.controller.leds_mut(0);
 
-        for (idx, &[r, g, b]) in colours.into_iter().enumerate() {
+        for (idx, &[r, g, b]) in colours.iter().enumerate() {
             if let Some(colour) = leds.get_mut(idx) {
                 *colour = [b, g, r, 0];
             } else {

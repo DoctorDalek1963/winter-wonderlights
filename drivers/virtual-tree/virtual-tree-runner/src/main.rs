@@ -139,7 +139,7 @@ fn update_lights(
             trace!(?idx, "After, color = {:?}", mat.emissive);
             let _ = materials.set(handle, mat);
 
-            for &child in children.iter() {
+            for &child in children {
                 // Set colour of light
                 let mut point_light = child_query.get_mut(child).unwrap_or_log();
                 point_light.color = new_colour;

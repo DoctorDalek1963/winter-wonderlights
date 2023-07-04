@@ -306,7 +306,11 @@ impl App {
     /// is [`AppState::Connected`] and will panic if it's not.
     #[instrument(skip_all)]
     fn display_gui_connected(&mut self, ctx: &eframe::egui::Context) {
-        let AppState::Connected { state, server_version } = &mut *self.state.write().unwrap_or_log() else {
+        let AppState::Connected {
+            state,
+            server_version,
+        } = &mut *self.state.write().unwrap_or_log()
+        else {
             panic!("App::display_gui_connected must only be called when state == AppState::Connected, not {:?}", self.state.read().unwrap_or_log());
         };
 
@@ -440,7 +444,11 @@ impl App {
     /// [`AppState::ProtocolMismatch`] and will panic if it's not.
     #[instrument(skip_all)]
     fn display_gui_protocol_mismatch(&mut self, ctx: &eframe::egui::Context) {
-        let AppState::ProtocolMismatch { server_version, server_protocol_version } = &*self.state.read().unwrap_or_log() else {
+        let AppState::ProtocolMismatch {
+            server_version,
+            server_protocol_version,
+        } = &*self.state.read().unwrap_or_log()
+        else {
             panic!("App::display_gui_protocol_mismatch must only be called when state == AppState::ProtocolMismatch, not {:?}", self.state.read());
         };
 
