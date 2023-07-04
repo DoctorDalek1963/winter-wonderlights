@@ -37,7 +37,7 @@ jobs:
         with:
           targets: armv7-unknown-linux-gnueabihf wasm32-unknown-unknown
 
-      - run: sudo apt install libclang-dev
+      - run: sudo apt install gcc-arm-linux-gnueabihf libclang-dev llvm
       - run: just check
 
   clippy:
@@ -74,7 +74,7 @@ jobs:
 
     strategy:
       matrix:
-        driver: ['driver-debug', 'driver-virtual-tree', 'driver-raspi-ws2811 --target armv7-unknown-linux-gnueabihf']
+        driver: ['driver-debug', 'driver-virtual-tree', 'driver-raspi-ws2811 --target=armv7-unknown-linux-gnueabihf']
 
     steps:
       - uses: actions/checkout@v3
@@ -83,7 +83,7 @@ jobs:
         with:
           targets: armv7-unknown-linux-gnueabihf
 
-      - if: "${{ matrix.driver == 'driver-raspi-ws2811 --target armv7-unknown-linux-gnueabihf' }}"
-        run: sudo apt install libclang-dev
+      - if: "${{ matrix.driver == 'driver-raspi-ws2811 --target=armv7-unknown-linux-gnueabihf' }}"
+        run: sudo apt install gcc-arm-linux-gnueabihf libclang-dev llvm
 
-      - run: just build "${{ matrix.driver }}"
+      - run: just build ${{ matrix.driver }}
