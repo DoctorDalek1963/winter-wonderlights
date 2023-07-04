@@ -14,6 +14,7 @@ bench filter='':
 _check flags='':
 	cd {{justfile_directory()}}/ww-server && cargo check --no-default-features --features driver-debug {{flags}}
 	cd {{justfile_directory()}}/ww-server && cargo check --no-default-features --features driver-virtual-tree {{flags}}
+	cd {{justfile_directory()}}/ww-server && cargo check --no-default-features --features driver-raspi-ws2811 --target armv7-unknown-linux-gnueabihf {{flags}}
 	cd {{justfile_directory()}}/ww-client && cargo check {{flags}}
 	cd {{justfile_directory()}}/ww-client && cargo check --target wasm32-unknown-unknown {{flags}}
 
@@ -32,12 +33,12 @@ _build_server_client driver flags='':
 	cd {{justfile_directory()}}/ww-client && trunk build {{flags}}
 
 # build the server and client in debug mode
-build driver:
-	@just _build_server_client {{driver}}
+build driver flags='':
+	@just _build_server_client {{driver}} {{flags}}
 
 # build the server and client in release mode
-build-release driver:
-	@just _build_server_client {{driver}} '--release'
+build-release driver flags='':
+	@just _build_server_client {{driver}} '--release' {{flags}}
 
 # watch the server and rerun anytime the code is changed
 watch-server flags='':
