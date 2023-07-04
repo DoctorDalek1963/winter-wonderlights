@@ -27,19 +27,6 @@ jobs:
 
       - run: cargo fmt --all --check
 
-  check:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: ./.github/setup
-        with:
-          targets: armv7-unknown-linux-gnueabihf wasm32-unknown-unknown
-
-      - run: sudo apt install gcc-arm-linux-gnueabihf libclang-dev llvm
-      - run: just check
-
   clippy:
     runs-on: ubuntu-latest
 
@@ -50,6 +37,7 @@ jobs:
         with:
           components: clippy
 
+      - run: sudo apt install llvm
       - run: just clippy -Dwarnings
 
   test:
@@ -74,16 +62,11 @@ jobs:
 
     strategy:
       matrix:
-        driver: ['driver-debug', 'driver-virtual-tree', 'driver-raspi-ws2811 --target=armv7-unknown-linux-gnueabihf']
+        build-type: ['client', 'driver-debug', 'driver-virtual-tree', 'driver-raspi-ws2811']
+        flags: ['', '--release']
 
     steps:
       - uses: actions/checkout@v3
-
       - uses: ./.github/setup
-        with:
-          targets: armv7-unknown-linux-gnueabihf
 
-      - if: "${{ matrix.driver == 'driver-raspi-ws2811 --target=armv7-unknown-linux-gnueabihf' }}"
-        run: sudo apt install gcc-arm-linux-gnueabihf libclang-dev llvm
-
-      - run: just build ${{ matrix.driver }}
+      - run: just ci-build ${{ matrix.build-type }} ${{ matrix.flags }}
