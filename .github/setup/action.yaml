@@ -57,9 +57,9 @@ runs:
     - name: Create .env file
       run: |
         mkdir -p /home/runner/winter-wonderlights-data
-        echo 'DATA_DIR=/home/runner/winter-wonderlights-data' > .env
+        echo 'DATA_DIR=${HOME}/winter-wonderlights-data' > .env
         echo 'SERVER_SSL_CERT_PATH=/dev/null' >> .env
         echo 'SERVER_SSL_KEY_PATH=/dev/null' >> .env
         echo 'PORT=23120' >> .env
-        echo 'SERVER_URL=ws::/localhost:${PORT}' >> .env
+        echo 'SERVER_URL=ws://localhost:${PORT}' >> .env
       shell: bash

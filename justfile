@@ -51,32 +51,29 @@ test:
 # Build things in CI, according to the specified build type
 ci-build build-type flags='':
 	#!/usr/bin/env bash
+	set -euxo pipefail
+
 	case "{{build-type}}" in
 		'client')
 			rustup target add wasm32-unknown-unknown
 			cd {{justfile_directory()}}/ww-client
 			trunk build {{flags}}
-			exit 0
 		;;
 
 		'driver-debug')
 			cd {{justfile_directory()}}/ww-server
 			cargo build --no-default-features --features driver-debug {{flags}}
-			exit 0
 		;;
 
 		'driver-virtual-tree')
 			cd {{justfile_directory()}}/ww-server
 			cargo build --no-default-features --features driver-virtual-tree {{flags}}
-			exit 0
 		;;
 
 		'driver-raspi-ws2811')
-			sudo apt install gcc-arm-linux-gnueabihf libclang-dev llvm
 			cargo binstall -y cross
 			cd {{justfile_directory()}}/ww-server
 			cross build --no-default-features --features driver-raspi-ws2811 --target armv7-unknown-linux-gnueabihf {{flags}}
-			exit 0
 		;;
 
 		*)

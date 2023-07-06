@@ -1,0 +1,6 @@
+# Allow environment variables in cross compilation
+[build.env]
+passthrough = ["DATA_DIR", "SERVER_SSL_CERT_PATH", "SERVER_SSL_KEY_PATH", "PORT", "SERVER_URL"]
+
+[target.armv7-unknown-linux-gnueabihf]
+pre-build = ["apt-get update && apt-get -y install clang libclang-dev llvm"]
