@@ -71,9 +71,10 @@ ci-build build-type flags='':
 		;;
 
 		'driver-raspi-ws2811')
-			cargo binstall -y cross
 			cd {{justfile_directory()}}/ww-server
-			cross build --no-default-features --features driver-raspi-ws2811 --target armv7-unknown-linux-gnueabihf {{flags}}
+			sudo apt-get install libclang-dev
+			# TODO: Compile for Raspberry Pi architecture (use cross?)
+			cargo build --no-default-features --features driver-raspi-ws2811 {{flags}}
 		;;
 
 		*)

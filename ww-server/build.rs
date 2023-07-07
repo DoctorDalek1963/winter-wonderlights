@@ -12,6 +12,10 @@ fn driver_name_to_feature_name(driver_name: &&str) -> String {
 }
 
 fn main() -> Result<(), String> {
+    if std::env::var("CROSS_COMPILE").is_ok() {
+        println!("cargo:rustc-link-lib=static=clang");
+    }
+
     let names: Vec<_> = DRIVER_NAMES
         .iter()
         .filter(|&name| std::env::var(format!("CARGO_FEATURE_DRIVER_{name}")).is_ok())
