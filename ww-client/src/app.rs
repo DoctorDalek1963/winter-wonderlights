@@ -9,7 +9,7 @@ use std::{
     time::Duration,
 };
 use strum::IntoEnumIterator;
-use tracing::{debug, error, info, instrument, warn};
+use tracing::{debug, error, info, instrument, trace, warn};
 use tracing_unwrap::ResultExt;
 use ww_effects::EffectNameList;
 use ww_shared::{ClientState, ClientToServerMsg, ServerToClientMsg};
@@ -361,7 +361,7 @@ impl App {
             // TODO: Collapse these cases into a single `self.async_runtime.spawn_pinned()`
             // call to reduce overhead
             if let Some(name) = new_effect_selected {
-                debug!("New effect selected, sending message");
+                trace!("New effect selected, sending message");
 
                 self.async_runtime.spawn_pinned({
                     let message_tx = self.message_tx.clone();
@@ -376,7 +376,7 @@ impl App {
             }
 
             if restart_effect {
-                debug!("Restarting current effect");
+                trace!("Requesting to restart current effect, sending message");
 
                 self.async_runtime.spawn_pinned({
                     let message_tx = self.message_tx.clone();
@@ -393,7 +393,7 @@ impl App {
             }
 
             if let Some(config) = effect_config_changed {
-                debug!("Effect config changed, sending message");
+                trace!("Effect config changed, sending message");
 
                 self.async_runtime.spawn_pinned({
                     let message_tx = self.message_tx.clone();

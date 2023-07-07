@@ -68,7 +68,7 @@ fn listen_to_socket(socket_path: &str) {
                 }
             },
         };
-        debug!(?message, "Deserialized message");
+        trace!(?message, "Deserialized message");
 
         match message {
             Message::UpdateFrame(frame) => *CURRENT_FRAME.write().unwrap_or_log() = frame,

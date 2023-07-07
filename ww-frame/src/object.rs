@@ -86,7 +86,7 @@ impl FrameObject {
                 for (light_colour, &point) in data.iter_mut().zip(COORDS.coords()) {
                     // Get the signed distance from this point to the plane
                     let signed_dist = (normal.dot(point.into()) - k) / normal.length();
-                    tracing::debug!(?point, ?signed_dist, "Distance from point to plane");
+                    trace!(?point, ?signed_dist, "Distance from point to plane");
 
                     // If distance is less than the threshold, then it's part of the plane
                     if signed_dist >= blend {

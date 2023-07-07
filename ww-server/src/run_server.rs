@@ -120,6 +120,7 @@ async fn handle_connection(
             ClientToServerMsg::EstablishConnection { protocol_version } => {
                 info!(
                     client_protocol_version = ?protocol_version,
+                    server_protocol_version = ?ww_shared::CRATE_VERSION,
                     "Establishing connection with client"
                 );
 
@@ -166,7 +167,7 @@ async fn handle_connection(
                 write_state!(state => {
                     state.effect_name = new_effect;
                     state.effect_config = new_effect.map(|effect| effect.config_from_file());
-                    debug!(?state, "After updating client state effect name");
+                    trace!(?state, "After updating client state effect name");
                 });
 
                 SEND_MESSAGE_TO_RUN_EFFECT_THREAD
@@ -258,8 +259,6 @@ fn make_tls_acceptor() -> Result<TlsAcceptor> {
     if keys.is_empty() {
         return Err(Report::msg("We need to have at least one key"));
     }
-
-    debug!(?certs, ?keys);
 
     let tls_config = rustls::ServerConfig::builder()
         .with_safe_defaults()

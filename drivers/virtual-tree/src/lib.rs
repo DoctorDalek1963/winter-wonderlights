@@ -7,7 +7,7 @@ use std::{
     io::{self, Write},
     process::Command,
 };
-use tracing::{debug, error, instrument};
+use tracing::{debug, error, instrument, trace};
 use tracing_unwrap::ResultExt;
 use virtual_tree_shared::Message;
 use ww_driver_trait::Driver;
@@ -68,7 +68,7 @@ impl VirtualTreeDriver {
 impl Driver for VirtualTreeDriver {
     #[instrument(skip_all)]
     fn display_frame(&mut self, frame: FrameType) {
-        debug!(?frame, "Writing frame to socket");
+        trace!(?frame, "Writing frame to socket");
 
         self.stream
             .write(
