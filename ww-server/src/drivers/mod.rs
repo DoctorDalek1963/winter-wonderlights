@@ -13,6 +13,8 @@ cfg_if::cfg_if! {
         use debug::DebugDriver as DriverImpl;
     } else if #[cfg(feature = "driver-virtual-tree")] {
         use virtual_tree::VirtualTreeDriver as DriverImpl;
+    } else if #[cfg(feature = "driver-raspi-ws2811")] {
+        use raspi_ws2811::Ws2811Driver as DriverImpl;
     } else {
         compile_error!("You must enable exactly one driver feature");
     }

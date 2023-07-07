@@ -4,7 +4,7 @@
 
 /// Names of driver features with leading `driver-` removed, dashes replaced with underscores, and
 /// everything in ALL CAPS.
-const DRIVER_NAMES: &[&str] = &["DEBUG", "VIRTUAL_TREE"];
+const DRIVER_NAMES: &[&str] = &["DEBUG", "VIRTUAL_TREE", "RASPI_WS2811"];
 
 /// Convert the given driver name into the name of the corresponding feature.
 fn driver_name_to_feature_name(driver_name: &&str) -> String {
@@ -12,6 +12,10 @@ fn driver_name_to_feature_name(driver_name: &&str) -> String {
 }
 
 fn main() -> Result<(), String> {
+    if std::env::var("CROSS_COMPILE").is_ok() {
+        println!("cargo:rustc-link-lib=static=clang");
+    }
+
     let names: Vec<_> = DRIVER_NAMES
         .iter()
         .filter(|&name| std::env::var(format!("CARGO_FEATURE_DRIVER_{name}")).is_ok())

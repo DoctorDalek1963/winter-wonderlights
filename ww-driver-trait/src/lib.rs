@@ -17,7 +17,7 @@ use ww_frame::FrameType;
 /// pub fn init() -> Self {}
 /// # }
 /// ```
-pub trait Driver: Send {
+pub trait Driver {
     /// Display the given frame using this driver.
     fn display_frame(&mut self, frame: FrameType);
 

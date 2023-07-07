@@ -136,6 +136,10 @@ impl Frame3D {
     }
 
     /// Return the raw data for this frame.
+    #[allow(
+        clippy::missing_panics_doc,
+        reason = ".expect() is guaranteed to be fine since compute_raw_data() has been called"
+    )]
     #[must_use = "this method returns the raw data; to compute the raw data in place, use compute_raw_data()"]
     pub fn to_raw_data(mut self) -> Vec<RGBArray> {
         self.compute_raw_data();

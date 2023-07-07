@@ -27,18 +27,6 @@ jobs:
 
       - run: cargo fmt --all --check
 
-  check:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: ./.github/setup
-        with:
-          targets: wasm32-unknown-unknown
-
-      - run: just check
-
   clippy:
     runs-on: ubuntu-latest
 
@@ -49,6 +37,7 @@ jobs:
         with:
           components: clippy
 
+      - run: sudo apt install libclang-dev llvm
       - run: just clippy -Dwarnings
 
   test:
@@ -65,6 +54,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/setup
+      - run: sudo apt install libclang-dev
       - run: just doc-build
 
   build:
@@ -72,13 +62,11 @@ jobs:
 
     strategy:
       matrix:
-        driver: ['driver-debug', 'driver-virtual-tree']
+        build-type: ['client', 'driver-debug', 'driver-virtual-tree', 'driver-raspi-ws2811']
+        flags: ['', '--release']
 
     steps:
       - uses: actions/checkout@v3
-
       - uses: ./.github/setup
-        with:
-          targets: wasm32-unknown-unknown
 
-      - run: just build ${{ matrix.driver }}
+      - run: just ci-build ${{ matrix.build-type }} ${{ matrix.flags }}
