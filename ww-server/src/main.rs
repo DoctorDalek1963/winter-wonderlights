@@ -6,7 +6,7 @@ mod drivers;
 mod run_effect;
 mod run_server;
 
-use chrono::naive::NaiveDate;
+use chrono::{naive::NaiveDate, NaiveDateTime};
 use color_eyre::Result;
 use regex::Regex;
 use std::{
@@ -40,7 +40,7 @@ lazy_static::lazy_static! {
     /// A RegEx to match against the filenames of the server's log files and extract the date parts.
     static ref SERVER_LOG_REGEX: Regex = Regex::new(&{
         let mut s = regex::escape(LOG_PREFIX);
-        s.push_str(r"\.(\d{4})-(\d{2})-(\d{2})$");
+        s.push_str(r"\.(\d{4})-(\d{2})-(\d{2})-(\d{2})$");
         s
     }).expect("Regex should compile successfully");
 }
@@ -93,7 +93,7 @@ impl Drop for WrappedClientState {
 /// Initialise a subscriber for tracing to log to `stdout` and a file.
 fn init_tracing() -> WorkerGuard {
     let (appender, guard) =
-        tracing_appender::non_blocking(tracing_appender::rolling::daily(LOG_DIR, LOG_PREFIX));
+        tracing_appender::non_blocking(tracing_appender::rolling::hourly(LOG_DIR, LOG_PREFIX));
 
     let subscriber = tracing_subscriber::registry()
         .with(
@@ -123,14 +123,12 @@ fn init_tracing() -> WorkerGuard {
     guard
 }
 
-/// Compress all log files older than the given number of days using `gzip`.
+/// Compress all log files older than the given number of hours using `gzip`.
 #[instrument]
-fn zip_old_log_files(days: u64) {
-    let today = chrono::offset::Local::now().date_naive();
-
+fn zip_old_log_files(hours: u64) {
     // Look through everything in the log files folder and filter it down to just the log files and
     // parse their dates, and then filter down to only the log files which are older than the given
-    // number of days
+    // number of hours
     let log_files: Vec<_> = fs::read_dir(LOG_DIR)
         .expect_or_log(&format!("Should be able to read entries in {LOG_DIR}"))
         .filter_map(|file_result| match file_result {
@@ -139,23 +137,28 @@ fn zip_old_log_files(days: u64) {
                     .file_type()
                     .is_ok_and(|filetype| filetype.is_file()) =>
             {
-                dir_entry
-                    .file_name()
-                    .to_str()
-                    .and_then(|name| -> Option<(DirEntry, NaiveDate)> {
+                dir_entry.file_name().to_str().and_then(
+                    |name| -> Option<(DirEntry, NaiveDateTime)> {
                         let captures = SERVER_LOG_REGEX.captures(name)?;
 
                         let year = captures.get(1)?.as_str().parse().ok()?;
                         let month = captures.get(2)?.as_str().parse().ok()?;
                         let day = captures.get(3)?.as_str().parse().ok()?;
+                        let hour = captures.get(4)?.as_str().parse().ok()?;
 
-                        Some((dir_entry, NaiveDate::from_ymd_opt(year, month, day)?))
-                    })
+                        Some((
+                            dir_entry,
+                            NaiveDate::from_ymd_opt(year, month, day)?.and_hms_opt(hour, 0, 0)?,
+                        ))
+                    },
+                )
             }
             _ => None,
         })
-        .filter_map(|(file, date)| {
-            if (today - date).num_days() > days as i64 {
+        .filter_map(|(file, datetime)| {
+            let now = chrono::offset::Local::now().naive_utc();
+
+            if (now - datetime).num_hours() > hours as i64 {
                 Some(file.path())
             } else {
                 None
@@ -188,8 +191,8 @@ async fn main() -> Result<()> {
         loop {
             zip_old_log_files(3);
 
-            // Sleep for 1 day
-            tokio::time::sleep(Duration::from_secs(60 * 60 * 24)).await;
+            // Sleep for 1 hour
+            tokio::time::sleep(Duration::from_secs(60 * 60)).await;
         }
     });
 
