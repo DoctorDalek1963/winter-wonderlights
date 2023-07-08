@@ -1,3 +1,6 @@
+//! This module handles setting up logging with `tracing` and provides functions to zip up old log
+//! files. See [`zip_log_files_older_than_hours`] and [`zip_log_files_older_than_days`].
+
 use chrono::{naive::NaiveDate, Datelike, NaiveDateTime};
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -120,7 +123,7 @@ fn unzipped_file_to_naive_datetime(name: &str) -> Option<NaiveDateTime> {
     let day = captures.get(3)?.as_str().parse().ok()?;
     let hour = captures.get(4)?.as_str().parse().ok()?;
 
-    Some(NaiveDate::from_ymd_opt(year, month, day)?.and_hms_opt(hour, 0, 0)?)
+    NaiveDate::from_ymd_opt(year, month, day)?.and_hms_opt(hour, 0, 0)
 }
 
 /// Compress log files older than the given number of days into a `.tgz` file for each day.
@@ -165,8 +168,8 @@ pub async fn zip_log_files_older_than_days(days: u64) {
 
     let filename_map: HashMap<NaiveDate, Vec<PathBuf>> = {
         let mut map: HashMap<NaiveDate, Vec<PathBuf>> = HashMap::new();
-        for (date, path) in log_files_older_than_days.into_iter() {
-            map.entry(date).or_insert(vec![]).push(path);
+        for (date, path) in log_files_older_than_days {
+            map.entry(date).or_default().push(path);
         }
         map
     };
@@ -240,7 +243,7 @@ fn gzipped_file_to_naive_date(name: &str) -> Option<NaiveDate> {
     let month = captures.get(2)?.as_str().parse().ok()?;
     let day = captures.get(3)?.as_str().parse().ok()?;
 
-    Some(NaiveDate::from_ymd_opt(year, month, day)?)
+    NaiveDate::from_ymd_opt(year, month, day)
 }
 
 #[cfg(test)]
