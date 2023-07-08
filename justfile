@@ -47,6 +47,8 @@ test:
 	cd {{justfile_directory()}}/ww-frame && cargo insta test --unreferenced reject --all-features --release
 	cd {{justfile_directory()}}/ww-gift-coords && cargo insta test --unreferenced reject --all-features
 	cd {{justfile_directory()}}/ww-gift-coords && cargo insta test --unreferenced reject --all-features --release
+	cd {{justfile_directory()}}/ww-server && cargo insta test --unreferenced reject --no-default-features --features driver-debug
+	cd {{justfile_directory()}}/ww-server && cargo insta test --unreferenced reject --no-default-features --features driver-debug --release
 
 # Build things in CI, according to the specified build type
 ci-build build-type flags='':
