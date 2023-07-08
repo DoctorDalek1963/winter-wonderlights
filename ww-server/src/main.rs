@@ -81,8 +81,8 @@ async fn main() -> Result<()> {
 
     tokio::spawn(async move {
         loop {
-            self::logging::zip_log_files_older_than_hours(3);
-            self::logging::zip_log_files_older_than_days(2);
+            self::logging::zip_log_files_older_than_hours(3).await;
+            self::logging::zip_log_files_older_than_days(2).await;
 
             // Sleep for 1 hour
             tokio::time::sleep(Duration::from_secs(60 * 60)).await;

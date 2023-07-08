@@ -5,8 +5,8 @@ use std::{
     collections::HashMap,
     fs::{self, DirEntry},
     path::PathBuf,
-    process::Command,
 };
+use tokio::process::Command;
 use tracing::{debug, error, instrument, trace};
 use tracing_appender::{non_blocking, non_blocking::WorkerGuard, rolling};
 use tracing_subscriber::{filter::LevelFilter, fmt::Layer, prelude::*, EnvFilter};
@@ -52,7 +52,7 @@ pub fn init_tracing() -> WorkerGuard {
 
 /// Individually compress all log files older than the given number of hours using `gzip`.
 #[instrument]
-pub fn zip_log_files_older_than_hours(hours: u64) {
+pub async fn zip_log_files_older_than_hours(hours: u64) {
     let now = chrono::offset::Local::now().naive_utc();
 
     // Look through everything in the log files folder and filter it down to just the log files and
@@ -93,7 +93,7 @@ pub fn zip_log_files_older_than_hours(hours: u64) {
         .args(log_files_older_than_hours)
         .spawn()
         .expect_or_log("Should be able to run `gzip` on old log files");
-    gzip_command.wait().unwrap_or_log();
+    gzip_command.wait().await.unwrap_or_log();
 
     if let Some(stderr) = gzip_command.stderr {
         error!(?stderr, "gzip command failed when zipping old log files");
@@ -125,7 +125,7 @@ fn unzipped_file_to_naive_datetime(name: &str) -> Option<NaiveDateTime> {
 
 /// Compress log files older than the given number of days into a `.tgz` file for each day.
 #[instrument]
-pub fn zip_log_files_older_than_days(days: u64) {
+pub async fn zip_log_files_older_than_days(days: u64) {
     let today = chrono::offset::Local::now().date_naive();
 
     // Look through everything in the log files folder and filter it down to just the log files and
@@ -173,44 +173,51 @@ pub fn zip_log_files_older_than_days(days: u64) {
 
     debug!(?filename_map, "tar zipping old log files");
 
+    let mut fut_handles = vec![];
+
     for (date, files) in filename_map {
-        let mut gunzip_command = Command::new("gunzip")
-            .args(&files)
-            .spawn()
-            .expect_or_log("Should be able to run `gunzip` on old log files");
-        gunzip_command.wait().unwrap_or_log();
+        fut_handles.push(tokio::spawn(async move {
+            let mut gunzip_command = Command::new("gunzip")
+                .args(&files)
+                .spawn()
+                .expect_or_log("Should be able to run `gunzip` on old log files");
+            gunzip_command.wait().await.unwrap_or_log();
 
-        if let Some(stderr) = gunzip_command.stderr {
-            error!(
-                ?stderr,
-                "`gunzip` command failed when zipping old log files"
-            );
-        }
+            if let Some(stderr) = gunzip_command.stderr {
+                error!(
+                    ?stderr,
+                    "`gunzip` command failed when zipping old log files"
+                );
+            }
 
-        let tgz_name = PathBuf::from(format!(
-            "{LOG_DIR}/{LOG_PREFIX}.{}-{:0>2}-{:0>2}.tgz",
-            date.year(),
-            date.month(),
-            date.day()
-        ));
+            let tgz_name = PathBuf::from(format!(
+                "{LOG_DIR}/{LOG_PREFIX}.{}-{:0>2}-{:0>2}.tgz",
+                date.year(),
+                date.month(),
+                date.day()
+            ));
 
-        let mut tar_command = Command::new("tar")
-            .arg("czf")
-            .arg(tgz_name)
-            .arg("--remove-files")
-            .args(
-                files
-                    .into_iter()
-                    .filter_map(|path| path.with_extension("").file_name().map(|x| x.to_owned())),
-            )
-            .current_dir(LOG_DIR)
-            .spawn()
-            .expect_or_log("Should be able to run `tar` on old log files");
-        tar_command.wait().unwrap_or_log();
+            let mut tar_command =
+                Command::new("tar")
+                    .arg("czf")
+                    .arg(tgz_name)
+                    .arg("--remove-files")
+                    .args(files.into_iter().filter_map(|path| {
+                        path.with_extension("").file_name().map(|x| x.to_owned())
+                    }))
+                    .current_dir(LOG_DIR)
+                    .spawn()
+                    .expect_or_log("Should be able to run `tar` on old log files");
+            tar_command.wait().await.unwrap_or_log();
 
-        if let Some(stderr) = tar_command.stderr {
-            error!(?stderr, "`tar` command failed when zipping old log files");
-        }
+            if let Some(stderr) = tar_command.stderr {
+                error!(?stderr, "`tar` command failed when zipping old log files");
+            }
+        }));
+    }
+
+    for handle in fut_handles {
+        handle.await.expect_or_log("Future should not fail");
     }
 
     debug!("Finished tar zipping old log files");
