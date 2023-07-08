@@ -30,18 +30,6 @@ cfg_if::cfg_if! {
 /// ```
 pub(super) struct DriverWrapper(DriverImpl);
 
-impl DriverWrapper {
-    /// Initialise the driver.
-    ///
-    /// # Safety
-    ///
-    /// For most drivers, it is undefined behaviour to initialise the driver multiple times. You
-    /// must ensure that this method is called at most once.
-    pub unsafe fn init() -> Self {
-        Self(DriverImpl::init())
-    }
-}
-
 impl Deref for DriverWrapper {
     type Target = DriverImpl;
 
@@ -70,6 +58,22 @@ impl Drop for DriverWrapper {
 }
 
 impl Driver for DriverWrapper {
+    /// Initialise the driver.
+    ///
+    /// # Safety
+    ///
+    /// For most drivers, it is undefined behaviour to initialise the driver multiple times. You
+    /// must ensure that this method is called at most once.
+    unsafe fn init() -> Self {
+        #[allow(
+            clippy::undocumented_unsafe_blocks,
+            reason = "this is explicitly not safe, for the reasons described above"
+        )]
+        unsafe {
+            Self(DriverImpl::init())
+        }
+    }
+
     #[inline]
     fn display_frame(&mut self, frame: FrameType) {
         self.0.display_frame(frame);

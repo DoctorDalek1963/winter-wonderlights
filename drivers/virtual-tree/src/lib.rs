@@ -23,10 +23,9 @@ pub struct VirtualTreeDriver {
     stream: LocalSocketStream,
 }
 
-impl VirtualTreeDriver {
-    /// Initialise the driver.
+impl Driver for VirtualTreeDriver {
     #[instrument]
-    pub fn init() -> Self {
+    unsafe fn init() -> Self {
         debug!(?RUNNER_PATH);
 
         let socket_path = match NameTypeSupport::query() {
@@ -63,9 +62,7 @@ impl VirtualTreeDriver {
 
         Self { stream }
     }
-}
 
-impl Driver for VirtualTreeDriver {
     #[instrument(skip_all)]
     fn display_frame(&mut self, frame: FrameType) {
         trace!(?frame, "Writing frame to socket");

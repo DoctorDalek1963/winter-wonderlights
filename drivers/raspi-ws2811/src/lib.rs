@@ -43,27 +43,6 @@ pub struct Ws2811Driver {
 }
 
 impl Ws2811Driver {
-    /// Initialise the driver.
-    #[instrument]
-    pub fn init() -> Self {
-        let controller = ControllerBuilder::new()
-            .freq(FREQUENCY)
-            .dma(DMA_CHANNEL_NUMBER)
-            .channel(
-                0,
-                ChannelBuilder::new()
-                    .pin(GPIO_PIN_NUMBER)
-                    .count(COORDS.lights_num() as _)
-                    .strip_type(STRIP_TYPE)
-                    .brightness(255)
-                    .build(),
-            )
-            .build()
-            .expect_or_log("Failed to build controller for raspi-ws2811 driver");
-
-        Self { controller }
-    }
-
     /// Display the given RGB colours on the lights.
     #[instrument(skip_all)]
     fn display_colours(&mut self, colours: &[[u8; 3]]) {
@@ -84,6 +63,26 @@ impl Ws2811Driver {
 }
 
 impl Driver for Ws2811Driver {
+    #[instrument]
+    unsafe fn init() -> Self {
+        let controller = ControllerBuilder::new()
+            .freq(FREQUENCY)
+            .dma(DMA_CHANNEL_NUMBER)
+            .channel(
+                0,
+                ChannelBuilder::new()
+                    .pin(GPIO_PIN_NUMBER)
+                    .count(COORDS.lights_num() as _)
+                    .strip_type(STRIP_TYPE)
+                    .brightness(255)
+                    .build(),
+            )
+            .build()
+            .expect_or_log("Failed to build controller for raspi-ws2811 driver");
+
+        Self { controller }
+    }
+
     fn display_frame(&mut self, frame: FrameType) {
         let colours = match frame {
             FrameType::Off => vec![[0; 3]; self.get_lights_count()],

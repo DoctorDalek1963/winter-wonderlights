@@ -10,14 +10,11 @@ pub struct DebugDriver {
     pub lights_num: usize,
 }
 
-impl DebugDriver {
-    /// Initialise the driver.
-    pub fn init() -> Self {
+impl Driver for DebugDriver {
+    unsafe fn init() -> Self {
         Self { lights_num: 50 }
     }
-}
 
-impl Driver for DebugDriver {
     #[instrument(skip_all)]
     fn display_frame(&mut self, frame: FrameType) {
         info!(?frame);

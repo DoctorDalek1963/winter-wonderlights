@@ -7,17 +7,17 @@
 use ww_frame::FrameType;
 
 /// The trait implemented by all drivers.
-///
-/// Note that for a driver to work in `ww-server`, it's expected to have an initialisation function
-/// with the following signature:
-/// ```
-/// # struct Dummy;
-/// # impl Dummy {
-/// /// Initialise the driver.
-/// pub fn init() -> Self {}
-/// # }
-/// ```
 pub trait Driver {
+    /// Initialise the driver.
+    ///
+    /// # Safety
+    ///
+    /// Some drivers have unsafe initialisations and some require global state, meaning it is
+    /// potentially UB to initialise a driver multiple times.
+    unsafe fn init() -> Self
+    where
+        Self: Sized;
+
     /// Display the given frame using this driver.
     fn display_frame(&mut self, frame: FrameType);
 
