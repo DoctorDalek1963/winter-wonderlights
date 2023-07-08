@@ -68,6 +68,13 @@ cfg_if::cfg_if! {
         }
 
         impl Driver for TestDriver {
+            unsafe fn init() -> Self {
+                Self {
+                    lights_num: 50,
+                    data: vec![],
+                }
+            }
+
             fn display_frame(&mut self, frame: FrameType) {
                 self.data.push(frame);
             }

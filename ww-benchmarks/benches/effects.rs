@@ -15,6 +15,10 @@ static mut CONVERT_FRAME_DRIVER: ConvertFrameDriver = ConvertFrameDriver {
 struct SimpleDriver;
 
 impl Driver for SimpleDriver {
+    unsafe fn init() -> Self {
+        Self
+    }
+
     fn display_frame(&mut self, _frame: FrameType) {}
 
     fn get_lights_count(&self) -> usize {
@@ -27,6 +31,12 @@ struct ConvertFrameDriver {
 }
 
 impl Driver for ConvertFrameDriver {
+    unsafe fn init() -> Self {
+        Self {
+            current_frame: vec![],
+        }
+    }
+
     fn display_frame(&mut self, frame: FrameType) {
         match frame {
             FrameType::Off => self.current_frame = vec![[0, 0, 0]; LIGHTS_NUM],
