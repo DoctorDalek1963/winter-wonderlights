@@ -59,7 +59,9 @@ pub trait BaseEffectConfig:
 #[cfg(feature = "config-trait")]
 pub trait EffectConfig: BaseEffectConfig {
     /// Render the GUI to edit the config of this effect and return whether the config has changed.
-    /// The default implementation just returns false.
+    ///
+    /// This method _SHOULD NOT_ include a heading or a _Reset to defaults_ button. These should be
+    /// handled by [`BaseEffectConfig`], which can be derived.
     fn render_options_gui(&mut self, ctx: &Context, ui: &mut Ui) -> bool;
 
     /// Load the effect configuration from the config file, or use the default if the file is

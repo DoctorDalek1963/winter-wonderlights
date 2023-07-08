@@ -44,7 +44,10 @@ pub fn derive_base_effect_config(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let struct_name = input.ident;
     let sealed_impl = create_sealed_impl(&struct_name);
-    let heading = Literal::string(&struct_name.to_string().replace("Config", ""));
+    let heading = Literal::string(&format!(
+        "{} config",
+        &struct_name.to_string().replace("Config", "")
+    ));
 
     quote! {
         #sealed_impl

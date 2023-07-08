@@ -283,11 +283,11 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
         })
         .collect();
 
-    let config_dispatch_list_render_options_guis: Vec<_> = config_names
+    let config_dispatch_list_render_full_options_guis: Vec<_> = config_names
         .iter()
         .map(|ident| {
             quote! {
-                EffectConfigDispatchList:: #ident (config) => config.render_options_gui(ctx, ui)
+                EffectConfigDispatchList:: #ident (config) => config.render_full_options_gui(ctx, ui)
             }
         })
         .collect();
@@ -389,9 +389,11 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
         #[cfg(feature = "config-impls")]
         impl EffectConfigDispatchList {
             /// Render the options GUI for the config.
-            pub fn render_options_gui(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) -> bool {
+            pub fn render_full_options_gui(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) -> bool {
+                use crate::traits::BaseEffectConfig;
+
                 match self {
-                    #( #config_dispatch_list_render_options_guis ),*
+                    #( #config_dispatch_list_render_full_options_guis ),*
                 }
             }
 

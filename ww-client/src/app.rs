@@ -353,7 +353,9 @@ impl App {
 
             let effect_config_changed = if let Some(config) = &mut state.effect_config {
                 ui.separator();
-                config.render_options_gui(ctx, ui).then_some(config.clone())
+                config
+                    .render_full_options_gui(ctx, ui)
+                    .then_some(config.clone())
             } else {
                 None
             };

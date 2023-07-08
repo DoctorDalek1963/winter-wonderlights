@@ -40,9 +40,6 @@ mod config {
 
     impl EffectConfig for LavaLampConfig {
         fn render_options_gui(&mut self, _ctx: &egui::Context, ui: &mut egui::Ui) -> bool {
-            ui.label(RichText::new("LavaLamp config").heading());
-            ui.add_space(UI_SPACING);
-
             let mut config_changed = false;
 
             config_changed |= ui
@@ -56,13 +53,6 @@ mod config {
             ui.add_space(UI_SPACING);
 
             config_changed |= colour_picker(ui, &mut self.base_colour, "Base colour").changed();
-
-            ui.add_space(UI_SPACING);
-
-            if ui.button("Reset to defaults").clicked() {
-                *self = Self::default();
-                config_changed = true;
-            }
 
             config_changed
         }
