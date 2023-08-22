@@ -24,6 +24,7 @@ pub mod list {
         MovingPlane,
         SplitPlane,
         LavaLamp,
+        AiSnake,
     }
 }
 

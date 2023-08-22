@@ -138,15 +138,11 @@ mod effect {
         config: SplitPlaneConfig,
     }
 
-    impl Default for SplitPlane {
-        fn default() -> Self {
-            Self {
-                config: SplitPlaneConfig::default(),
-            }
-        }
-    }
-
     impl Effect for SplitPlane {
+        fn from_config(config: SplitPlaneConfig) -> Self {
+            Self { config }
+        }
+
         #[allow(
             clippy::semicolon_if_nothing_returned,
             reason = "this is a bodge for #[end_loop_in_test_or_bench]"

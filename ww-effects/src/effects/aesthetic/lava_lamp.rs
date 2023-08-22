@@ -118,16 +118,14 @@ mod effect {
         rng: StdRng,
     }
 
-    impl Default for LavaLamp {
-        fn default() -> Self {
+    impl Effect for LavaLamp {
+        fn from_config(config: LavaLampConfig) -> Self {
             Self {
-                config: LavaLampConfig::default(),
+                config,
                 rng: rng!(),
             }
         }
-    }
 
-    impl Effect for LavaLamp {
         #[allow(
             clippy::semicolon_if_nothing_returned,
             reason = "this is a bodge for #[end_loop_in_test_or_bench]"

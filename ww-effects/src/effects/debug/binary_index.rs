@@ -76,13 +76,17 @@ mod effect {
     use super::*;
 
     /// Make each light flash its index in binary.
-    #[derive(Clone, Debug, Default, PartialEq, Eq, BaseEffect)]
+    #[derive(Clone, Debug, PartialEq, Eq, BaseEffect)]
     pub struct DebugBinaryIndex {
         /// The config for this effect.
         config: DebugBinaryIndexConfig,
     }
 
     impl Effect for DebugBinaryIndex {
+        fn from_config(config: DebugBinaryIndexConfig) -> Self {
+            Self { config }
+        }
+
         async fn run(self, driver: &mut dyn Driver) {
             driver.clear();
 

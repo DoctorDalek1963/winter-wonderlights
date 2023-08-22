@@ -27,12 +27,17 @@ pub fn derive_base_effect(input: TokenStream) -> TokenStream {
             }
 
             fn from_file() -> Self {
-                Self {
-                    config: Self::Config::from_file(
+                Self::from_config(
+                    Self::Config::from_file(
                         &<Self as crate::traits::Effect>::config_filename()
-                    ),
-                    ..<Self as ::std::default::Default>::default()
-                }
+                    )
+                )
+            }
+        }
+
+        impl ::std::default::Default for #struct_name {
+            fn default() -> Self {
+                Self::from_config(<Self as BaseEffect>::Config::default())
             }
         }
     }
