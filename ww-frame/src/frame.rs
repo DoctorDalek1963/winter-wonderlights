@@ -188,8 +188,42 @@ mod tests {
             colour: [243, 36, 17],
             fadeoff: 0.1,
         };
+        let pink_green_catmull_rom = FrameObject {
+            object: Object::CatmullRomSpline {
+                points: vec![
+                    Vec3::new(0.23, 0.45, 0.2),
+                    Vec3::new(-0.16, 0.4, 1.2),
+                    Vec3::new(-0.8, -0.09, 3.2),
+                    Vec3::new(0.02, -0.86, 1.73),
+                ]
+                .into(),
+                threshold: 0.15,
+                start_colour: [218, 44, 244],
+                end_colour: [9, 237, 39],
+            },
+            colour: [0, 0, 0],
+            fadeoff: 0.2,
+        };
+        let blue_yellow_catmull_rom = FrameObject {
+            object: Object::CatmullRomSpline {
+                points: vec![
+                    Vec3::new(-0.2, -0.47, 2.89),
+                    Vec3::new(0.31, -0.593, 1.65),
+                    Vec3::new(-0.86, -0.02, 2.3),
+                    Vec3::new(0.04, 0.83, 1.2),
+                    Vec3::new(0.34, -0.42, 1.7),
+                    Vec3::new(-0.4, -0.36, 1.98),
+                ]
+                .into(),
+                threshold: 0.25,
+                start_colour: [19, 194, 247],
+                end_colour: [249, 222, 14],
+            },
+            colour: [0, 0, 0],
+            fadeoff: 0.4,
+        };
 
-        // Single green plane
+        // ===== Single green plane
 
         let single_green_plane = Frame3D::new(vec![green_plane.clone()], false);
         insta::with_settings!({
@@ -200,7 +234,7 @@ mod tests {
             insta::assert_ron_snapshot!(single_green_plane.to_raw_data());
         });
 
-        // Green and blue planes
+        // ===== Green and blue planes
 
         let green_and_blue_planes_no_blend =
             Frame3D::new(vec![green_plane.clone(), blue_plane.clone()], false);
@@ -222,7 +256,7 @@ mod tests {
             insta::assert_ron_snapshot!(green_and_blue_planes_with_blend.to_raw_data());
         });
 
-        // Blue plane and red sphere
+        // ===== Blue plane and red sphere
 
         let blue_plane_red_sphere_no_blend =
             Frame3D::new(vec![blue_plane.clone(), red_sphere.clone()], false);
@@ -245,7 +279,7 @@ mod tests {
         });
 
         let blue_plane_red_sphere_with_blend =
-            Frame3D::new(vec![blue_plane.clone(), red_sphere.clone()], false);
+            Frame3D::new(vec![blue_plane.clone(), red_sphere.clone()], true);
         insta::with_settings!({
             info => &blue_plane_red_sphere_with_blend,
             description => "Rendering a blue plane and then a red sphere with blend",
@@ -255,13 +289,95 @@ mod tests {
         });
 
         let red_sphere_blue_plane_with_blend =
-            Frame3D::new(vec![red_sphere.clone(), blue_plane.clone()], false);
+            Frame3D::new(vec![red_sphere.clone(), blue_plane.clone()], true);
         insta::with_settings!({
             info => &red_sphere_blue_plane_with_blend,
             description => "Rendering a red sphere and then a blue plane with blend",
             omit_expression => true,
         }, {
             insta::assert_ron_snapshot!(red_sphere_blue_plane_with_blend.to_raw_data());
+        });
+
+        // ===== Catmull-Rom splines
+
+        let pink_green_catmull_rom_frame =
+            Frame3D::new(vec![pink_green_catmull_rom.clone()], false);
+        insta::with_settings!({
+            info => &pink_green_catmull_rom_frame,
+            description => "Rendering a pink-green Catmull-Rom spline",
+            omit_expression => true,
+        }, {
+            insta::assert_ron_snapshot!(pink_green_catmull_rom_frame.to_raw_data());
+        });
+
+        let blue_yellow_catmull_rom_frame =
+            Frame3D::new(vec![blue_yellow_catmull_rom.clone()], false);
+        insta::with_settings!({
+            info => &blue_yellow_catmull_rom_frame,
+            description => "Rendering a a blue-yellow Catmull-Rom spline",
+            omit_expression => true,
+        }, {
+            insta::assert_ron_snapshot!(blue_yellow_catmull_rom_frame.to_raw_data());
+        });
+
+        let pink_green_blue_yellow_catmull_rom_no_blend = Frame3D::new(
+            vec![
+                pink_green_catmull_rom.clone(),
+                blue_yellow_catmull_rom.clone(),
+            ],
+            false,
+        );
+        insta::with_settings!({
+            info => &pink_green_blue_yellow_catmull_rom_no_blend,
+            description => "Rendering a pink-green Catmull-Rom spline and then a blue-yellow one with no blend",
+            omit_expression => true,
+        }, {
+            insta::assert_ron_snapshot!(pink_green_blue_yellow_catmull_rom_no_blend.to_raw_data());
+        });
+
+        let pink_green_blue_yellow_catmull_rom_with_blend = Frame3D::new(
+            vec![
+                pink_green_catmull_rom.clone(),
+                blue_yellow_catmull_rom.clone(),
+            ],
+            true,
+        );
+        insta::with_settings!({
+            info => &pink_green_blue_yellow_catmull_rom_with_blend,
+            description => "Rendering a pink-green Catmull-Rom spline and then a blue-yellow one with blend",
+            omit_expression => true,
+        }, {
+            insta::assert_ron_snapshot!(pink_green_blue_yellow_catmull_rom_with_blend.to_raw_data());
+        });
+
+        let blue_yellow_pink_green_catmull_rom_no_blend = Frame3D::new(
+            vec![
+                blue_yellow_catmull_rom.clone(),
+                pink_green_catmull_rom.clone(),
+            ],
+            false,
+        );
+        insta::with_settings!({
+            info => &blue_yellow_pink_green_catmull_rom_no_blend,
+            description => "Rendering a blue-yellow Catmull-Rom spline and then a pink-green one with no blend",
+            omit_expression => true,
+        }, {
+            insta::assert_ron_snapshot!(blue_yellow_pink_green_catmull_rom_no_blend.to_raw_data());
+        });
+
+        let blue_yellow_pink_green_catmull_rom_with_blend = Frame3D::new(
+            vec![
+                blue_yellow_catmull_rom.clone(),
+                pink_green_catmull_rom.clone(),
+            ],
+            true,
+        );
+        insta::with_settings!({
+            info => &blue_yellow_pink_green_catmull_rom_with_blend,
+            description => "Rendering a blue-yellow Catmull-Rom spline and then a pink-green one with blend",
+            omit_expression => true,
+        }, {
+            insta::assert_ron_snapshot!(blue_yellow_pink_green_catmull_rom_with_blend.to_raw_data());
         });
     }
 }

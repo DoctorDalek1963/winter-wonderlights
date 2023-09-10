@@ -537,3 +537,17 @@ mod effect {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{traits::Effect, TestDriver};
+
+    #[tokio::test]
+    async fn ai_snake_test() {
+        let mut driver = TestDriver::new(10);
+        AiSnake::default().run(&mut driver).await;
+
+        insta::assert_ron_snapshot!(driver.data);
+    }
+}
