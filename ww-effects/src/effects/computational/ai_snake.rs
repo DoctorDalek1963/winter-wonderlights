@@ -191,6 +191,7 @@ mod effect {
     }
 
     /// An error that can occur from the snake.
+    #[derive(Debug)]
     enum SnakeError {
         /// We couldn't find a path from the head to the apple.
         PathfindingFail,
@@ -471,27 +472,13 @@ mod effect {
             reason = "this is a bodge for #[end_loop_in_test_or_bench]"
         )]
         async fn run(mut self, driver: &mut dyn Driver) {
-            let mut fail_count: u8 = 0;
-
             #[end_loop_in_test_or_bench]
             loop {
-                /// Reset the snake and `fail_count`, pause, and restart the loop.
-                macro_rules! reset_snake {
-                    () => {
-                        fail_count = 0;
-                        self.snake.reset(&mut self.rng);
-                        sleep!(Duration::from_millis(self.config.milliseconds_per_step));
-                        driver.clear();
-                        continue;
-                    };
-                }
-
                 match self
                     .snake
                     .advance(&mut self.rng, self.config.allow_diagonal_movement)
                 {
                     Ok(()) => {
-                        fail_count = 0;
                         driver.display_frame(FrameType::Frame3D(Frame3D::new(
                             vec![
                                 FrameObject {
@@ -521,16 +508,12 @@ mod effect {
                         )));
                         sleep!(Duration::from_millis(self.config.milliseconds_per_step));
                     }
-                    Err(SnakeError::PathfindingFail) => {
-                        fail_count += 1;
-                        debug!(?fail_count, "Pathfinding fail");
-                        if fail_count == 10 {
-                            reset_snake!();
-                        }
-                    }
-                    Err(SnakeError::PlaceAppleFail) => {
-                        debug!("Place apple fail");
-                        reset_snake!();
+                    Err(error @ (SnakeError::PathfindingFail | SnakeError::PlaceAppleFail)) => {
+                        debug!(?error, "Failure in Snake::advance");
+                        self.snake.reset(&mut self.rng);
+                        sleep!(Duration::from_millis(self.config.milliseconds_per_step));
+                        driver.clear();
+                        continue;
                     }
                 }
             }
