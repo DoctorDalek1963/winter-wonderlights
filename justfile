@@ -85,10 +85,6 @@ ci-build build-type flags='':
 		;;
 	esac
 
-# TODO: Deny clippy::allow-attributes-without-reason when
-# https://github.com/rust-lang/rust-clippy/issues/10377 actually gets merged
-# into nightly
-
 # TODO: Deny clippy::multiple-unsafe-ops-per-block once it works properly
 
 # run clippy over the whole project
@@ -119,7 +115,7 @@ clippy args='':
 	-A clippy::cognitive-complexity \
 	-A clippy::derivable-impls \
 	-A clippy::needless-update \
-	-A clippy::allow-attributes-without-reason \
+	-D clippy::allow-attributes-without-reason \
 	-D clippy::dbg-macro \
 	-D clippy::empty-structs-with-brackets \
 	-D clippy::get-unwrap \
