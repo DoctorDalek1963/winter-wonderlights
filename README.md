@@ -125,14 +125,7 @@ Feel free to open a PR if you want to add a new driver!
 
 To add a new driver, you should first create a new crate in the `drivers/` directory and add it to the
 workspace members in the root `Cargo.toml`. This crate must export a public type which implements
-`ww_driver_trait::Driver` and has a public method of the following form:
-```rust
-impl MyNewDriver {
-    pub fn init() -> Self {
-        // ...
-    }
-}
-```
+`ww_driver_trait::Driver`.
 
 All the implementation details of how the driver works are internal to the crate and unspecified.
 If your driver crate uses anything which is already defined as a workspace dependency, then
