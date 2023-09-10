@@ -14,13 +14,19 @@ mod config {
     use super::*;
 
     /// The config for the [`AiSnake`] effect.
-    #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, BaseEffectConfig)]
+    #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, BaseEffectConfig)]
     pub struct AiSnakeConfig {
         /// How many milliseconds we wait between rendering steps.
         pub milliseconds_per_step: u64,
 
         /// The number of evenly spaced lattice points across the diameter of the bottom of the tree.
         pub lattice_points_across_diameter: u8,
+
+        /// The thickness of the snake and the apple.
+        pub thickness: f32,
+
+        /// The fadeoff of the objects in the frame.
+        pub fadeoff: f32,
 
         /// Should we allow the snake to move diagonally?
         pub allow_diagonal_movement: bool,
@@ -38,9 +44,11 @@ mod config {
     impl Default for AiSnakeConfig {
         fn default() -> Self {
             Self {
-                milliseconds_per_step: 1500,
-                lattice_points_across_diameter: 6,
-                allow_diagonal_movement: false,
+                milliseconds_per_step: 500,
+                lattice_points_across_diameter: 10,
+                thickness: 0.2,
+                fadeoff: 0.2,
+                allow_diagonal_movement: true,
                 head_colour: [14, 252, 10],
                 tail_colour: [2, 140, 0],
                 apple_colour: [252, 20, 20],
@@ -54,7 +62,7 @@ mod config {
 
             config_changed |= ui
                 .add(
-                    egui::Slider::new(&mut self.milliseconds_per_step, 0..=10_000)
+                    egui::Slider::new(&mut self.milliseconds_per_step, 0..=5000)
                         .text("Milliseconds per step")
                         .suffix("ms"),
                 )
@@ -62,9 +70,17 @@ mod config {
 
             config_changed |= ui
                 .add(
-                    egui::Slider::new(&mut self.lattice_points_across_diameter, 0..=60)
+                    egui::Slider::new(&mut self.lattice_points_across_diameter, 0..=25)
                         .text("Lattice points across diameter"),
                 )
+                .changed();
+
+            config_changed |= ui
+                .add(egui::Slider::new(&mut self.thickness, 0.0..=0.5).text("Thickness"))
+                .changed();
+
+            config_changed |= ui
+                .add(egui::Slider::new(&mut self.fadeoff, 0.0..=0.5).text("Fadeoff"))
                 .changed();
 
             config_changed |= ui
@@ -91,7 +107,7 @@ mod effect {
     use super::*;
     use ordered_float::NotNan;
     use rand::Rng;
-    use std::{collections::VecDeque, fmt};
+    use std::{collections::VecDeque, fmt, iter};
     use ww_gift_coords::{GIFTCoords, COORDS};
 
     /// A coordinate in snake space.
@@ -296,6 +312,14 @@ mod effect {
 
             Ok(())
         }
+
+        /// Get the GIFT coordinates of the snake, starting at the end and moving through the tail.
+        fn get_snake_gift_coords(&self) -> Box<[Vec3]> {
+            iter::once(self.head)
+                .chain(self.tail.iter().copied())
+                .map(|coord| Vec3::from(coord.to_gift(self.lattice.cell_width)))
+                .collect()
+        }
     }
 
     /// A collection of valid lattice points.
@@ -464,6 +488,7 @@ mod effect {
                         fail_count = 0;
                         self.snake.reset(&mut self.rng);
                         sleep!(Duration::from_millis(self.config.milliseconds_per_step));
+                        driver.clear();
                         continue;
                     };
                 }
@@ -474,6 +499,33 @@ mod effect {
                 {
                     Ok(()) => {
                         fail_count = 0;
+                        driver.display_frame(FrameType::Frame3D(Frame3D::new(
+                            vec![
+                                FrameObject {
+                                    object: Object::CatmullRomSpline {
+                                        points: self.snake.get_snake_gift_coords(),
+                                        threshold: self.config.thickness,
+                                        start_colour: self.config.head_colour,
+                                        end_colour: self.config.tail_colour,
+                                    },
+                                    colour: [0, 0, 0],
+                                    fadeoff: self.config.fadeoff,
+                                },
+                                FrameObject {
+                                    object: Object::Sphere {
+                                        center: self
+                                            .snake
+                                            .apple
+                                            .to_gift(self.snake.lattice.cell_width)
+                                            .into(),
+                                        radius: self.config.thickness,
+                                    },
+                                    colour: self.config.apple_colour,
+                                    fadeoff: self.config.fadeoff,
+                                },
+                            ],
+                            true,
+                        )));
                         sleep!(Duration::from_millis(self.config.milliseconds_per_step));
                     }
                     Err(SnakeError::PathfindingFail) => {

@@ -3,7 +3,7 @@
 use super::RGBArray;
 use glam::Vec3;
 use serde::{Deserialize, Serialize};
-use tracing::{instrument, trace};
+use tracing::{instrument, trace, warn};
 use ww_gift_coords::COORDS;
 
 /// A single object in the frame, with associated colour and fadeoff.
@@ -50,7 +50,7 @@ impl FrameObject {
                     // If the distance is between the threshold and the fadeoff, then it must be
                     // coloured accordingly
                     } else if dist > threshold && dist <= threshold + self.fadeoff {
-                        self.set_light_colour_by_fade(dist - threshold, light_colour);
+                        self.set_light_colour_by_fade(self.colour, dist - threshold, light_colour);
                     }
                 }
             }
@@ -71,7 +71,7 @@ impl FrameObject {
                     if dist <= radius {
                         *light_colour = self.colour;
                     } else if dist > radius && dist <= radius + self.fadeoff {
-                        self.set_light_colour_by_fade(dist - radius, light_colour);
+                        self.set_light_colour_by_fade(self.colour, dist - radius, light_colour);
                     }
                 }
             }
@@ -121,6 +121,61 @@ impl FrameObject {
                     }
                 }
             }
+
+            Object::CatmullRomSpline {
+                ref points,
+                threshold,
+                start_colour,
+                end_colour,
+            } => {
+                if let ((Some(&first), Some(&second)), (Some(&last), Some(&penultimate))) = (
+                    (points.first(), points.get(1)),
+                    (points.last(), points.get(points.len().saturating_sub(2))),
+                ) {
+                    let control_points = {
+                        let mut v = Vec::with_capacity(points.len() + 2);
+                        v.push(first + (first - second));
+                        v.extend(points.iter());
+                        v.push(last + (last - penultimate));
+                        v
+                    };
+
+                    /// The number of steps between each control point.
+                    const STEPS: usize = 20;
+
+                    let mut interpolated_points =
+                        Vec::with_capacity((control_points.len() - 3) * STEPS);
+                    for &[p0, p1, p2, p3] in control_points.array_windows() {
+                        for t in (0..STEPS).map(|x| x as f32 / STEPS as f32) {
+                            interpolated_points
+                                .push(interpolate_catmull_rom_segment(p0, p1, p2, p3, t));
+                        }
+                    }
+
+                    for (light_colour, &point) in data.iter_mut().zip(COORDS.coords()) {
+                        let dist = interpolated_points
+                            .iter()
+                            .map(|&interpolated_point| {
+                                interpolated_point.distance(Vec3::from(point))
+                            })
+                            .fold(
+                                f32::INFINITY,
+                                |acc, dist| if dist < acc { dist } else { acc },
+                            );
+
+                        if dist <= threshold {
+                            // TODO: Work out colour gradient
+                            *light_colour = start_colour;
+                        } else if dist <= threshold + self.fadeoff {
+                            self.set_light_colour_by_fade(start_colour, dist, light_colour);
+                        }
+                    }
+                } else {
+                    warn!(
+                        "TODO: Render Catmull-Rom spline with 1 or 0 points. Delegate to sphere?"
+                    );
+                };
+            }
         }
     }
 
@@ -131,9 +186,14 @@ impl FrameObject {
 
     /// Set the light colour according to the appropriate fade off, given a distance into the fade
     /// zone and a mut reference to the colour to be changed.
-    fn set_light_colour_by_fade(&self, distance: f32, light_colour: &mut RGBArray) {
+    fn set_light_colour_by_fade(
+        &self,
+        colour: RGBArray,
+        distance: f32,
+        light_colour: &mut RGBArray,
+    ) {
         let fade = self.get_fade(distance);
-        let [r, g, b] = self.colour;
+        let [r, g, b] = colour;
         *light_colour = [
             (r as f32 * fade) as u8,
             (g as f32 * fade) as u8,
@@ -195,4 +255,49 @@ pub enum Object {
         /// The radius of the sphere.
         radius: f32,
     },
+
+    /// A [centripetal Catmull-Rom spline](https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline)
+    /// interpolating a sequence of points with a colour gradient.
+    ///
+    /// When used as part of a [`FrameObject`], the [`colour`](FrameObject::colour) field of the
+    /// `FrameObject` is ignored and the colours of this variant are used instead.
+    CatmullRomSpline {
+        /// The points to interpolate.
+        points: Box<[Vec3]>,
+
+        /// The maximum distance from this object where lights will be counted as part of the
+        /// object.
+        threshold: f32,
+
+        /// The colour at the start of the spline.
+        start_colour: RGBArray,
+
+        /// The colour at the end of the spline.
+        end_colour: RGBArray,
+    },
+}
+
+/// Interpolate a segment of a centripetal Catmull-Rom spline with the 4 given points and the `t`
+/// value.
+fn interpolate_catmull_rom_segment(p0: Vec3, p1: Vec3, p2: Vec3, p3: Vec3, t: f32) -> Vec3 {
+    /// The "tightness" of the curve.
+    const ALPHA: f32 = 0.5;
+
+    debug_assert!(t >= 0.0 && t <= 1.0, "t must be in [0, 1]");
+
+    let t0 = 0.0;
+    let t1 = ((p1 - p0).length()).powf(ALPHA) + t0;
+    let t2 = ((p2 - p1).length()).powf(ALPHA) + t1;
+    let t3 = ((p3 - p2).length()).powf(ALPHA) + t2;
+
+    let t = t1 + (t2 - t1) * t;
+
+    let a1 = p0 * ((t1 - t) / (t1 - t0)) + p1 * ((t - t0) / (t1 - t0));
+    let a2 = p1 * ((t2 - t) / (t2 - t1)) + p2 * ((t - t1) / (t2 - t1));
+    let a3 = p2 * ((t3 - t) / (t3 - t2)) + p3 * ((t - t2) / (t3 - t2));
+
+    let b1 = a1 * ((t2 - t) / (t2 - t0)) + a2 * ((t - t0) / (t2 - t0));
+    let b2 = a2 * ((t3 - t) / (t3 - t1)) + a3 * ((t - t1) / (t3 - t1));
+
+    b1 * ((t2 - t) / (t2 - t1)) + b2 * ((t - t1) / (t2 - t1))
 }
