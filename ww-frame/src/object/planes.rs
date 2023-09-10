@@ -39,6 +39,10 @@ impl FrameObject {
     }
 
     /// Render a split plane into the slice. See [`Object::SplitPlane`].
+    #[allow(
+        clippy::unused_self,
+        reason = "It makes more semantic sense to make this a method on FrameObject"
+    )]
     pub(super) fn render_split_plane_into_slice(
         &self,
         normal: Vec3,

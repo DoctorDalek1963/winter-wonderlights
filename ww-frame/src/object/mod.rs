@@ -41,7 +41,7 @@ impl FrameObject {
             }
 
             Object::Sphere { center, radius } => {
-                self.render_sphere_into_slice(center, radius, data)
+                self.render_sphere_into_slice(center, radius, data);
             }
 
             Object::SplitPlane {
