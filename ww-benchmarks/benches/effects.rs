@@ -33,13 +33,13 @@ struct ConvertFrameDriver {
 impl Driver for ConvertFrameDriver {
     unsafe fn init() -> Self {
         Self {
-            current_frame: vec![],
+            current_frame: Vec::with_capacity(LIGHTS_NUM),
         }
     }
 
     fn display_frame(&mut self, frame: FrameType) {
         match frame {
-            FrameType::Off => self.current_frame = vec![[0, 0, 0]; LIGHTS_NUM],
+            FrameType::Off => self.current_frame.fill([0; 3]),
             FrameType::RawData(data) => self.current_frame = data,
             FrameType::Frame3D(frame) => self.current_frame = frame.to_raw_data(),
         };
