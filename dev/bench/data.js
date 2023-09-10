@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1694373636649,
+  "lastUpdate": 1694375133495,
   "repoUrl": "https://github.com/DoctorDalek1963/winter-wonderlights",
   "entries": {
     "Benchmark": [
@@ -3383,6 +3383,102 @@ window.BENCHMARK_DATA = {
             "name": "(ConvertFrameDriver) AiSnake",
             "value": 16124530,
             "range": "± 451455",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "committer": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "distinct": true,
+          "id": "b5c549192483c99f2ce1dba39fe7ca3cc6103d5d",
+          "message": "Allocate enough capacity in `ConvertFrameDriver` for benchmarks, and use `.fill()` instead of reallocating and moving a new Vec",
+          "timestamp": "2023-09-10T20:16:36+01:00",
+          "tree_id": "f88317c18b18e9830a66d89a4903da1cac8027d7",
+          "url": "https://github.com/DoctorDalek1963/winter-wonderlights/commit/b5c549192483c99f2ce1dba39fe7ca3cc6103d5d"
+        },
+        "date": 1694375133048,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "(SimpleDriver) DebugOneByOne",
+            "value": 37581,
+            "range": "± 156",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugOneByOne",
+            "value": 162982,
+            "range": "± 526",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) DebugBinaryIndex",
+            "value": 121286,
+            "range": "± 191",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugBinaryIndex",
+            "value": 132272,
+            "range": "± 859",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) MovingPlane",
+            "value": 2688695,
+            "range": "± 2887",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) MovingPlane",
+            "value": 2731977,
+            "range": "± 2677",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) SplitPlane",
+            "value": 2863,
+            "range": "± 5",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) SplitPlane",
+            "value": 569626,
+            "range": "± 349",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) LavaLamp",
+            "value": 30690,
+            "range": "± 18",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) LavaLamp",
+            "value": 2588554,
+            "range": "± 6168",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) AiSnake",
+            "value": 6141449,
+            "range": "± 138352",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) AiSnake",
+            "value": 16262838,
+            "range": "± 253076",
             "unit": "ns/iter"
           }
         ]
