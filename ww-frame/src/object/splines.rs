@@ -38,20 +38,42 @@ impl FrameObject {
                 }
             }
 
+            let interp_len = interpolated_points.len() as f32;
+
             for (light_colour, &point) in data.iter_mut().zip(COORDS.coords()) {
-                let dist = interpolated_points
+                let (idx, dist) = interpolated_points
                     .iter()
                     .map(|&interpolated_point| interpolated_point.distance(Vec3::from(point)))
-                    .fold(
-                        f32::INFINITY,
-                        |acc, dist| if dist < acc { dist } else { acc },
-                    );
+                    .enumerate()
+                    .fold((0, f32::INFINITY), |(acc_idx, acc_dist), (idx, dist)| {
+                        if dist < acc_dist {
+                            (idx, dist)
+                        } else {
+                            (acc_idx, acc_dist)
+                        }
+                    });
 
-                if dist <= threshold {
-                    // TODO: Work out colour gradient
-                    *light_colour = start_colour;
-                } else if dist <= threshold + self.fadeoff {
-                    self.set_light_colour_by_fade(start_colour, dist, light_colour);
+                if dist <= threshold + self.fadeoff {
+                    let proportion = idx as f32 / interp_len;
+                    let [sr, sg, sb] = start_colour;
+                    let [er, eg, eb] = end_colour;
+                    let colour = [
+                        ((1. - proportion) * sr as f32 + proportion * er as f32)
+                            .clamp(0., 255.)
+                            .floor() as u8,
+                        ((1. - proportion) * sg as f32 + proportion * eg as f32)
+                            .clamp(0., 255.)
+                            .floor() as u8,
+                        ((1. - proportion) * sb as f32 + proportion * eb as f32)
+                            .clamp(0., 255.)
+                            .floor() as u8,
+                    ];
+
+                    if dist <= threshold {
+                        *light_colour = colour;
+                    } else {
+                        self.set_light_colour_by_fade(colour, dist, light_colour);
+                    }
                 }
             }
         } else {
