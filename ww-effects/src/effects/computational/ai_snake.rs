@@ -44,8 +44,8 @@ mod config {
     impl Default for AiSnakeConfig {
         fn default() -> Self {
             Self {
-                milliseconds_per_step: 500,
-                lattice_points_across_diameter: 10,
+                milliseconds_per_step: 250,
+                lattice_points_across_diameter: 8,
                 thickness: 0.2,
                 fadeoff: 0.2,
                 allow_diagonal_movement: true,
@@ -70,7 +70,7 @@ mod config {
 
             config_changed |= ui
                 .add(
-                    egui::Slider::new(&mut self.lattice_points_across_diameter, 0..=25)
+                    egui::Slider::new(&mut self.lattice_points_across_diameter, 0..=10)
                         .text("Lattice points across diameter"),
                 )
                 .changed();
@@ -373,13 +373,6 @@ mod effect {
                 points,
                 cell_width: 2.0 / config.lattice_points_across_diameter as f32,
             }
-        }
-
-        /// Iterate over the points in the lattice as GIFT coordinates.
-        fn iter_gift_coords(&self) -> impl Iterator<Item = (f32, f32, f32)> + '_ {
-            self.points
-                .iter()
-                .map(|coord| coord.to_gift(self.cell_width))
         }
 
         /// Get a random point from the lattice.
