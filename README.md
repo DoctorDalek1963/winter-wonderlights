@@ -82,11 +82,70 @@ TODO: Explain deploying server on RasPi or similar
 
 Feel free to open a PR if you want to add a new effect!
 
-To add a new effect, you only need to look at the `ww-effects` crate. The actual effect implementations live in the `effects` module. You may want to create a new submodule for your effect if you don't want to use the modules that already exist. You will need to add the actual implementation for your effect, using the existing implementations as examples. You should have
+To add a new effect, you only need to look at the `ww-effects` crate. The actual effect implementations live in the `effects` module. You may want to create a new submodule for your effect if you don't want to use the modules that already exist. You will need to add the actual implementation for your effect, using the existing implementations as examples. Your new effect file should look something like this (but everything should be properly documented):
 ```rust
+#[cfg(feature = "config-impls")]
+pub use config::MyNewEffectConfig;
+
+#[cfg(feature = "effect-impls")]
+pub use effect::MyNewEffect;
+
 use crate::effects::prelude::*;
+
+#[cfg(feature = "config-impls")]
+mod config {
+    use super::*;
+
+    #[derive(Clone, PartialEq, Serialize, Deserialize, BaseEffectConfig)]
+    pub struct MyNewEffectConfig {
+        // ...
+    }
+
+    impl Default for MyNewEffectConfig {
+        // ...
+    }
+
+    impl EffectConfig for MyNewEffectConfig {
+        fn render_options_gui(&mut self, _ctx: &egui::Context, ui: &mut egui::Ui) -> bool {
+            // ...
+        }
+    }
+}
+
+#[cfg(feature = "effect-impls")]
+mod effect {
+    use super::*;
+
+    #[derive(BaseEffect)]
+    pub struct MyNewEffect {
+        config: MyNewEffectConfig,
+        // ...
+    }
+
+    impl Effect for MyNewEffect {
+        fn from_config(config: MyNewEffectConfig) -> Self {
+            // ...
+        }
+
+        async fn run(self, driver: &mut dyn Driver) {
+            // ...
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{traits::Effect, TestDriver};
+
+    #[tokio::test]
+    async fn my_new_effect_test() {
+        // ...
+    }
+}
 ```
-at the top of the file, separate `config` and `effect` modules with feature-dependent public exports, and preferably some tests at the end. You must also publicly export the effect from the parent modules up to `src/effect`. You must also add the name of your effect to `src/lib.rs` like so:
+
+You must also publicly export the effect from the parent modules up to `src/effect`. You must also add the name of your effect to `src/lib.rs` like so:
 ```rust
 pub mod list {
     effect_proc_macros::generate_lists_and_impls! {
