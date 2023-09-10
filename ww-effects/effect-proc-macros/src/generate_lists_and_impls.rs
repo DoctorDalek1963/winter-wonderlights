@@ -17,7 +17,6 @@ fn generate_lists_and_impls2(input: TokenStream) -> Result<TokenStream> {
     let effect_names = get_effect_names(input)?;
     let config_names: Vec<Ident> = effect_names
         .iter()
-        .cloned()
         .map(|ident| format_ident!("{ident}Config"))
         .collect();
 

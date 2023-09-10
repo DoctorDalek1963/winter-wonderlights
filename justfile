@@ -89,6 +89,8 @@ ci-build build-type flags='':
 # https://github.com/rust-lang/rust-clippy/issues/10377 actually gets merged
 # into nightly
 
+# TODO: Deny clippy::multiple-unsafe-ops-per-block once it works properly
+
 # run clippy over the whole project
 clippy args='':
 	cargo clippy --no-deps -- \
@@ -123,7 +125,6 @@ clippy args='':
 	-D clippy::get-unwrap \
 	-D clippy::missing-assert-message \
 	-D clippy::missing-docs-in-private-items \
-	-D clippy::multiple-unsafe-ops-per-block \
 	-D clippy::rest-pat-in-fully-bound-structs \
 	-D clippy::self-named-module-files \
 	-D clippy::semicolon-if-nothing-returned \

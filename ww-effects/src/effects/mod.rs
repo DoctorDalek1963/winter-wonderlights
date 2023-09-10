@@ -95,7 +95,7 @@ pub(crate) mod prelude {
     pub mod effect_prelude {
         pub(crate) use crate::{
             effects::{rng, sleep},
-            traits::Effect,
+            traits::{BaseEffect, Effect},
         };
         pub use effect_proc_macros::{end_loop_in_test_or_bench, BaseEffect};
         pub use glam::{Quat, Vec3};
@@ -112,6 +112,7 @@ pub(crate) mod prelude {
 }
 
 pub mod aesthetic;
+pub mod computational;
 pub mod debug;
 pub mod maths;
 
@@ -127,6 +128,7 @@ pub use self::effects::*;
 pub mod effects {
     pub use super::{
         aesthetic::LavaLamp,
+        computational::AiSnake,
         debug::{DebugBinaryIndex, DebugOneByOne},
         maths::{MovingPlane, SplitPlane},
     };
@@ -140,6 +142,7 @@ pub use self::configs::*;
 pub mod configs {
     pub use super::{
         aesthetic::LavaLampConfig,
+        computational::AiSnakeConfig,
         debug::{DebugBinaryIndexConfig, DebugOneByOneConfig},
         maths::{MovingPlaneConfig, SplitPlaneConfig},
     };

@@ -81,16 +81,14 @@ mod effect {
         rng: StdRng,
     }
 
-    impl Default for MovingPlane {
-        fn default() -> Self {
+    impl Effect for MovingPlane {
+        fn from_config(config: MovingPlaneConfig) -> Self {
             Self {
-                config: MovingPlaneConfig::default(),
+                config,
                 rng: rng!(),
             }
         }
-    }
 
-    impl Effect for MovingPlane {
         async fn run(mut self, driver: &mut dyn Driver) {
             let colour: RGBArray = self.rng.gen();
             let normal: Vec3 = random_vector(&mut self.rng);

@@ -71,13 +71,17 @@ mod effect {
     use super::*;
 
     /// Light up each light individually, one-by-one.
-    #[derive(Clone, Debug, Default, PartialEq, Eq, BaseEffect)]
+    #[derive(Clone, Debug, PartialEq, Eq, BaseEffect)]
     pub struct DebugOneByOne {
         /// The config for this effect.
         config: DebugOneByOneConfig,
     }
 
     impl Effect for DebugOneByOne {
+        fn from_config(config: DebugOneByOneConfig) -> Self {
+            Self { config }
+        }
+
         async fn run(self, driver: &mut dyn Driver) {
             driver.clear();
 

@@ -142,6 +142,9 @@ pub trait Effect: BaseEffect {
         Self::Config::from_file(&Self::config_filename())
     }
 
+    /// Create the effect from its config.
+    fn from_config(config: <Self as BaseEffect>::Config) -> Self;
+
     /// Run the effect with the given driver.
     ///
     /// This function should not handle looping the effect. That's handled by the driver code, so
