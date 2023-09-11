@@ -74,9 +74,9 @@ ci-build build-type flags='':
 
 		'driver-raspi-ws2811')
 			cd {{justfile_directory()}}/ww-server
-			sudo apt-get install libclang-dev
-			# TODO: Compile for Raspberry Pi architecture (use cross?)
-			cargo build --no-default-features --features driver-raspi-ws2811 {{flags}}
+			sudo apt-get install -y gcc-arm-linux-gnueabi libclang-dev
+			rustup target add armv7-unknown-linux-gnueabihf
+			CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER="arm-linux-gnueabihf-gcc" cargo build --no-default-features --features driver-raspi-ws2811 --target armv7-unknown-linux-gnueabihf {{flags}}
 		;;
 
 		*)
