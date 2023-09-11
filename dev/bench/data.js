@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1694442727822,
+  "lastUpdate": 1694443352883,
   "repoUrl": "https://github.com/DoctorDalek1963/winter-wonderlights",
   "entries": {
     "Benchmark": [
@@ -3767,6 +3767,102 @@ window.BENCHMARK_DATA = {
             "name": "(ConvertFrameDriver) AiSnake",
             "value": 18596716,
             "range": "± 14594",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "committer": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "distinct": true,
+          "id": "d7910547d9241718f433622f6bd3c50e1fe26ef7",
+          "message": "Make cross compilation for Raspberry Pi work in CI",
+          "timestamp": "2023-09-11T15:37:02+01:00",
+          "tree_id": "bfc681e5753cfbecc9f6700df002ae59f305049a",
+          "url": "https://github.com/DoctorDalek1963/winter-wonderlights/commit/d7910547d9241718f433622f6bd3c50e1fe26ef7"
+        },
+        "date": 1694443352280,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "(SimpleDriver) DebugOneByOne",
+            "value": 58833,
+            "range": "± 3279",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugOneByOne",
+            "value": 283382,
+            "range": "± 16354",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) DebugBinaryIndex",
+            "value": 189269,
+            "range": "± 10629",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugBinaryIndex",
+            "value": 183741,
+            "range": "± 8830",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) MovingPlane",
+            "value": 3380984,
+            "range": "± 128412",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) MovingPlane",
+            "value": 3335921,
+            "range": "± 161734",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) SplitPlane",
+            "value": 4333,
+            "range": "± 304",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) SplitPlane",
+            "value": 651064,
+            "range": "± 25550",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) LavaLamp",
+            "value": 37930,
+            "range": "± 1933",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) LavaLamp",
+            "value": 3381921,
+            "range": "± 173040",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) AiSnake",
+            "value": 7044822,
+            "range": "± 259744",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) AiSnake",
+            "value": 18361137,
+            "range": "± 674623",
             "unit": "ns/iter"
           }
         ]
