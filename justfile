@@ -74,7 +74,8 @@ ci-build build-type flags='':
 
 		'driver-raspi-ws2811')
 			cd {{justfile_directory()}}/ww-server
-			sudo apt-get install -y gcc-arm-linux-gnueabi libclang-dev
+			sudo apt-get update
+			sudo apt-get install -y gcc-arm-linux-gnueabihf libclang-dev
 			rustup target add armv7-unknown-linux-gnueabihf
 			export CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER="/usr/bin/arm-linux-gnueabihf-gcc"
 			export TARGET_CC="/usr/bin/arm-linux-gnueabihf-gcc"
