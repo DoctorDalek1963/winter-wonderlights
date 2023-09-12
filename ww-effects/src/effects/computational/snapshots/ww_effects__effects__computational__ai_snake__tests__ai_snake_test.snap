@@ -1122,7 +1122,7 @@ expression: driver.data
       FrameObject(
         object: CatmullRomSpline(
           points: [
-            Vec3(0.25, -0.75, 0.5),
+            Vec3(-0.75, 0.25, 1.5),
           ],
           threshold: 0.2,
           start_colour: (14, 252, 10),
@@ -1133,7 +1133,7 @@ expression: driver.data
       ),
       FrameObject(
         object: Sphere(
-          center: Vec3(-0.5, -0.75, 0.5),
+          center: Vec3(0.25, -0.25, 2.5),
           radius: 0.2,
         ),
         colour: (252, 20, 20),
@@ -1147,8 +1147,1017 @@ expression: driver.data
       FrameObject(
         object: CatmullRomSpline(
           points: [
-            Vec3(0.0, -0.5, 0.75),
-            Vec3(0.25, -0.75, 0.5),
+            Vec3(-0.5, 0.0, 1.75),
+            Vec3(-0.75, 0.25, 1.5),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, -0.25, 2.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(-0.5, -0.25, 2.0),
+            Vec3(-0.5, 0.0, 1.75),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, -0.25, 2.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(-0.25, -0.5, 2.25),
+            Vec3(-0.5, -0.25, 2.0),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, -0.25, 2.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.0, -0.5, 2.25),
+            Vec3(-0.25, -0.5, 2.25),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, -0.25, 2.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.25, -0.25, 2.5),
+            Vec3(0.0, -0.5, 2.25),
+            Vec3(-0.25, -0.5, 2.25),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, -0.25, 2.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.25, -0.25, 2.5),
+            Vec3(0.0, -0.5, 2.25),
+            Vec3(-0.25, -0.5, 2.25),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, -0.75, 1.0),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.25, -0.25, 2.25),
+            Vec3(0.25, -0.25, 2.5),
+            Vec3(0.0, -0.5, 2.25),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, -0.75, 1.0),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.25, -0.5, 2.0),
+            Vec3(0.25, -0.25, 2.25),
+            Vec3(0.25, -0.25, 2.5),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, -0.75, 1.0),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.25, -0.5, 1.75),
+            Vec3(0.25, -0.5, 2.0),
+            Vec3(0.25, -0.25, 2.25),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, -0.75, 1.0),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.25, -0.5, 1.5),
+            Vec3(0.25, -0.5, 1.75),
+            Vec3(0.25, -0.5, 2.0),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, -0.75, 1.0),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.25, -0.75, 1.25),
+            Vec3(0.25, -0.5, 1.5),
+            Vec3(0.25, -0.5, 1.75),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, -0.75, 1.0),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.25, -0.75, 1.0),
+            Vec3(0.25, -0.75, 1.25),
+            Vec3(0.25, -0.5, 1.5),
+            Vec3(0.25, -0.5, 1.75),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, -0.75, 1.0),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.25, -0.75, 1.0),
+            Vec3(0.25, -0.75, 1.25),
+            Vec3(0.25, -0.5, 1.5),
+            Vec3(0.25, -0.5, 1.75),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, 0.0, 3.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.5, -0.5, 1.25),
+            Vec3(0.25, -0.75, 1.0),
+            Vec3(0.25, -0.75, 1.25),
+            Vec3(0.25, -0.5, 1.5),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, 0.0, 3.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.5, -0.25, 1.5),
+            Vec3(0.5, -0.5, 1.25),
+            Vec3(0.25, -0.75, 1.0),
+            Vec3(0.25, -0.75, 1.25),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, 0.0, 3.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.5, -0.5, 1.75),
+            Vec3(0.5, -0.25, 1.5),
+            Vec3(0.5, -0.5, 1.25),
+            Vec3(0.25, -0.75, 1.0),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, 0.0, 3.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.5, -0.5, 2.0),
+            Vec3(0.5, -0.5, 1.75),
+            Vec3(0.5, -0.25, 1.5),
+            Vec3(0.5, -0.5, 1.25),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, 0.0, 3.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.25, -0.25, 2.25),
+            Vec3(0.5, -0.5, 2.0),
+            Vec3(0.5, -0.5, 1.75),
+            Vec3(0.5, -0.25, 1.5),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, 0.0, 3.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.25, -0.25, 2.5),
+            Vec3(0.25, -0.25, 2.25),
+            Vec3(0.5, -0.5, 2.0),
+            Vec3(0.5, -0.5, 1.75),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, 0.0, 3.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.25, -0.25, 2.75),
+            Vec3(0.25, -0.25, 2.5),
+            Vec3(0.25, -0.25, 2.25),
+            Vec3(0.5, -0.5, 2.0),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, 0.0, 3.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.25, -0.25, 3.0),
+            Vec3(0.25, -0.25, 2.75),
+            Vec3(0.25, -0.25, 2.5),
+            Vec3(0.25, -0.25, 2.25),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, 0.0, 3.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.0, 0.0, 3.25),
+            Vec3(0.25, -0.25, 3.0),
+            Vec3(0.25, -0.25, 2.75),
+            Vec3(0.25, -0.25, 2.5),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, 0.0, 3.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.25, 0.0, 3.5),
+            Vec3(0.0, 0.0, 3.25),
+            Vec3(0.25, -0.25, 3.0),
+            Vec3(0.25, -0.25, 2.75),
+            Vec3(0.25, -0.25, 2.5),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, 0.0, 3.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.25, 0.0, 3.5),
+            Vec3(0.0, 0.0, 3.25),
+            Vec3(0.25, -0.25, 3.0),
+            Vec3(0.25, -0.25, 2.75),
+            Vec3(0.25, -0.25, 2.5),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, 0.25, 2.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.0, 0.25, 3.25),
+            Vec3(0.25, 0.0, 3.5),
+            Vec3(0.0, 0.0, 3.25),
+            Vec3(0.25, -0.25, 3.0),
+            Vec3(0.25, -0.25, 2.75),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, 0.25, 2.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.0, 0.0, 3.0),
+            Vec3(0.0, 0.25, 3.25),
+            Vec3(0.25, 0.0, 3.5),
+            Vec3(0.0, 0.0, 3.25),
+            Vec3(0.25, -0.25, 3.0),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, 0.25, 2.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.25, 0.0, 2.75),
+            Vec3(0.0, 0.0, 3.0),
+            Vec3(0.0, 0.25, 3.25),
+            Vec3(0.25, 0.0, 3.5),
+            Vec3(0.0, 0.0, 3.25),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, 0.25, 2.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.25, 0.25, 2.5),
+            Vec3(0.25, 0.0, 2.75),
+            Vec3(0.0, 0.0, 3.0),
+            Vec3(0.0, 0.25, 3.25),
+            Vec3(0.25, 0.0, 3.5),
+            Vec3(0.0, 0.0, 3.25),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.25, 0.25, 2.5),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.25, 0.25, 2.5),
+            Vec3(0.25, 0.0, 2.75),
+            Vec3(0.0, 0.0, 3.0),
+            Vec3(0.0, 0.25, 3.25),
+            Vec3(0.25, 0.0, 3.5),
+            Vec3(0.0, 0.0, 3.25),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(-0.75, -0.75, 1.75),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.0, 0.25, 2.5),
+            Vec3(0.25, 0.25, 2.5),
+            Vec3(0.25, 0.0, 2.75),
+            Vec3(0.0, 0.0, 3.0),
+            Vec3(0.0, 0.25, 3.25),
+            Vec3(0.25, 0.0, 3.5),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(-0.75, -0.75, 1.75),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(-0.25, 0.0, 2.5),
+            Vec3(0.0, 0.25, 2.5),
+            Vec3(0.25, 0.25, 2.5),
+            Vec3(0.25, 0.0, 2.75),
+            Vec3(0.0, 0.0, 3.0),
+            Vec3(0.0, 0.25, 3.25),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(-0.75, -0.75, 1.75),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(-0.5, -0.25, 2.25),
+            Vec3(-0.25, 0.0, 2.5),
+            Vec3(0.0, 0.25, 2.5),
+            Vec3(0.25, 0.25, 2.5),
+            Vec3(0.25, 0.0, 2.75),
+            Vec3(0.0, 0.0, 3.0),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(-0.75, -0.75, 1.75),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(-0.5, -0.5, 2.0),
+            Vec3(-0.5, -0.25, 2.25),
+            Vec3(-0.25, 0.0, 2.5),
+            Vec3(0.0, 0.25, 2.5),
+            Vec3(0.25, 0.25, 2.5),
+            Vec3(0.25, 0.0, 2.75),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(-0.75, -0.75, 1.75),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(-0.75, -0.75, 1.75),
+            Vec3(-0.5, -0.5, 2.0),
+            Vec3(-0.5, -0.25, 2.25),
+            Vec3(-0.25, 0.0, 2.5),
+            Vec3(0.0, 0.25, 2.5),
+            Vec3(0.25, 0.25, 2.5),
+            Vec3(0.25, 0.0, 2.75),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(-0.75, -0.75, 1.75),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Off,
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.25, -0.5, 0.75),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.0, -0.25, 1.0),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.0, -0.25, 1.0),
+            Vec3(0.25, -0.5, 0.75),
+          ],
+          threshold: 0.2,
+          start_colour: (14, 252, 10),
+          end_colour: (2, 140, 0),
+        ),
+        colour: (0, 0, 0),
+        fadeoff: 0.2,
+      ),
+      FrameObject(
+        object: Sphere(
+          center: Vec3(0.0, -0.25, 1.0),
+          radius: 0.2,
+        ),
+        colour: (252, 20, 20),
+        fadeoff: 0.2,
+      ),
+    ],
+    blend: true,
+  )),
+  Frame3D(Frame3D(
+    objects: [
+      FrameObject(
+        object: CatmullRomSpline(
+          points: [
+            Vec3(0.0, -0.25, 1.0),
+            Vec3(0.25, -0.5, 0.75),
           ],
           threshold: 0.2,
           start_colour: (14, 252, 10),
@@ -1174,7 +2183,7 @@ expression: driver.data
         object: CatmullRomSpline(
           points: [
             Vec3(-0.25, -0.5, 0.75),
-            Vec3(0.0, -0.5, 0.75),
+            Vec3(0.0, -0.25, 1.0),
           ],
           threshold: 0.2,
           start_colour: (14, 252, 10),
@@ -1201,7 +2210,7 @@ expression: driver.data
           points: [
             Vec3(-0.5, -0.75, 0.5),
             Vec3(-0.25, -0.5, 0.75),
-            Vec3(0.0, -0.5, 0.75),
+            Vec3(0.0, -0.25, 1.0),
           ],
           threshold: 0.2,
           start_colour: (14, 252, 10),
@@ -1228,7 +2237,7 @@ expression: driver.data
           points: [
             Vec3(-0.5, -0.75, 0.5),
             Vec3(-0.25, -0.5, 0.75),
-            Vec3(0.0, -0.5, 0.75),
+            Vec3(0.0, -0.25, 1.0),
           ],
           threshold: 0.2,
           start_colour: (14, 252, 10),
@@ -1835,852 +2844,6 @@ expression: driver.data
       FrameObject(
         object: Sphere(
           center: Vec3(0.75, -0.25, 0.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(-0.5, 0.25, 1.25),
-            Vec3(-0.75, 0.25, 1.25),
-            Vec3(-0.5, 0.0, 1.5),
-            Vec3(-0.5, -0.25, 1.5),
-            Vec3(-0.25, -0.5, 1.75),
-            Vec3(0.0, -0.5, 1.75),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(0.75, -0.25, 0.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(-0.25, 0.5, 1.25),
-            Vec3(-0.5, 0.25, 1.25),
-            Vec3(-0.75, 0.25, 1.25),
-            Vec3(-0.5, 0.0, 1.5),
-            Vec3(-0.5, -0.25, 1.5),
-            Vec3(-0.25, -0.5, 1.75),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(0.75, -0.25, 0.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(0.0, 0.25, 1.0),
-            Vec3(-0.25, 0.5, 1.25),
-            Vec3(-0.5, 0.25, 1.25),
-            Vec3(-0.75, 0.25, 1.25),
-            Vec3(-0.5, 0.0, 1.5),
-            Vec3(-0.5, -0.25, 1.5),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(0.75, -0.25, 0.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(0.25, 0.0, 1.0),
-            Vec3(0.0, 0.25, 1.0),
-            Vec3(-0.25, 0.5, 1.25),
-            Vec3(-0.5, 0.25, 1.25),
-            Vec3(-0.75, 0.25, 1.25),
-            Vec3(-0.5, 0.0, 1.5),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(0.75, -0.25, 0.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(0.5, 0.0, 1.0),
-            Vec3(0.25, 0.0, 1.0),
-            Vec3(0.0, 0.25, 1.0),
-            Vec3(-0.25, 0.5, 1.25),
-            Vec3(-0.5, 0.25, 1.25),
-            Vec3(-0.75, 0.25, 1.25),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(0.75, -0.25, 0.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(0.75, -0.25, 0.75),
-            Vec3(0.5, 0.0, 1.0),
-            Vec3(0.25, 0.0, 1.0),
-            Vec3(0.0, 0.25, 1.0),
-            Vec3(-0.25, 0.5, 1.25),
-            Vec3(-0.5, 0.25, 1.25),
-            Vec3(-0.75, 0.25, 1.25),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(0.75, -0.25, 0.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(0.75, -0.25, 0.75),
-            Vec3(0.5, 0.0, 1.0),
-            Vec3(0.25, 0.0, 1.0),
-            Vec3(0.0, 0.25, 1.0),
-            Vec3(-0.25, 0.5, 1.25),
-            Vec3(-0.5, 0.25, 1.25),
-            Vec3(-0.75, 0.25, 1.25),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(0.25, 0.5, 2.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(0.75, -0.25, 1.0),
-            Vec3(0.75, -0.25, 0.75),
-            Vec3(0.5, 0.0, 1.0),
-            Vec3(0.25, 0.0, 1.0),
-            Vec3(0.0, 0.25, 1.0),
-            Vec3(-0.25, 0.5, 1.25),
-            Vec3(-0.5, 0.25, 1.25),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(0.25, 0.5, 2.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(0.75, -0.25, 1.25),
-            Vec3(0.75, -0.25, 1.0),
-            Vec3(0.75, -0.25, 0.75),
-            Vec3(0.5, 0.0, 1.0),
-            Vec3(0.25, 0.0, 1.0),
-            Vec3(0.0, 0.25, 1.0),
-            Vec3(-0.25, 0.5, 1.25),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(0.25, 0.5, 2.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(0.5, -0.25, 1.5),
-            Vec3(0.75, -0.25, 1.25),
-            Vec3(0.75, -0.25, 1.0),
-            Vec3(0.75, -0.25, 0.75),
-            Vec3(0.5, 0.0, 1.0),
-            Vec3(0.25, 0.0, 1.0),
-            Vec3(0.0, 0.25, 1.0),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(0.25, 0.5, 2.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(0.5, -0.5, 1.75),
-            Vec3(0.5, -0.25, 1.5),
-            Vec3(0.75, -0.25, 1.25),
-            Vec3(0.75, -0.25, 1.0),
-            Vec3(0.75, -0.25, 0.75),
-            Vec3(0.5, 0.0, 1.0),
-            Vec3(0.25, 0.0, 1.0),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(0.25, 0.5, 2.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(0.5, -0.5, 2.0),
-            Vec3(0.5, -0.5, 1.75),
-            Vec3(0.5, -0.25, 1.5),
-            Vec3(0.75, -0.25, 1.25),
-            Vec3(0.75, -0.25, 1.0),
-            Vec3(0.75, -0.25, 0.75),
-            Vec3(0.5, 0.0, 1.0),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(0.25, 0.5, 2.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(0.25, -0.25, 2.25),
-            Vec3(0.5, -0.5, 2.0),
-            Vec3(0.5, -0.5, 1.75),
-            Vec3(0.5, -0.25, 1.5),
-            Vec3(0.75, -0.25, 1.25),
-            Vec3(0.75, -0.25, 1.0),
-            Vec3(0.75, -0.25, 0.75),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(0.25, 0.5, 2.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(0.25, 0.0, 2.25),
-            Vec3(0.25, -0.25, 2.25),
-            Vec3(0.5, -0.5, 2.0),
-            Vec3(0.5, -0.5, 1.75),
-            Vec3(0.5, -0.25, 1.5),
-            Vec3(0.75, -0.25, 1.25),
-            Vec3(0.75, -0.25, 1.0),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(0.25, 0.5, 2.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(0.25, 0.25, 2.5),
-            Vec3(0.25, 0.0, 2.25),
-            Vec3(0.25, -0.25, 2.25),
-            Vec3(0.5, -0.5, 2.0),
-            Vec3(0.5, -0.5, 1.75),
-            Vec3(0.5, -0.25, 1.5),
-            Vec3(0.75, -0.25, 1.25),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(0.25, 0.5, 2.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(0.25, 0.5, 2.75),
-            Vec3(0.25, 0.25, 2.5),
-            Vec3(0.25, 0.0, 2.25),
-            Vec3(0.25, -0.25, 2.25),
-            Vec3(0.5, -0.5, 2.0),
-            Vec3(0.5, -0.5, 1.75),
-            Vec3(0.5, -0.25, 1.5),
-            Vec3(0.75, -0.25, 1.25),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(0.25, 0.5, 2.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(0.25, 0.5, 2.75),
-            Vec3(0.25, 0.25, 2.5),
-            Vec3(0.25, 0.0, 2.25),
-            Vec3(0.25, -0.25, 2.25),
-            Vec3(0.5, -0.5, 2.0),
-            Vec3(0.5, -0.5, 1.75),
-            Vec3(0.5, -0.25, 1.5),
-            Vec3(0.75, -0.25, 1.25),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(-0.5, -0.25, 0.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(0.0, 0.25, 2.75),
-            Vec3(0.25, 0.5, 2.75),
-            Vec3(0.25, 0.25, 2.5),
-            Vec3(0.25, 0.0, 2.25),
-            Vec3(0.25, -0.25, 2.25),
-            Vec3(0.5, -0.5, 2.0),
-            Vec3(0.5, -0.5, 1.75),
-            Vec3(0.5, -0.25, 1.5),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(-0.5, -0.25, 0.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(-0.25, 0.0, 2.5),
-            Vec3(0.0, 0.25, 2.75),
-            Vec3(0.25, 0.5, 2.75),
-            Vec3(0.25, 0.25, 2.5),
-            Vec3(0.25, 0.0, 2.25),
-            Vec3(0.25, -0.25, 2.25),
-            Vec3(0.5, -0.5, 2.0),
-            Vec3(0.5, -0.5, 1.75),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(-0.5, -0.25, 0.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(-0.5, -0.25, 2.25),
-            Vec3(-0.25, 0.0, 2.5),
-            Vec3(0.0, 0.25, 2.75),
-            Vec3(0.25, 0.5, 2.75),
-            Vec3(0.25, 0.25, 2.5),
-            Vec3(0.25, 0.0, 2.25),
-            Vec3(0.25, -0.25, 2.25),
-            Vec3(0.5, -0.5, 2.0),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(-0.5, -0.25, 0.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(-0.5, -0.25, 2.0),
-            Vec3(-0.5, -0.25, 2.25),
-            Vec3(-0.25, 0.0, 2.5),
-            Vec3(0.0, 0.25, 2.75),
-            Vec3(0.25, 0.5, 2.75),
-            Vec3(0.25, 0.25, 2.5),
-            Vec3(0.25, 0.0, 2.25),
-            Vec3(0.25, -0.25, 2.25),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(-0.5, -0.25, 0.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(-0.5, -0.25, 1.75),
-            Vec3(-0.5, -0.25, 2.0),
-            Vec3(-0.5, -0.25, 2.25),
-            Vec3(-0.25, 0.0, 2.5),
-            Vec3(0.0, 0.25, 2.75),
-            Vec3(0.25, 0.5, 2.75),
-            Vec3(0.25, 0.25, 2.5),
-            Vec3(0.25, 0.0, 2.25),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(-0.5, -0.25, 0.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(-0.5, -0.25, 1.5),
-            Vec3(-0.5, -0.25, 1.75),
-            Vec3(-0.5, -0.25, 2.0),
-            Vec3(-0.5, -0.25, 2.25),
-            Vec3(-0.25, 0.0, 2.5),
-            Vec3(0.0, 0.25, 2.75),
-            Vec3(0.25, 0.5, 2.75),
-            Vec3(0.25, 0.25, 2.5),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(-0.5, -0.25, 0.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(-0.5, -0.25, 1.25),
-            Vec3(-0.5, -0.25, 1.5),
-            Vec3(-0.5, -0.25, 1.75),
-            Vec3(-0.5, -0.25, 2.0),
-            Vec3(-0.5, -0.25, 2.25),
-            Vec3(-0.25, 0.0, 2.5),
-            Vec3(0.0, 0.25, 2.75),
-            Vec3(0.25, 0.5, 2.75),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(-0.5, -0.25, 0.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(-0.5, -0.25, 1.0),
-            Vec3(-0.5, -0.25, 1.25),
-            Vec3(-0.5, -0.25, 1.5),
-            Vec3(-0.5, -0.25, 1.75),
-            Vec3(-0.5, -0.25, 2.0),
-            Vec3(-0.5, -0.25, 2.25),
-            Vec3(-0.25, 0.0, 2.5),
-            Vec3(0.0, 0.25, 2.75),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(-0.5, -0.25, 0.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(-0.5, -0.25, 0.75),
-            Vec3(-0.5, -0.25, 1.0),
-            Vec3(-0.5, -0.25, 1.25),
-            Vec3(-0.5, -0.25, 1.5),
-            Vec3(-0.5, -0.25, 1.75),
-            Vec3(-0.5, -0.25, 2.0),
-            Vec3(-0.5, -0.25, 2.25),
-            Vec3(-0.25, 0.0, 2.5),
-            Vec3(0.0, 0.25, 2.75),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(-0.5, -0.25, 0.75),
-          radius: 0.2,
-        ),
-        colour: (252, 20, 20),
-        fadeoff: 0.2,
-      ),
-    ],
-    blend: true,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: CatmullRomSpline(
-          points: [
-            Vec3(-0.5, -0.25, 0.75),
-            Vec3(-0.5, -0.25, 1.0),
-            Vec3(-0.5, -0.25, 1.25),
-            Vec3(-0.5, -0.25, 1.5),
-            Vec3(-0.5, -0.25, 1.75),
-            Vec3(-0.5, -0.25, 2.0),
-            Vec3(-0.5, -0.25, 2.25),
-            Vec3(-0.25, 0.0, 2.5),
-            Vec3(0.0, 0.25, 2.75),
-          ],
-          threshold: 0.2,
-          start_colour: (14, 252, 10),
-          end_colour: (2, 140, 0),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.2,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(0.5, -0.25, 1.0),
           radius: 0.2,
         ),
         colour: (252, 20, 20),
