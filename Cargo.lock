@@ -5851,6 +5851,62 @@ dependencies = [
 ]
 
 [[package]]
+name = "ww-scanner-client"
+version = "0.1.0-dev"
+dependencies = [
+ "async-broadcast",
+ "async-channel",
+ "bincode",
+ "cfg-if",
+ "console_error_panic_hook",
+ "eframe",
+ "egui",
+ "ewebsock",
+ "futures",
+ "prokio",
+ "ron 0.8.1",
+ "serde",
+ "strum",
+ "tracing",
+ "tracing-subscriber",
+ "tracing-unwrap",
+ "tracing-wasm",
+ "ww-scanner-shared",
+]
+
+[[package]]
+name = "ww-scanner-server"
+version = "0.1.0-dev"
+dependencies = [
+ "bincode",
+ "cfg-if",
+ "color-eyre",
+ "futures-util",
+ "lazy_static",
+ "raspi-ws2811",
+ "tokio",
+ "tokio-rustls 0.24.1",
+ "tokio-stream",
+ "tokio-tungstenite 0.19.0",
+ "tracing",
+ "tracing-appender",
+ "tracing-subscriber",
+ "tracing-unwrap",
+ "ww-driver-trait",
+ "ww-frame",
+ "ww-gift-coords",
+ "ww-scanner-shared",
+ "ww-shared-server-tls",
+]
+
+[[package]]
+name = "ww-scanner-shared"
+version = "0.1.0-dev"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "ww-server"
 version = "0.1.0-dev"
 dependencies = [
@@ -5863,9 +5919,7 @@ dependencies = [
  "raspi-ws2811",
  "regex",
  "ron 0.8.1",
- "rustls-pemfile",
  "tokio",
- "tokio-rustls 0.24.1",
  "tokio-stream",
  "tokio-tungstenite 0.19.0",
  "tracing",
@@ -5877,6 +5931,7 @@ dependencies = [
  "ww-effects",
  "ww-frame",
  "ww-shared",
+ "ww-shared-server-tls",
 ]
 
 [[package]]
@@ -5887,6 +5942,15 @@ dependencies = [
  "serde",
  "tracing-unwrap",
  "ww-effects",
+]
+
+[[package]]
+name = "ww-shared-server-tls"
+version = "0.1.0-dev"
+dependencies = [
+ "rustls-pemfile",
+ "thiserror",
+ "tokio-rustls 0.24.1",
 ]
 
 [[package]]

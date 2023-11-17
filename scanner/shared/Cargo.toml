@@ -1,0 +1,16 @@
+[package]
+name = "ww-scanner-shared"
+version = "0.1.0-dev"
+description = "The shared messages for server/client pair for the scanner part of Winter WonderLights."
+authors.workspace = true
+edition.workspace = true
+publish.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+serde.workspace = true
+
+[features]
+default = []
+client-impl = []

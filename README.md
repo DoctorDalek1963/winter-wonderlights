@@ -27,6 +27,12 @@ export PORT=23120
 
 # Client
 export SERVER_URL=wss://my.server.net:${PORT}
+
+# Scanner server
+export SCANNER_PORT=23121
+
+# Scanner clients
+export SCANNER_SERVER_URL=wss://my.server.net:${SCANNER_PORT}
 ```
 
 If you're just using the project at home and all clients will be on your home Wi-Fi, then you can use the local IP of the server (Raspberry Pi) instead of a DNS address for the `SERVER_URL`.
@@ -42,6 +48,12 @@ export PORT=23120
 
 # Client
 export SERVER_URL=ws://localhost:${PORT}
+
+# Scanner server
+export SCANNER_PORT=23121
+
+# Scanner clients
+export SCANNER_SERVER_URL=ws://localhost:${SCANNER_PORT}
 ```
 
 #### Dependencies
