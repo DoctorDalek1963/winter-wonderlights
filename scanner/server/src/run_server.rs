@@ -1,6 +1,9 @@
 //! This module handles running the actual server.
 
-use crate::state::{Connection, ConnectionSocket, ScannerState};
+use crate::{
+    scan_manager::{ScanManagerMsg, SEND_MESSAGE_TO_SCAN_MANAGER},
+    state::{Connection, ConnectionSocket, ScannerState},
+};
 use color_eyre::{Report, Result};
 use futures_util::{future, pin_mut, stream::TryStreamExt, SinkExt, StreamExt};
 use lazy_static::lazy_static;
@@ -219,6 +222,10 @@ async fn handle_camera_connection(mut conn: Connection) -> Result<()> {
         })
         .forward(conn.outgoing);
 
+    SEND_MESSAGE_TO_SCAN_MANAGER
+        .send(ScanManagerMsg::CameraConnected)
+        .expect_or_log("Should be able to send message down SEND_MESSAGE_TO_SCAN_MANAGER");
+
     pin_mut!(incoming_msgs, recv_from_server);
     future::select(incoming_msgs, recv_from_server).await;
 
@@ -313,6 +320,10 @@ async fn handle_controller_connection(mut conn: Connection) -> Result<()> {
             })
         })
         .forward(conn.outgoing);
+
+    SEND_MESSAGE_TO_SCAN_MANAGER
+        .send(ScanManagerMsg::ControllerConnected)
+        .expect_or_log("Should be able to send message down SEND_MESSAGE_TO_SCAN_MANAGER");
 
     pin_mut!(incoming_msgs, recv_from_server);
     future::select(incoming_msgs, recv_from_server).await;

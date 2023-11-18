@@ -1,11 +1,17 @@
 //! This module manages the scan and acts as the internal server, coordinating the camera and
 //! controller clients.
 
+use crate::run_server::{CAMERA_SEND, CONTROLLER_SEND};
 use lazy_static::lazy_static;
-use tokio::sync::{broadcast, oneshot};
+use std::time::Duration;
+use tokio::{
+    sync::{broadcast, oneshot},
+    time::sleep,
+};
 use tracing::{info, instrument, trace};
 use tracing_unwrap::ResultExt;
 use ww_driver_trait::Driver;
+use ww_scanner_shared::{GenericServerToClientMsg, ServerToCameraMsg, ServerToControllerMsg};
 
 lazy_static! {
     /// Send messages to the scan manager.
@@ -14,10 +20,38 @@ lazy_static! {
 
 /// Possible messages to send to the scan manager.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-#[expect(dead_code, reason = "message sending not implemented yet")]
 pub enum ScanManagerMsg {
-    /// Start to take photos.
-    StartTakingPhotos,
+    /// The camera has connected.
+    CameraConnected,
+
+    /// The controller has connected.
+    ControllerConnected,
+    // Start to take photos. StartTakingPhotos,
+}
+
+/// The state of the scan manager.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum ScanManagerState {
+    /// We're currently waiting for both clients to connect.
+    WaitingForConnections {
+        /// Is the camera connected?
+        camera_connected: bool,
+
+        /// Is the controller connected?
+        controller_connected: bool,
+    },
+
+    /// Both clients are connected and we're waiting to scan.
+    WaitingToScan,
+}
+
+impl Default for ScanManagerState {
+    fn default() -> Self {
+        Self::WaitingForConnections {
+            camera_connected: false,
+            controller_connected: false,
+        }
+    }
 }
 
 /// Run the scan manager.
@@ -34,6 +68,7 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
     let _driver = unsafe { crate::drivers::DriverWrapper::init() };
 
     let mut thread_message_rx = SEND_MESSAGE_TO_SCAN_MANAGER.subscribe();
+    let mut state = ScanManagerState::default();
 
     info!("Beginning scan manager loop");
 
@@ -47,13 +82,50 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                     trace!(?msg, "Recieved ScanManagerMsg");
 
                     match msg.expect_or_log("There should not be an error in receiving a ScanManagerMsg") {
-                        ScanManagerMsg::StartTakingPhotos => todo!("Handle StartTakingPhotos"),
-                    }
+                        ScanManagerMsg::CameraConnected => {
+                            if let ScanManagerState::WaitingForConnections { camera_connected, .. } = &mut state {
+                                *camera_connected = true;
+                            }
+                        }
+                        ScanManagerMsg::ControllerConnected => {
+                            if let ScanManagerState::WaitingForConnections { controller_connected, .. } = &mut state {
+                                *controller_connected = true;
+                            }
+                        }
+                        //ScanManagerMsg::StartTakingPhotos => todo!("Handle StartTakingPhotos"),
+                    };
                 }
 
                 _ = async { loop {
-                    info!("Scan manager is running");
-                    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+                    if let ScanManagerState::WaitingForConnections {
+                        camera_connected: true,
+                        controller_connected: true,
+                    } = state
+                    {
+                        info!("Camera and controller both connected; sending ServerReady");
+
+                        sleep(Duration::from_millis(250)).await;
+                        CAMERA_SEND
+                            .send(
+                                bincode::serialize(&ServerToCameraMsg::Generic(
+                                    GenericServerToClientMsg::ServerReady,
+                                ))
+                                .expect_or_log("Should be able to serialize ServerReady"),
+                            )
+                            .expect_or_log("Should be able to send messge down CAMERA_SEND");
+                        CONTROLLER_SEND
+                            .send(
+                                bincode::serialize(&ServerToControllerMsg::Generic(
+                                    GenericServerToClientMsg::ServerReady,
+                                ))
+                                .expect_or_log("Should be able to serialize ServerReady"),
+                            )
+                            .expect_or_log("Should be able to send messge down CONTROLLER_SEND");
+
+                        state = ScanManagerState::WaitingToScan;
+                    }
+
+                    sleep(Duration::from_millis(50)).await;
                 }} => {}
             }
         }

@@ -97,7 +97,7 @@ where
                 Self::send_establish_connection(message_tx.clone()).await;
 
                 loop {
-                    sleep(Duration::from_secs(3)).await;
+                    sleep(Duration::from_secs(1)).await;
 
                     if reconnect_rx.try_recv().is_ok() {
                         Self::send_establish_connection(message_tx.clone()).await;
