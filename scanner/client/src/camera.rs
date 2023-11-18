@@ -16,7 +16,7 @@ pub struct CameraWidget {
 impl CameraWidget {
     /// Create a new [`CameraWidget`] and initialise background tasks.
     pub fn new(async_runtime: prokio::Runtime) -> Self {
-        let inner = GenericClientWidget::new(async_runtime.clone());
+        let inner = GenericClientWidget::new(async_runtime);
         Self { inner }
     }
 
@@ -31,7 +31,7 @@ impl CameraWidget {
 
             match msg {
                 ServerToCameraMsg::Generic(msg) => {
-                    new_state = Some(self.inner.respond_to_generic_server_message(msg))
+                    new_state = Some(self.inner.respond_to_generic_server_message(msg));
                 }
                 ServerToCameraMsg::TakePhoto { id: _ } => todo!("Respond to TakePhoto"),
             }

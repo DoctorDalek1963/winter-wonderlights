@@ -88,7 +88,7 @@ where
         // reconnect
         async_runtime.spawn_pinned({
             let message_tx = message_tx.clone();
-            let mut reconnect_rx = reconnect_rx.clone();
+            let mut reconnect_rx = reconnect_rx;
             let reconnect_tx = reconnect_tx.clone();
             let state = state.clone();
 
@@ -136,7 +136,7 @@ where
         {
             Ok(()) => (),
             Err(e) => {
-                error!(failed_message = ?e.into_inner(), "Error sending DeclareClientType message on channel")
+                error!(failed_message = ?e.into_inner(), "Error sending DeclareClientType message on channel");
             }
         };
 
@@ -148,7 +148,7 @@ where
         {
             Ok(()) => (),
             Err(e) => {
-                error!(failed_message = ?e.into_inner(), "Error sending EstablishConnection message on channel")
+                error!(failed_message = ?e.into_inner(), "Error sending EstablishConnection message on channel");
             }
         };
     }
@@ -262,7 +262,7 @@ where
             .expect_or_log("Should be able to write to client widget state");
 
         match msg {
-            Msg::AcceptConnection => {
+            Msg::AcceptConnection | Msg::ServerNotReady => {
                 *state = State::ServerNotReady;
                 AppState::Connected
             }
@@ -283,10 +283,6 @@ where
             }
             Msg::ServerReady => {
                 *state = State::ServerReady;
-                AppState::Connected
-            }
-            Msg::ServerNotReady => {
-                *state = State::ServerNotReady;
                 AppState::Connected
             }
         }

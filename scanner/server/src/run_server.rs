@@ -210,7 +210,7 @@ async fn handle_camera_connection(mut conn: Connection) -> Result<()> {
     // Forward messages from CAMERA_SEND to the actual connection
     let recv_from_server = WatchStream::new(CAMERA_SEND.subscribe())
         .filter_map(|bytes| {
-            future::ready(if bytes.len() > 0 {
+            future::ready(if !bytes.is_empty() {
                 debug!(?bytes, "Forwarding message to camera");
                 Some(Ok(tungstenite::Message::Binary(bytes)))
             } else {
@@ -305,7 +305,7 @@ async fn handle_controller_connection(mut conn: Connection) -> Result<()> {
     // Forward messages from CONTROLLER_SEND to the actual connection
     let recv_from_server = WatchStream::new(CONTROLLER_SEND.subscribe())
         .filter_map(|bytes| {
-            future::ready(if bytes.len() > 0 {
+            future::ready(if !bytes.is_empty() {
                 debug!(?bytes, "Forwarding message to controller");
                 Some(Ok(tungstenite::Message::Binary(bytes)))
             } else {

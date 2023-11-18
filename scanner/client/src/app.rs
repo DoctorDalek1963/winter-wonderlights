@@ -101,14 +101,14 @@ impl App {
     }
 
     /// Display the GUI for waiting for a connection to the server.
-    fn display_gui_waiting_for_connection(&mut self, ctx: &Context) {
+    fn display_gui_waiting_for_connection(ctx: &Context) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.centered_and_justified(|ui| ui.spinner());
         });
     }
 
     /// Display the GUI for waiting for a connection to the server.
-    fn display_gui_rejected(&mut self, ctx: &Context) {
+    fn display_gui_rejected(ctx: &Context) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.centered_and_justified(|ui| {
                 ui.label("Connection to server rejected. Please try again.")
@@ -169,9 +169,9 @@ impl eframe::App for App {
         let app_state = self.app_state.read().unwrap_or_log().clone();
         match app_state {
             AppState::WaitingForChoice => self.display_gui_waiting_for_choice(ctx),
-            AppState::WaitingForConnection => self.display_gui_waiting_for_connection(ctx),
+            AppState::WaitingForConnection => Self::display_gui_waiting_for_connection(ctx),
             AppState::Connected { .. } => self.display_gui_connected(ctx),
-            AppState::Rejected => self.display_gui_rejected(ctx),
+            AppState::Rejected => Self::display_gui_rejected(ctx),
         };
 
         // We need to constantly be repainting the GUI so that new server messages are always

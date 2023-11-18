@@ -68,6 +68,11 @@ pub enum MakeTlsAcceptorError {
 /// whether we can create a [`TlsAcceptor`]. This means that we don't need SSL when developing,
 /// since the server can work unencrypted and the client can talk to localhost. But in production,
 /// the client web browser normally wants an encrypted connection.
+///
+/// # Errors
+///
+/// This function will error if either environment variable isn't defined, we fail to read a file,
+/// a file doesn't contain what we expect, or [`rustls`] fails to build a [`ServerConfig`].
 pub fn make_tls_acceptor() -> Result<TlsAcceptor, MakeTlsAcceptorError> {
     let certs = load_certs(Path::new(
         option_env!("SERVER_SSL_CERT_PATH").ok_or(MakeTlsAcceptorError::NoCertificatePath)?,

@@ -14,7 +14,7 @@ lazy_static! {
 
 /// Possible messages to send to the scan manager.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-#[expect(dead_code)]
+#[expect(dead_code, reason = "message sending not implemented yet")]
 pub enum ScanManagerMsg {
     /// Start to take photos.
     StartTakingPhotos,

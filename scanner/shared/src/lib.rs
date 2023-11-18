@@ -14,6 +14,8 @@
 
 use serde::{Deserialize, Serialize};
 
+/// The magic numbers expected at the start of a [`ClientType`] declaration see [the module
+/// documentation](where.com) for details.
 pub const DECLARE_CLIENT_TYPE_MAGIC: [u8; 3] = [0xBE, 0xEF, 0xAF];
 
 /// An RGB colour.
@@ -23,7 +25,11 @@ pub type RGBArray = [u8; 3];
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[repr(u8)]
 pub enum ClientType {
+    /// This client operates the camera.
     Camera,
+
+    /// This client tells the server when the user is ready to take pictures and which side of the
+    /// tree is facing the camera.
     Controller,
 }
 
@@ -79,6 +85,10 @@ pub enum GenericServerToClientMsg {
 
 /// A message from the server to the camera client.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[allow(
+    variant_size_differences,
+    reason = "every variant is small enough to not be an issue"
+)]
 pub enum ServerToCameraMsg {
     /// A generic message from the server to a client.
     Generic(GenericServerToClientMsg),
@@ -100,7 +110,7 @@ pub struct CameraInfo {
 /// A message from the camera client to the server.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CameraToServerMsg {
-    /// Declare the type of this client. See the module documentation for details.
+    /// Declare the type of this client. See [the module documentation}(where.com) for details.
     DeclareClientType,
 
     /// Try to establish a connection with the server.
@@ -143,11 +153,28 @@ pub enum ControllerToServerMsg {
     },
 }
 
+/// This module just contains the [`ClientToServerMsg`] trait.
 #[cfg(feature = "client-impl")]
 pub mod client_impl {
-    use super::*;
+    use super::{
+        CameraInfo, CameraToServerMsg, ClientType, ControllerToServerMsg, DECLARE_CLIENT_TYPE_MAGIC,
+    };
 
-    pub trait ClientToServerMsg {
+    /// This module contains a simple [`Sealed`](self::private:Sealed) trait to prevent
+    /// [`ClientToServerMsg`] being implemented on foreign types.
+    mod private {
+        use super::{CameraToServerMsg, ControllerToServerMsg};
+
+        /// This trait restricts implementors of [`ClientToServerMsg`].
+        pub trait Sealed {}
+
+        impl Sealed for CameraToServerMsg {}
+        impl Sealed for ControllerToServerMsg {}
+    }
+
+    /// A trait that's implemented on both [`CameraToServerMsg`] and [`ControllerToServerMsg`] and
+    /// allows the [`GenericClientWidget`] to have its [`send_establish_connection`] method.
+    pub trait ClientToServerMsg: private::Sealed {
         /// Make a `DeclareClientType` message.
         fn make_declare_client_type_message() -> Self;
 
@@ -165,7 +192,7 @@ pub mod client_impl {
         }
 
         fn is_declare_client_type_message(&self) -> Option<[u8; 4]> {
-            if let Self::DeclareClientType = self {
+            if self == &Self::DeclareClientType {
                 let [a, b, c] = DECLARE_CLIENT_TYPE_MAGIC;
                 Some([a, b, c, ClientType::Camera as u8])
             } else {
@@ -184,7 +211,7 @@ pub mod client_impl {
         }
 
         fn is_declare_client_type_message(&self) -> Option<[u8; 4]> {
-            if let Self::DeclareClientType = self {
+            if self == &Self::DeclareClientType {
                 let [a, b, c] = DECLARE_CLIENT_TYPE_MAGIC;
                 Some([a, b, c, ClientType::Controller as u8])
             } else {
@@ -199,9 +226,9 @@ pub mod client_impl {
 
     impl CameraInfo {
         /// Get the info for the best camera on this device.
-        fn get_best() -> CameraInfo {
+        fn get_best() -> Self {
             eprintln!("TODO: get real camera info");
-            CameraInfo {
+            Self {
                 resolution: (1000, 1000),
             }
         }
