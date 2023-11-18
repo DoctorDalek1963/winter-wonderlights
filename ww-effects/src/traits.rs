@@ -153,5 +153,6 @@ pub trait Effect: BaseEffect {
     /// However, if the effect is a procedural aesthetic thing like
     /// [`LavaLamp`](../effects/aesthetic/struct.LavaLamp.html), then that should loop on its
     /// own.
-    async fn run(self, driver: &mut dyn ww_driver_trait::Driver);
+    fn run(self, driver: &mut dyn ww_driver_trait::Driver)
+        -> impl std::future::Future<Output = ()>;
 }

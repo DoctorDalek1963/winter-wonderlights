@@ -7,23 +7,11 @@ use crate::{
 use color_eyre::{Report, Result};
 use futures_util::{future, pin_mut, stream::TryStreamExt, StreamExt};
 use lazy_static::lazy_static;
-use std::{
-    fs::File,
-    io::{self, BufReader},
-    net::SocketAddr,
-    path::Path,
-    sync::Arc,
-    thread,
-    time::Duration,
-};
+use std::{io, net::SocketAddr, thread, time::Duration};
 use tokio::{
     io::{AsyncRead, AsyncWrite},
     net::TcpListener,
     sync::{broadcast, oneshot},
-};
-use tokio_rustls::{
-    rustls::{self, Certificate, PrivateKey},
-    TlsAcceptor,
 };
 use tokio_stream::wrappers::BroadcastStream;
 use tokio_tungstenite::tungstenite;

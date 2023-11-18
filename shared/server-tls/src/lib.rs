@@ -54,11 +54,11 @@ pub enum MakeTlsAcceptorError {
     #[error("SERVER_SSL_KEY_PATH was not defined")]
     NoKeyPath,
 
-    #[error("Zero certificates were found in the given path")]
-    ZeroCertificates,
+    #[error("No certificates were found in the given path")]
+    FoundNoCertificates,
 
-    #[error("Zero paths were found in the given path")]
-    ZeroPaths,
+    #[error("No keys were found in the given path")]
+    FoundNoKeys,
 }
 
 /// Make a [`TlsAcceptor`] by reading the `SERVER_SSL_CERT_PATH` and `SERVER_SSL_KEY_PATH`
@@ -77,10 +77,10 @@ pub fn make_tls_acceptor() -> Result<TlsAcceptor, MakeTlsAcceptorError> {
     ))?;
 
     if certs.is_empty() {
-        return Err(MakeTlsAcceptorError::ZeroCertificates);
+        return Err(MakeTlsAcceptorError::FoundNoCertificates);
     }
     if keys.is_empty() {
-        return Err(MakeTlsAcceptorError::ZeroPaths);
+        return Err(MakeTlsAcceptorError::FoundNoKeys);
     }
 
     let tls_config = rustls::ServerConfig::builder()

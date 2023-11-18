@@ -60,7 +60,6 @@ pub(crate) mod prelude {
     pub mod config_prelude {
         pub use crate::traits::EffectConfig;
         pub use effect_proc_macros::BaseEffectConfig;
-        pub use egui::{Align, Layout, RichText, Vec2};
         pub use serde::{Deserialize, Serialize};
 
         /// See [`ww_frame::RGBArray`](../../../../ww_frame/type.RGBArray.html).
@@ -101,7 +100,7 @@ pub(crate) mod prelude {
         pub use glam::{Quat, Vec3};
         pub use rand::{rngs::StdRng, Rng};
         pub use std::time::Duration;
-        pub use tracing::{debug, error, info, instrument, trace, warn};
+        pub use tracing::{debug, info, instrument, trace, warn};
         pub use tracing_unwrap::{OptionExt, ResultExt};
         pub use ww_driver_trait::Driver;
         pub use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object};
