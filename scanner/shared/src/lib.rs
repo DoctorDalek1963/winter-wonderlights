@@ -15,7 +15,7 @@
 use serde::{Deserialize, Serialize};
 
 /// The magic numbers expected at the start of a [`ClientType`] declaration see [the module
-/// documentation](where.com) for details.
+/// documentation](self) for details.
 pub const DECLARE_CLIENT_TYPE_MAGIC: [u8; 3] = [0xBE, 0xEF, 0xAF];
 
 /// An RGB colour.
@@ -110,7 +110,7 @@ pub struct CameraInfo {
 /// A message from the camera client to the server.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CameraToServerMsg {
-    /// Declare the type of this client. See [the module documentation}(where.com) for details.
+    /// Declare the type of this client. See [the module documentation](self) for details.
     DeclareClientType,
 
     /// Try to establish a connection with the server.
@@ -140,7 +140,7 @@ pub enum ServerToControllerMsg {
 /// A message from the controller client to the server.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ControllerToServerMsg {
-    /// Declare the type of this client. See the module documentation for details.
+    /// Declare the type of this client. See [the module documentation](self) for details.
     DeclareClientType,
 
     /// Try to establish a connection with the server.
@@ -153,19 +153,19 @@ pub enum ControllerToServerMsg {
     },
 }
 
-/// This module just contains the [`ClientToServerMsg`] trait.
+/// This module just contains the [`ClientToServerMsg`](client_impl::ClientToServerMsg) trait.
 #[cfg(feature = "client-impl")]
 pub mod client_impl {
     use super::{
         CameraInfo, CameraToServerMsg, ClientType, ControllerToServerMsg, DECLARE_CLIENT_TYPE_MAGIC,
     };
 
-    /// This module contains a simple [`Sealed`](self::private:Sealed) trait to prevent
+    /// This module contains a simple [`Sealed`](self::private::Sealed) trait to prevent
     /// [`ClientToServerMsg`] being implemented on foreign types.
     mod private {
         use super::{CameraToServerMsg, ControllerToServerMsg};
 
-        /// This trait restricts implementors of [`ClientToServerMsg`].
+        /// This trait restricts implementors of [`ClientToServerMsg`](super::ClientToServerMsg).
         pub trait Sealed {}
 
         impl Sealed for CameraToServerMsg {}
@@ -173,7 +173,11 @@ pub mod client_impl {
     }
 
     /// A trait that's implemented on both [`CameraToServerMsg`] and [`ControllerToServerMsg`] and
-    /// allows the [`GenericClientWidget`] to have its [`send_establish_connection`] method.
+    /// allows the
+    /// [`GenericClientWidget`](../../ww_scanner_client/generic_client/struct.GenericClientWidget.html)
+    /// to have its
+    /// [`send_establish_connection`](../../ww_scanner_client/generic_client/struct.GenericClientWidget.html#method.send_establish_connection)
+    /// method.
     pub trait ClientToServerMsg: private::Sealed {
         /// Make a `DeclareClientType` message.
         fn make_declare_client_type_message() -> Self;

@@ -1,5 +1,6 @@
-//! This module provides the [`GenericClientWidget`] type to be shared between [`CameraWidget`] and
-//! [`ControllerWidget`].
+//! This module provides the [`GenericClientWidget`] type to be shared between
+//! [`CameraWidget`](super::camera::CameraWidget) and
+//! [`ControllerWidget`](super::controller::ControllerWidget).
 
 use async_channel::{Receiver, Sender};
 use ewebsock::{WsEvent, WsMessage, WsReceiver};
@@ -205,7 +206,11 @@ where
     }
 
     /// Receive `SCM`s over the internet and send them down the channel so that
-    /// [`Self::respond_to_server_messages`] can respond to them.
+    /// `respond_to_server_messages` can respond to them.
+    ///
+    /// See
+    /// [`CameraWidget::respond_to_server_messages`](super::camera::CameraWidget::respond_to_server_messages) and
+    /// [`ControllerWidget::respond_to_server_messages`](super::controller::ControllerWidget::respond_to_server_messages).
     #[instrument(skip_all)]
     async fn receive_messages_from_server(
         tx: Sender<SCM>,
@@ -251,7 +256,7 @@ where
     }
 
     /// Respond to a generic server message by setting the [`GenericClientState`] and returning the
-    /// new state for the top level [`App`].
+    /// new state for the top level [`App`](super::app::App).
     pub fn respond_to_generic_server_message(&mut self, msg: GenericServerToClientMsg) -> AppState {
         use GenericClientState as State;
         use GenericServerToClientMsg as Msg;

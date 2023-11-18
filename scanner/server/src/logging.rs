@@ -1,5 +1,4 @@
-//! This module handles setting up logging with `tracing` and provides functions to zip up old log
-//! files. See [`zip_log_files_older_than_hours`] and [`zip_log_files_older_than_days`].
+//! This module handles setting up logging with `tracing`.
 
 use tracing_appender::{non_blocking, non_blocking::WorkerGuard, rolling};
 use tracing_subscriber::{filter::LevelFilter, fmt::Layer, prelude::*, EnvFilter};

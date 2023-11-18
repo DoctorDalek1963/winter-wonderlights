@@ -14,7 +14,7 @@ pub struct ControllerWidget {
 }
 
 impl ControllerWidget {
-    /// Create a new [`CameraWidget`] and initialise background tasks.
+    /// Create a new [`ControllerWidget`] and initialise background tasks.
     pub fn new(async_runtime: prokio::Runtime) -> Self {
         let inner = GenericClientWidget::new(async_runtime);
         Self { inner }

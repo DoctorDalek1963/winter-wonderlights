@@ -72,7 +72,8 @@ pub enum MakeTlsAcceptorError {
 /// # Errors
 ///
 /// This function will error if either environment variable isn't defined, we fail to read a file,
-/// a file doesn't contain what we expect, or [`rustls`] fails to build a [`ServerConfig`].
+/// a file doesn't contain what we expect, or [`rustls`] fails to build a
+/// [`ServerConfig`](rustls::ServerConfig).
 pub fn make_tls_acceptor() -> Result<TlsAcceptor, MakeTlsAcceptorError> {
     let certs = load_certs(Path::new(
         option_env!("SERVER_SSL_CERT_PATH").ok_or(MakeTlsAcceptorError::NoCertificatePath)?,

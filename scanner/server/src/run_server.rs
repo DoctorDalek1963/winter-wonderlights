@@ -35,7 +35,7 @@ lazy_static! {
     pub static ref SCANNER_STATE: Arc<RwLock<ScannerState>> = Arc::new(RwLock::new(ScannerState::new()));
 }
 
-/// Read from [`SCANNER_STATE`].
+/// Read from [`struct@SCANNER_STATE`].
 macro_rules! scanner_state_read {
     () => {
         SCANNER_STATE
@@ -44,7 +44,7 @@ macro_rules! scanner_state_read {
     };
 }
 
-/// Write to [`SCANNER_STATE`]
+/// Write to [`struct@SCANNER_STATE`]
 macro_rules! scanner_state_write {
     ($name:ident => $body:expr) => {{
         let mut $name = SCANNER_STATE
