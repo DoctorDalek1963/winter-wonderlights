@@ -63,7 +63,10 @@ where
     SCM: Debug + Send + for<'de> Deserialize<'de> + 'static,
 {
     /// Create a new [`GenericClientWidget`] and initialise background tasks.
-    pub fn new(async_runtime: prokio::Runtime) -> Self {
+    pub fn new(
+        async_runtime: prokio::Runtime,
+        make_establish_connection_message: fn() -> CSM,
+    ) -> Self {
         let (server_tx, server_rx) = async_channel::unbounded();
         let (message_tx, message_rx) = async_channel::unbounded();
 
@@ -94,13 +97,13 @@ where
             let state = state.clone();
 
             move || async move {
-                Self::send_establish_connection(message_tx.clone()).await;
+                Self::send_establish_connection(message_tx.clone(), make_establish_connection_message).await;
 
                 loop {
                     sleep(Duration::from_secs(1)).await;
 
                     if reconnect_rx.try_recv().is_ok() {
-                        Self::send_establish_connection(message_tx.clone()).await;
+                        Self::send_establish_connection(message_tx.clone(), make_establish_connection_message).await;
                         continue;
                     }
 
@@ -128,7 +131,10 @@ where
     /// Send the `DeclareClientType` message to the server and then the `EstablishConnection`
     /// message.
     #[instrument(skip_all)]
-    async fn send_establish_connection(message_tx: Sender<CSM>) {
+    async fn send_establish_connection(
+        message_tx: Sender<CSM>,
+        make_establish_connection_message: fn() -> CSM,
+    ) {
         info!("Trying to connect to server");
 
         match message_tx
@@ -143,10 +149,7 @@ where
 
         sleep(Duration::from_millis(250)).await;
 
-        match message_tx
-            .send(CSM::make_establish_connection_message())
-            .await
-        {
+        match message_tx.send(make_establish_connection_message()).await {
             Ok(()) => (),
             Err(e) => {
                 error!(failed_message = ?e.into_inner(), "Error sending EstablishConnection message on channel");

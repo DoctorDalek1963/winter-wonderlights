@@ -16,7 +16,7 @@ use tokio::{
 };
 use tokio_rustls::server::TlsStream;
 use tokio_tungstenite::{tungstenite::Message as TungsteniteMessage, WebSocketStream};
-use ww_scanner_shared::CameraInfo;
+use ww_scanner_shared::BasicCameraInfo;
 
 /// A socket for a connection.
 #[derive(Debug)]
@@ -115,7 +115,7 @@ pub struct ScannerState {
     pub controller_conn: bool,
 
     /// The info of the camera if it's connected.
-    pub camera_info: Option<CameraInfo>,
+    pub camera_info: Option<BasicCameraInfo>,
 }
 
 impl ScannerState {

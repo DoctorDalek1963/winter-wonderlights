@@ -16,7 +16,8 @@ pub struct ControllerWidget {
 impl ControllerWidget {
     /// Create a new [`ControllerWidget`] and initialise background tasks.
     pub fn new(async_runtime: prokio::Runtime) -> Self {
-        let inner = GenericClientWidget::new(async_runtime);
+        let inner =
+            GenericClientWidget::new(async_runtime, || ControllerToServerMsg::EstablishConnection);
         Self { inner }
     }
 

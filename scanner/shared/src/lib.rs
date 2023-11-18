@@ -102,9 +102,9 @@ pub enum ServerToCameraMsg {
 
 /// Information about the camera.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct CameraInfo {
+pub struct BasicCameraInfo {
     /// The total resolution of the camera as `(width, height)`.
-    resolution: (u32, u32),
+    pub resolution: (u32, u32),
 }
 
 /// A message from the camera client to the server.
@@ -114,7 +114,7 @@ pub enum CameraToServerMsg {
     DeclareClientType,
 
     /// Try to establish a connection with the server.
-    EstablishConnection(CameraInfo),
+    EstablishConnection(BasicCameraInfo),
 
     /// Tell the server that a photo has been taken and send the position of the brightest pixel.
     PhotoTaken {
@@ -156,9 +156,7 @@ pub enum ControllerToServerMsg {
 /// This module just contains the [`ClientToServerMsg`](client_impl::ClientToServerMsg) trait.
 #[cfg(feature = "client-impl")]
 pub mod client_impl {
-    use super::{
-        CameraInfo, CameraToServerMsg, ClientType, ControllerToServerMsg, DECLARE_CLIENT_TYPE_MAGIC,
-    };
+    use super::{CameraToServerMsg, ClientType, ControllerToServerMsg, DECLARE_CLIENT_TYPE_MAGIC};
 
     /// This module contains a simple [`Sealed`](self::private::Sealed) trait to prevent
     /// [`ClientToServerMsg`] being implemented on foreign types.
@@ -185,9 +183,6 @@ pub mod client_impl {
         /// If this message is a `DeclareClientType`, return the relevant
         /// `[u8; 4]`, else [`None`].
         fn is_declare_client_type_message(&self) -> Option<[u8; 4]>;
-
-        /// Make an `EstablishConnection` message.
-        fn make_establish_connection_message() -> Self;
     }
 
     impl ClientToServerMsg for CameraToServerMsg {
@@ -203,10 +198,6 @@ pub mod client_impl {
                 None
             }
         }
-
-        fn make_establish_connection_message() -> Self {
-            Self::EstablishConnection(CameraInfo::get_best())
-        }
     }
 
     impl ClientToServerMsg for ControllerToServerMsg {
@@ -220,20 +211,6 @@ pub mod client_impl {
                 Some([a, b, c, ClientType::Controller as u8])
             } else {
                 None
-            }
-        }
-
-        fn make_establish_connection_message() -> Self {
-            Self::EstablishConnection
-        }
-    }
-
-    impl CameraInfo {
-        /// Get the info for the best camera on this device.
-        fn get_best() -> Self {
-            eprintln!("TODO: get real camera info");
-            Self {
-                resolution: (1000, 1000),
             }
         }
     }
