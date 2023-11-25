@@ -65,6 +65,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         build-type: ['scanner-server', 'scanner-client', 'client', 'driver-debug', 'driver-virtual-tree', 'driver-raspi-ws2811']
         flags: ['', '--release']
