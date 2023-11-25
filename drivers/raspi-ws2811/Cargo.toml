@@ -9,7 +9,7 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
-rs_ws281x = "0.4.4"
+rs_ws281x = { path = "./vendor/rpi-ws281x-rust" }
 tracing.workspace = true
 tracing-unwrap.workspace = true
 ww-driver-trait.workspace = true
