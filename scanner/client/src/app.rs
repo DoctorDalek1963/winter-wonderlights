@@ -29,7 +29,7 @@ impl Default for AppState {
 }
 
 /// The state of the client widgets.
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 struct ClientWidgetsState {
     /// A widget for the camera client.
     camera_widget: Option<CameraWidget>,

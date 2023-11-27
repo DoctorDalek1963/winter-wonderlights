@@ -3,40 +3,45 @@
 use crate::{app::AppState, generic_client::GenericClientWidget};
 use egui::{Response, Ui};
 use nokhwa::{
-    pixel_format::LumaFormat,
-    utils::{ApiBackend, RequestedFormat, RequestedFormatType, Resolution},
+    pixel_format::RgbFormat,
+    utils::{ApiBackend, CameraIndex, RequestedFormat, RequestedFormatType, Resolution},
     Camera,
 };
-use std::cell::OnceCell;
+use std::fmt;
 use tracing::{debug, info, instrument};
-use tracing_unwrap::{OptionExt, ResultExt};
+use tracing_unwrap::ResultExt;
 use ww_scanner_shared::{BasicCameraInfo, CameraToServerMsg, ServerToCameraMsg};
 
-/// The best camera available on this device, if any.
-const BEST_CAMERA: OnceCell<Option<Camera>> = OnceCell::new();
+/// The API backend for this platform.
+#[cfg(target_family = "wasm")]
+const NOKHWA_API_BACKEND: ApiBackend = ApiBackend::Browser;
 
-/// Find the best camera on the device, if any, and set [`BEST_CAMERA`] accordingly.
-fn find_best_camera() {
-    let _ = BEST_CAMERA.set(
-        nokhwa::query(ApiBackend::Auto)
-            .expect_or_log("We should be able to query the available cameras on this device")
-            .into_iter()
-            .filter_map(|camera_info| {
-                Camera::new(
-                    camera_info.index().clone(),
-                    RequestedFormat::new::<LumaFormat>(
-                        RequestedFormatType::AbsoluteHighestResolution,
-                    ),
-                )
-                .ok()
-            })
-            .max_by_key(|camera| {
-                let Resolution { width_x, height_y } = camera.resolution();
-                width_x * height_y
-            }),
-    );
+/// The API backend for this platform.
+#[cfg(not(target_family = "wasm"))]
+const NOKHWA_API_BACKEND: ApiBackend = ApiBackend::Auto;
 
-    info!(best_camera = ?BEST_CAMERA.get().map(|opt_cam| opt_cam.as_ref().map(|cam| cam.info().human_name())), "Found best camera");
+/// Find the best camera on the device, if any. This function should only ever be called once.
+fn find_best_camera() -> Option<Camera> {
+    nokhwa::nokhwa_initialize(|_| {});
+
+    let best_camera = nokhwa::query(NOKHWA_API_BACKEND)
+        .expect_or_log("We should be able to query the available cameras on this device")
+        .into_iter()
+        .filter_map(|camera_info| {
+            Camera::new(
+                camera_info.index().clone(),
+                RequestedFormat::new::<RgbFormat>(RequestedFormatType::AbsoluteHighestResolution),
+            )
+            .or_else(|err| Err(err))
+            .ok()
+        })
+        .max_by_key(|camera| {
+            let Resolution { width_x, height_y } = camera.resolution();
+            width_x * height_y
+        });
+
+    info!(idx = ?best_camera.as_ref().map(|cam| cam.index()), "Found best camera");
+    best_camera
 }
 
 /// Get the [`BasicCameraInfo`] from a `nokhwa` [`Camera`].
@@ -47,19 +52,8 @@ fn get_basic_camera_info(camera: &Camera) -> BasicCameraInfo {
     }
 }
 
-/// Get a `&'static Camera` to [`BEST_CAMERA`], panicking if this device doesn't have a camera.
-macro_rules! get_best_camera {
-    () => {
-        BEST_CAMERA
-            .get()
-            .expect_or_log("find_best_camera() should have been called first")
-            .as_ref()
-            .expect_or_log("get_best_camera() should only be called when the device has a camera")
-    };
-}
-
 /// A widget to encapsulate a whole camera client.
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum CameraWidget {
     /// This device has a working camera.
     Camera(InnerCameraWidget),
@@ -71,9 +65,8 @@ pub enum CameraWidget {
 impl CameraWidget {
     /// Try to find a camera on this device and create the appropriate variant of [`CameraWidget`].
     pub fn new(async_runtime: prokio::Runtime) -> Self {
-        find_best_camera();
-        match BEST_CAMERA.get() {
-            Some(Some(_camera)) => Self::Camera(InnerCameraWidget::new(async_runtime)),
+        match find_best_camera() {
+            Some(camera) => Self::Camera(InnerCameraWidget::new(async_runtime, camera)),
             _ => Self::NoCameraFound,
         }
     }
@@ -102,19 +95,47 @@ impl egui::Widget for &mut CameraWidget {
 }
 
 /// A widget to encapsulate a camera client that has a proper camera.
-#[derive(Clone, Debug)]
 pub struct InnerCameraWidget {
     /// The inner widget that genericises background tasks.
     inner: GenericClientWidget<CameraToServerMsg, ServerToCameraMsg>,
+
+    /// The camera belonging to this widget.
+    camera: Camera,
+}
+
+impl fmt::Debug for InnerCameraWidget {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        #[derive(Debug)]
+        #[allow(
+            dead_code,
+            reason = "this struct is only used for formatting debug info"
+        )]
+        struct NokhwaCamera {
+            idx: CameraIndex,
+        }
+
+        impl From<&Camera> for NokhwaCamera {
+            fn from(value: &Camera) -> Self {
+                NokhwaCamera {
+                    idx: value.index().clone(),
+                }
+            }
+        }
+
+        f.debug_struct("InnerCameraWidget")
+            .field("inner", &self.inner)
+            .field("camera", &NokhwaCamera::from(&self.camera))
+            .finish()
+    }
 }
 
 impl InnerCameraWidget {
     /// Create a new [`InnerCameraWidget`] and initialise background tasks.
-    fn new(async_runtime: prokio::Runtime) -> Self {
+    fn new(async_runtime: prokio::Runtime, camera: Camera) -> Self {
         let inner = GenericClientWidget::new(async_runtime, || {
-            CameraToServerMsg::EstablishConnection(get_basic_camera_info(get_best_camera!()))
+            CameraToServerMsg::EstablishConnection(get_basic_camera_info(&camera))
         });
-        Self { inner }
+        Self { inner, camera }
     }
 
     /// Respond to all the messages from the server that are in the queue and return the new

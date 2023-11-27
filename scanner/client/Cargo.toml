@@ -27,11 +27,11 @@ ww-scanner-shared = { path = "../shared", features = ["client-impl"] }
 
 # Native
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
-nokhwa = { version = "0.10.4", features = ["input-native"] }
+nokhwa = { version = "0.10.4", default-features = false, features = ["decoding", "flume", "input-native"] }
 tracing-subscriber.workspace = true
 
 # WASM
 [target.'cfg(target_family = "wasm")'.dependencies]
 console_error_panic_hook = "0.1.7"
-nokhwa = { version = "0.10.4", features = ["input-jscam"] }
+nokhwa = { version = "0.10.4", default-features = false, features = ["flume", "input-jscam"] }
 tracing-wasm = "0.2.1"

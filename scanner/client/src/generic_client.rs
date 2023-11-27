@@ -59,13 +59,13 @@ pub struct GenericClientWidget<CSM, SCM> {
 
 impl<CSM, SCM> GenericClientWidget<CSM, SCM>
 where
-    CSM: Debug + Send + Serialize + ClientToServerMsg + 'static,
+    CSM: Clone + Debug + Send + Serialize + ClientToServerMsg + 'static,
     SCM: Debug + Send + for<'de> Deserialize<'de> + 'static,
 {
     /// Create a new [`GenericClientWidget`] and initialise background tasks.
     pub fn new(
         async_runtime: prokio::Runtime,
-        make_establish_connection_message: fn() -> CSM,
+        make_establish_connection_message: impl FnOnce() -> CSM,
     ) -> Self {
         let (server_tx, server_rx) = async_channel::unbounded();
         let (message_tx, message_rx) = async_channel::unbounded();
@@ -88,6 +88,8 @@ where
 
         let state = Arc::new(RwLock::new(GenericClientState::WaitingForConnection));
 
+        let establish_connection_message = make_establish_connection_message();
+
         // Try to establish connection, then loop and constantly check to see if we need to
         // reconnect
         async_runtime.spawn_pinned({
@@ -97,13 +99,13 @@ where
             let state = state.clone();
 
             move || async move {
-                Self::send_establish_connection(message_tx.clone(), make_establish_connection_message).await;
+                Self::send_establish_connection(message_tx.clone(), establish_connection_message.clone()).await;
 
                 loop {
                     sleep(Duration::from_secs(1)).await;
 
                     if reconnect_rx.try_recv().is_ok() {
-                        Self::send_establish_connection(message_tx.clone(), make_establish_connection_message).await;
+                        Self::send_establish_connection(message_tx.clone(), establish_connection_message.clone()).await;
                         continue;
                     }
 
@@ -131,10 +133,7 @@ where
     /// Send the `DeclareClientType` message to the server and then the `EstablishConnection`
     /// message.
     #[instrument(skip_all)]
-    async fn send_establish_connection(
-        message_tx: Sender<CSM>,
-        make_establish_connection_message: fn() -> CSM,
-    ) {
+    async fn send_establish_connection(message_tx: Sender<CSM>, establish_connection_message: CSM) {
         info!("Trying to connect to server");
 
         match message_tx
@@ -149,7 +148,7 @@ where
 
         sleep(Duration::from_millis(250)).await;
 
-        match message_tx.send(make_establish_connection_message()).await {
+        match message_tx.send(establish_connection_message).await {
             Ok(()) => (),
             Err(e) => {
                 error!(failed_message = ?e.into_inner(), "Error sending EstablishConnection message on channel");
