@@ -140,6 +140,7 @@ clippy args='':
 	-A clippy::restriction \
 	-W clippy::style \
 	-W clippy::suspicious \
+	-A clippy::cargo-common-metadata \
 	-A clippy::cognitive-complexity \
 	-A clippy::derivable-impls \
 	-A clippy::needless-update \
