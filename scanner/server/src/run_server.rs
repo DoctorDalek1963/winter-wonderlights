@@ -230,6 +230,9 @@ async fn handle_camera_connection(mut conn: Connection) -> Result<()> {
     future::select(incoming_msgs, recv_from_server).await;
 
     info!("Disconnecting camera");
+    SEND_MESSAGE_TO_SCAN_MANAGER
+        .send(ScanManagerMsg::CameraDisconnected)
+        .expect_or_log("Should be able to send message down SEND_MESSAGE_TO_SCAN_MANAGER");
 
     Ok(())
 }
@@ -329,6 +332,9 @@ async fn handle_controller_connection(mut conn: Connection) -> Result<()> {
     future::select(incoming_msgs, recv_from_server).await;
 
     info!("Disconnecting controller");
+    SEND_MESSAGE_TO_SCAN_MANAGER
+        .send(ScanManagerMsg::ControllerDisconnected)
+        .expect_or_log("Should be able to send message down SEND_MESSAGE_TO_SCAN_MANAGER");
 
     Ok(())
 }

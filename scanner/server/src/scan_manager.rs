@@ -24,22 +24,41 @@ pub enum ScanManagerMsg {
     /// The camera has connected.
     CameraConnected,
 
+    /// The camera has disconnected.
+    CameraDisconnected,
+
     /// The controller has connected.
     ControllerConnected,
+
+    /// The controller has disconnected.
+    ControllerDisconnected,
     // Start to take photos. StartTakingPhotos,
+}
+
+/// The state of the connections.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+struct ConnectedState {
+    /// Is the camera connected?
+    camera: bool,
+
+    /// Is the camera connected?
+    controller: bool,
+}
+
+impl Default for ConnectedState {
+    fn default() -> Self {
+        Self {
+            camera: false,
+            controller: false,
+        }
+    }
 }
 
 /// The state of the scan manager.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum ScanManagerState {
     /// We're currently waiting for both clients to connect.
-    WaitingForConnections {
-        /// Is the camera connected?
-        camera_connected: bool,
-
-        /// Is the controller connected?
-        controller_connected: bool,
-    },
+    WaitingForConnections,
 
     /// Both clients are connected and we're waiting to scan.
     WaitingToScan,
@@ -47,10 +66,7 @@ enum ScanManagerState {
 
 impl Default for ScanManagerState {
     fn default() -> Self {
-        Self::WaitingForConnections {
-            camera_connected: false,
-            controller_connected: false,
-        }
+        Self::WaitingForConnections
     }
 }
 
@@ -68,6 +84,7 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
     let _driver = unsafe { crate::drivers::DriverWrapper::init() };
 
     let mut thread_message_rx = SEND_MESSAGE_TO_SCAN_MANAGER.subscribe();
+    let mut connected_state = ConnectedState::default();
     let mut state = ScanManagerState::default();
 
     info!("Beginning scan manager loop");
@@ -83,25 +100,31 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
 
                     match msg.expect_or_log("There should not be an error in receiving a ScanManagerMsg") {
                         ScanManagerMsg::CameraConnected => {
-                            if let ScanManagerState::WaitingForConnections { camera_connected, .. } = &mut state {
-                                *camera_connected = true;
-                            }
+                            connected_state.camera = true;
+                        }
+                        ScanManagerMsg::CameraDisconnected => {
+                            connected_state.camera = false;
+                            state = ScanManagerState::WaitingForConnections;
+
+                            // We can fail to send if there's no controller connected
+                            let _ = CONTROLLER_SEND.send(bincode::serialize(&ServerToControllerMsg::Generic(GenericServerToClientMsg::ServerNotReady)).expect_or_log("Should be able to serialize ServerNotReady"));
                         }
                         ScanManagerMsg::ControllerConnected => {
-                            if let ScanManagerState::WaitingForConnections { controller_connected, .. } = &mut state {
-                                *controller_connected = true;
-                            }
+                            connected_state.controller = true;
+                        }
+                        ScanManagerMsg::ControllerDisconnected => {
+                            connected_state.controller = false;
+                            state = ScanManagerState::WaitingForConnections;
+
+                            // We can fail to send if there's no camera connected
+                            let _ = CAMERA_SEND.send(bincode::serialize(&ServerToCameraMsg::Generic(GenericServerToClientMsg::ServerNotReady)).expect_or_log("Should be able to serialize ServerNotReady"));
                         }
                         //ScanManagerMsg::StartTakingPhotos => todo!("Handle StartTakingPhotos"),
                     };
                 }
 
                 _ = async { loop {
-                    if let ScanManagerState::WaitingForConnections {
-                        camera_connected: true,
-                        controller_connected: true,
-                    } = state
-                    {
+                    if state == ScanManagerState::WaitingForConnections && connected_state.camera && connected_state.controller {
                         info!("Camera and controller both connected; sending ServerReady");
 
                         sleep(Duration::from_millis(250)).await;

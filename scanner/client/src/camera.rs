@@ -2,12 +2,16 @@
 
 use crate::{app::AppState, generic_client::GenericClientWidget};
 use egui::{Response, Ui};
+use image::{ImageBuffer, Rgb};
 use nokhwa::{
     pixel_format::RgbFormat,
     utils::{ApiBackend, CameraIndex, RequestedFormat, RequestedFormatType, Resolution},
     Camera,
 };
-use std::fmt;
+use std::{
+    fmt,
+    time::{Duration, Instant},
+};
 use tracing::{debug, info, instrument};
 use tracing_unwrap::ResultExt;
 use ww_scanner_shared::{BasicCameraInfo, CameraToServerMsg, ServerToCameraMsg};
@@ -50,6 +54,17 @@ fn get_basic_camera_info(camera: &Camera) -> BasicCameraInfo {
     BasicCameraInfo {
         resolution: (width_x, height_y),
     }
+}
+
+/// Get an image from the camera, panicking on failure.
+fn get_image(camera: &mut Camera) -> ImageBuffer<Rgb<u8>, Vec<u8>> {
+    let frame = camera
+        .frame()
+        .expect_or_log("Should be able to get frame from camera");
+    let image = frame
+        .decode_image::<RgbFormat>()
+        .expect_or_log("Should be able to decode image buffer");
+    image
 }
 
 /// A widget to encapsulate a whole camera client.
@@ -101,6 +116,15 @@ pub struct InnerCameraWidget {
 
     /// The camera belonging to this widget.
     camera: Camera,
+
+    /// The amount of time between each frame.
+    duration_between_frames: Duration,
+
+    /// The time when the latest frame was taken.
+    time_of_latest_frame: Instant,
+
+    /// The image buffer for the latest frame.
+    latest_frame: ImageBuffer<Rgb<u8>, Vec<u8>>,
 }
 
 impl fmt::Debug for InnerCameraWidget {
@@ -125,17 +149,38 @@ impl fmt::Debug for InnerCameraWidget {
         f.debug_struct("InnerCameraWidget")
             .field("inner", &self.inner)
             .field("camera", &NokhwaCamera::from(&self.camera))
+            .field("duration_between_frames", &self.duration_between_frames)
+            .field("time_of_latest_frame", &self.time_of_latest_frame)
+            .field("latest_frame", &..)
             .finish()
     }
 }
 
 impl InnerCameraWidget {
     /// Create a new [`InnerCameraWidget`] and initialise background tasks.
-    fn new(async_runtime: prokio::Runtime, camera: Camera) -> Self {
+    fn new(async_runtime: prokio::Runtime, mut camera: Camera) -> Self {
         let inner = GenericClientWidget::new(async_runtime, || {
             CameraToServerMsg::EstablishConnection(get_basic_camera_info(&camera))
         });
-        Self { inner, camera }
+
+        camera
+            .open_stream()
+            .expect_or_log("Should be able to open stream on camera");
+
+        let fps = camera.frame_rate();
+        let duration_between_frames = Duration::from_micros((1_000_000.0 / fps as f64) as u64);
+
+        let time_of_latest_frame = Instant::now();
+
+        let latest_frame = get_image(&mut camera);
+
+        Self {
+            inner,
+            camera,
+            duration_between_frames,
+            time_of_latest_frame,
+            latest_frame,
+        }
     }
 
     /// Respond to all the messages from the server that are in the queue and return the new
@@ -158,8 +203,18 @@ impl InnerCameraWidget {
         new_state
     }
 
+    /// Refresh [`self.latest_frame`] if it needs to be refreshed.
+    fn refresh_frame(&mut self) {
+        if self.time_of_latest_frame.elapsed() >= self.duration_between_frames {
+            debug!("Refreshing latest_frame");
+            self.latest_frame = get_image(&mut self.camera);
+            self.time_of_latest_frame = Instant::now();
+        }
+    }
+
     /// Display the UI for when the camera is connected and the server is ready to scan.
     fn display_main_ui(&mut self, ui: &mut Ui) -> Response {
+        self.refresh_frame();
         ui.label("Server ready")
     }
 }
