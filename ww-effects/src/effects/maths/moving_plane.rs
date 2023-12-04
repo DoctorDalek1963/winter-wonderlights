@@ -125,10 +125,8 @@ mod effect {
                 let mut frame = get_frame(p);
 
                 // While there are any non-black lights, keep moving the point out
-                while let Some(data) = frame .compute_raw_data().raw_data()
-                    && data
-                        .iter()
-                        .any(|colour| *colour != [0; 3])
+                while let Some(data) = frame.compute_raw_data().raw_data()
+                    && data.iter().any(|colour| *colour != [0; 3])
                 {
                     p -= normal * MOVE_PROPORTION;
                     frame = get_frame(p);
@@ -156,9 +154,7 @@ mod effect {
 
             // While not all lights are black, keep moving
             while let Some(data) = frame.compute_raw_data().raw_data()
-                && !data
-                    .iter()
-                    .all(|colour| *colour == [0; 3])
+                && !data.iter().all(|colour| *colour == [0; 3])
             {
                 do_frame!();
             }

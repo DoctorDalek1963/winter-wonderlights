@@ -57,6 +57,10 @@ pub(crate) use rng;
 pub(crate) mod prelude {
     /// A prelude for the [`EffectConfig`] implementations.
     #[cfg(feature = "config-impls")]
+    #[allow(
+        unused_imports,
+        reason = "this is a prelude module and everything is pub used"
+    )]
     pub mod config_prelude {
         pub use crate::traits::EffectConfig;
         pub use effect_proc_macros::BaseEffectConfig;
@@ -92,6 +96,10 @@ pub(crate) mod prelude {
 
     /// A prelude for the [`Effect`] implementations.
     #[cfg(feature = "effect-impls")]
+    #[allow(
+        unused_imports,
+        reason = "this is a prelude module and everything is pub used"
+    )]
     pub mod effect_prelude {
         pub(crate) use crate::{
             effects::{rng, sleep},

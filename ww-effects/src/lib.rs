@@ -1,7 +1,6 @@
 //! This crate provides traits and implementations for various effects, as well as some utility
 //! functions.
 
-#![feature(async_fn_in_trait)]
 #![feature(let_chains)]
 #![feature(lint_reasons)]
 #![feature(proc_macro_hygiene)]
