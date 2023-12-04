@@ -1,7 +1,10 @@
 //! This module provides [`CameraWidget`] for camera clients.
 
 use crate::{app::AppState, generic_client::GenericClientWidget};
-use egui::{Response, Ui};
+use egui::{
+    load::{SizedTexture, TextureLoader},
+    ColorImage, Context, ImageData, Response, TextureOptions, Ui,
+};
 use image::{ImageBuffer, Rgb};
 use nokhwa::{
     pixel_format::RgbFormat,
@@ -10,6 +13,7 @@ use nokhwa::{
 };
 use std::{
     fmt,
+    sync::{Arc, RwLock},
     time::{Duration, Instant},
 };
 use tracing::{debug, info, instrument};
@@ -23,6 +27,8 @@ const NOKHWA_API_BACKEND: ApiBackend = ApiBackend::Browser;
 /// The API backend for this platform.
 #[cfg(not(target_family = "wasm"))]
 const NOKHWA_API_BACKEND: ApiBackend = ApiBackend::Auto;
+
+type ImgBuf = ImageBuffer<Rgb<u8>, Vec<u8>>;
 
 /// Find the best camera on the device, if any. This function should only ever be called once.
 fn find_best_camera() -> Option<Camera> {
@@ -49,6 +55,7 @@ fn find_best_camera() -> Option<Camera> {
 }
 
 /// Get the [`BasicCameraInfo`] from a `nokhwa` [`Camera`].
+#[inline]
 fn get_basic_camera_info(camera: &Camera) -> BasicCameraInfo {
     let Resolution { width_x, height_y } = camera.resolution();
     BasicCameraInfo {
@@ -57,7 +64,7 @@ fn get_basic_camera_info(camera: &Camera) -> BasicCameraInfo {
 }
 
 /// Get an image from the camera, panicking on failure.
-fn get_image(camera: &mut Camera) -> ImageBuffer<Rgb<u8>, Vec<u8>> {
+fn get_image(camera: &mut Camera) -> ImgBuf {
     let frame = camera
         .frame()
         .expect_or_log("Should be able to get frame from camera");
@@ -79,9 +86,9 @@ pub enum CameraWidget {
 
 impl CameraWidget {
     /// Try to find a camera on this device and create the appropriate variant of [`CameraWidget`].
-    pub fn new(async_runtime: prokio::Runtime) -> Self {
+    pub fn new(async_runtime: prokio::Runtime, ctx: &Context) -> Self {
         match find_best_camera() {
-            Some(camera) => Self::Camera(InnerCameraWidget::new(async_runtime, camera)),
+            Some(camera) => Self::Camera(InnerCameraWidget::new(async_runtime, camera, ctx)),
             _ => Self::NoCameraFound,
         }
     }
@@ -124,7 +131,7 @@ pub struct InnerCameraWidget {
     time_of_latest_frame: Instant,
 
     /// The image buffer for the latest frame.
-    latest_frame: ImageBuffer<Rgb<u8>, Vec<u8>>,
+    latest_frame: Arc<RwLock<ImgBuf>>,
 }
 
 impl fmt::Debug for InnerCameraWidget {
@@ -156,9 +163,48 @@ impl fmt::Debug for InnerCameraWidget {
     }
 }
 
+struct NokhwaTextureLoader(Arc<RwLock<ImgBuf>>);
+
+impl TextureLoader for NokhwaTextureLoader {
+    fn id(&self) -> &str {
+        concat!(std::module_path!(), "::NokhwaTextureLoader")
+    }
+
+    fn load(
+        &self,
+        ctx: &egui::Context,
+        uri: &str,
+        _texture_options: egui::TextureOptions,
+        _size_hint: egui::SizeHint,
+    ) -> egui::load::TextureLoadResult {
+        if uri.starts_with("nokhwacamera://") {
+            let buf = self.0.read().unwrap();
+            let (w, h) = buf.dimensions();
+            let image =
+                ColorImage::from_rgb([w as usize, h as usize], buf.as_flat_samples().as_slice());
+            let texture = SizedTexture::from_handle(&ctx.load_texture(
+                "nokhwa_image",
+                ImageData::Color(Arc::new(image)),
+                TextureOptions::default(),
+            ));
+            Ok(egui::load::TexturePoll::Ready { texture })
+        } else {
+            Err(egui::load::LoadError::NotSupported)
+        }
+    }
+
+    fn forget(&self, _uri: &str) {}
+
+    fn forget_all(&self) {}
+
+    fn byte_size(&self) -> usize {
+        0
+    }
+}
+
 impl InnerCameraWidget {
     /// Create a new [`InnerCameraWidget`] and initialise background tasks.
-    fn new(async_runtime: prokio::Runtime, mut camera: Camera) -> Self {
+    fn new(async_runtime: prokio::Runtime, mut camera: Camera, ctx: &Context) -> Self {
         let inner = GenericClientWidget::new(async_runtime, || {
             CameraToServerMsg::EstablishConnection(get_basic_camera_info(&camera))
         });
@@ -172,7 +218,10 @@ impl InnerCameraWidget {
 
         let time_of_latest_frame = Instant::now();
 
-        let latest_frame = get_image(&mut camera);
+        let latest_frame = Arc::new(RwLock::new(get_image(&mut camera)));
+
+        let loader = NokhwaTextureLoader(Arc::clone(&latest_frame));
+        ctx.add_texture_loader(Arc::new(loader));
 
         Self {
             inner,
@@ -207,14 +256,16 @@ impl InnerCameraWidget {
     fn refresh_frame(&mut self) {
         if self.time_of_latest_frame.elapsed() >= self.duration_between_frames {
             debug!("Refreshing latest_frame");
-            self.latest_frame = get_image(&mut self.camera);
+            *self.latest_frame.write().unwrap() = get_image(&mut self.camera);
             self.time_of_latest_frame = Instant::now();
+        } else {
         }
     }
 
     /// Display the UI for when the camera is connected and the server is ready to scan.
     fn display_main_ui(&mut self, ui: &mut Ui) -> Response {
         self.refresh_frame();
+        ui.image("nokhwacamera://");
         ui.label("Server ready")
     }
 }

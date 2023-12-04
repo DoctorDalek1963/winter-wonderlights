@@ -81,7 +81,7 @@ impl App {
                 ui.label("Please choose what type of client this device should be:");
 
                 if ui.button("Camera").clicked() {
-                    self.client_state.write().unwrap_or_log().camera_widget = Some(CameraWidget::new(self.async_runtime.clone()));
+                    self.client_state.write().unwrap_or_log().camera_widget = Some(CameraWidget::new(self.async_runtime.clone(), ctx));
                     *self.app_state.write().unwrap_or_log() = AppState::WaitingForConnection;
                 }
 
@@ -92,7 +92,7 @@ impl App {
 
                 if ui.button("Both").clicked() {
                     warn!("Clients with both camera and controller are not currently implemented properly");
-                    self.client_state.write().unwrap_or_log().camera_widget = Some(CameraWidget::new(self.async_runtime.clone()));
+                    self.client_state.write().unwrap_or_log().camera_widget = Some(CameraWidget::new(self.async_runtime.clone(), ctx));
                     self.client_state.write().unwrap_or_log().controller_widget = Some(ControllerWidget::new(self.async_runtime.clone()));
                     *self.app_state.write().unwrap_or_log() = AppState::WaitingForConnection;
                 }
