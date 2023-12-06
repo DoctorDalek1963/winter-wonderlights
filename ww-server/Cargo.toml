@@ -32,6 +32,9 @@ ww-shared-server-tls.workspace = true
 
 ### Optional dependencies for drivers
 
+# driver-debug
+debug = { path = "../drivers/debug", optional = true }
+
 # driver-virtual-tree
 virtual-tree = { path = "../drivers/virtual-tree", optional = true }
 
@@ -43,7 +46,7 @@ raspi-ws2811 = { path = "../drivers/raspi-ws2811", optional = true }
 default = ["driver-debug"]
 
 # Just log whatever the driver was asked to display at the info level using tracing.
-driver-debug = []
+driver-debug = ["dep:debug"]
 
 # Display the effect on a virtual tree render with Bevy - uses `coords.gift` to work out where the lights are.
 driver-virtual-tree = ["dep:virtual-tree"]

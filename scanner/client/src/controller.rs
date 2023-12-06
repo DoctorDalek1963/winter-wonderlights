@@ -4,13 +4,16 @@ use crate::{app::AppState, generic_client::GenericClientWidget};
 use egui::{Response, Ui};
 use tracing::{debug, instrument};
 use tracing_unwrap::ResultExt;
-use ww_scanner_shared::{ControllerToServerMsg, ServerToControllerMsg};
+use ww_scanner_shared::{CompassDirection, ControllerToServerMsg, ServerToControllerMsg};
 
 /// A widget to encapsulate a whole controller client.
 #[derive(Clone, Debug)]
 pub struct ControllerWidget {
     /// The inner widget that genericises background tasks.
     inner: GenericClientWidget<ControllerToServerMsg, ServerToControllerMsg>,
+
+    /// The direction of the tree which is currently facing the camera.
+    direction: CompassDirection,
 }
 
 impl ControllerWidget {

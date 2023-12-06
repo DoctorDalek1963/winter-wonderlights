@@ -9,9 +9,8 @@
 use rs_ws281x::{ChannelBuilder, Controller, ControllerBuilder, StripType};
 use tracing::instrument;
 use tracing_unwrap::ResultExt;
-use ww_driver_trait::Driver;
+use ww_driver_trait::{Driver, LIGHTS_NUM};
 use ww_frame::FrameType;
-use ww_gift_coords::COORDS;
 
 /// The frequency of the signal to the LEDs in Hz.
 ///
@@ -72,7 +71,7 @@ impl Driver for Ws2811Driver {
                 0,
                 ChannelBuilder::new()
                     .pin(GPIO_PIN_NUMBER)
-                    .count(COORDS.lights_num() as _)
+                    .count(LIGHTS_NUM as _)
                     .strip_type(STRIP_TYPE)
                     .brightness(255)
                     .build(),
@@ -94,6 +93,6 @@ impl Driver for Ws2811Driver {
 
     #[inline]
     fn get_lights_count(&self) -> usize {
-        COORDS.lights_num()
+        LIGHTS_NUM
     }
 }

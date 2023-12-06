@@ -24,6 +24,7 @@ export SERVER_SSL_CERT_PATH=/path/to/ssl/certificate.pem
 export SERVER_SSL_KEY_PATH=/path/to/ssl/privatekey.pem
 
 export PORT=23120
+export LIGHTS_NUM=250
 
 # Client
 export SERVER_URL=wss://my.server.net:${PORT}
@@ -45,6 +46,7 @@ export SERVER_SSL_CERT_PATH=/dev/null
 export SERVER_SSL_KEY_PATH=/dev/null
 
 export PORT=23120
+export LIGHTS_NUM=250
 
 # Client
 export SERVER_URL=ws://localhost:${PORT}

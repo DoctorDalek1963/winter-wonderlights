@@ -4,7 +4,11 @@
 
 #![feature(lint_reasons)]
 
+use konst::{primitive::parse_usize, result::unwrap_ctx};
 use ww_frame::FrameType;
+
+/// The number of lights provided by the user in the `LIGHTS_NUM` environment variable.
+pub const LIGHTS_NUM: usize = unwrap_ctx!(parse_usize(env!("LIGHTS_NUM")));
 
 /// The trait implemented by all drivers.
 pub trait Driver {
