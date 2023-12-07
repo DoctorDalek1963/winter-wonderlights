@@ -294,4 +294,14 @@ where
             }
         }
     }
+
+    /// Send a message to the server by spawning a task on the async runtime.
+    pub fn send_msg(&self, msg: CSM) {
+        self.async_runtime.spawn_pinned({
+            let tx = self.message_tx.clone();
+            || async move {
+                tx.send(msg).await.unwrap_or_log();
+            }
+        });
+    }
 }

@@ -21,7 +21,10 @@ impl ControllerWidget {
     pub fn new(async_runtime: prokio::Runtime) -> Self {
         let inner =
             GenericClientWidget::new(async_runtime, || ControllerToServerMsg::EstablishConnection);
-        Self { inner }
+        Self {
+            inner,
+            direction: CompassDirection::South,
+        }
     }
 
     /// Respond to all the messages from the server that are in the queue and return the new
@@ -46,7 +49,13 @@ impl ControllerWidget {
 
     /// Display the UI for when the controller is connected and the server is ready to scan.
     fn display_main_ui(&mut self, ui: &mut Ui) -> Response {
-        ui.label("Server ready")
+        if ui.button("Start taking photos").clicked() {
+            self.inner
+                .send_msg(ControllerToServerMsg::ReadyToTakePhotos {
+                    camera_alignment: self.direction,
+                });
+        }
+        ui.heading("Server ready")
     }
 }
 

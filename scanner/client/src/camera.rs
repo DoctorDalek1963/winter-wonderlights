@@ -5,9 +5,9 @@ use egui::{
     load::{SizedTexture, TextureLoader},
     ColorImage, Context, ImageData, Response, TextureOptions, Ui,
 };
-use image::{ImageBuffer, Rgb};
+use image::{GrayImage, Luma};
 use nokhwa::{
-    pixel_format::RgbFormat,
+    pixel_format::LumaFormat,
     utils::{ApiBackend, CameraIndex, RequestedFormat, RequestedFormatType, Resolution},
     Camera,
 };
@@ -28,8 +28,6 @@ const NOKHWA_API_BACKEND: ApiBackend = ApiBackend::Browser;
 #[cfg(not(target_family = "wasm"))]
 const NOKHWA_API_BACKEND: ApiBackend = ApiBackend::Auto;
 
-type ImgBuf = ImageBuffer<Rgb<u8>, Vec<u8>>;
-
 /// Find the best camera on the device, if any. This function should only ever be called once.
 fn find_best_camera() -> Option<Camera> {
     nokhwa::nokhwa_initialize(|_| {});
@@ -40,7 +38,7 @@ fn find_best_camera() -> Option<Camera> {
         .filter_map(|camera_info| {
             Camera::new(
                 camera_info.index().clone(),
-                RequestedFormat::new::<RgbFormat>(RequestedFormatType::AbsoluteHighestResolution),
+                RequestedFormat::new::<LumaFormat>(RequestedFormatType::AbsoluteHighestResolution),
             )
             .or_else(|err| Err(err))
             .ok()
@@ -64,12 +62,12 @@ fn get_basic_camera_info(camera: &Camera) -> BasicCameraInfo {
 }
 
 /// Get an image from the camera, panicking on failure.
-fn get_image(camera: &mut Camera) -> ImgBuf {
+fn get_image(camera: &mut Camera) -> GrayImage {
     let frame = camera
         .frame()
         .expect_or_log("Should be able to get frame from camera");
     let image = frame
-        .decode_image::<RgbFormat>()
+        .decode_image::<LumaFormat>()
         .expect_or_log("Should be able to decode image buffer");
     image
 }
@@ -131,7 +129,7 @@ pub struct InnerCameraWidget {
     time_of_latest_frame: Instant,
 
     /// The image buffer for the latest frame.
-    latest_frame: Arc<RwLock<ImgBuf>>,
+    latest_frame: Arc<RwLock<GrayImage>>,
 }
 
 impl fmt::Debug for InnerCameraWidget {
@@ -163,7 +161,8 @@ impl fmt::Debug for InnerCameraWidget {
     }
 }
 
-struct NokhwaTextureLoader(Arc<RwLock<ImgBuf>>);
+/// A simple struct to let `egui` load textures from the webcam provided by `nokhwa`.
+struct NokhwaTextureLoader(Arc<RwLock<GrayImage>>);
 
 impl TextureLoader for NokhwaTextureLoader {
     fn id(&self) -> &str {
@@ -178,10 +177,10 @@ impl TextureLoader for NokhwaTextureLoader {
         _size_hint: egui::SizeHint,
     ) -> egui::load::TextureLoadResult {
         if uri.starts_with("nokhwacamera://") {
-            let buf = self.0.read().unwrap();
+            let buf = self.0.read().unwrap_or_log();
             let (w, h) = buf.dimensions();
             let image =
-                ColorImage::from_rgb([w as usize, h as usize], buf.as_flat_samples().as_slice());
+                ColorImage::from_gray([w as usize, h as usize], buf.as_flat_samples().as_slice());
             let texture = SizedTexture::from_handle(&ctx.load_texture(
                 "nokhwa_image",
                 ImageData::Color(Arc::new(image)),
@@ -245,11 +244,38 @@ impl InnerCameraWidget {
                 ServerToCameraMsg::Generic(msg) => {
                     new_state = Some(self.inner.respond_to_generic_server_message(msg));
                 }
-                ServerToCameraMsg::TakePhoto { id: _ } => todo!("Respond to TakePhoto"),
+                ServerToCameraMsg::TakePhoto { light_idx } => {
+                    info!(?light_idx, "Taking photo");
+                    self.inner.send_msg(CameraToServerMsg::PhotoTaken {
+                        light_idx,
+                        brightest_pixel_pos: self.get_brightest_pixel_pos(),
+                    })
+                }
             }
         }
 
         new_state
+    }
+
+    /// Get the position of the brightest pixel in the current image. Returns a tuple `(x, y)`,
+    /// where (0, 0) is the top left of the image.
+    fn get_brightest_pixel_pos(&self) -> (u32, u32) {
+        let (x, y, _pixel) = self
+            .latest_frame
+            .read()
+            .unwrap_or_log()
+            .enumerate_pixels()
+            .fold(
+                (0, 0, 0),
+                |(acc_x, acc_y, acc_pixel), (x, y, &Luma([pixel]))| {
+                    if pixel > acc_pixel {
+                        (x, y, pixel)
+                    } else {
+                        (acc_x, acc_y, acc_pixel)
+                    }
+                },
+            );
+        (x, y)
     }
 
     /// Refresh [`self.latest_frame`] if it needs to be refreshed.

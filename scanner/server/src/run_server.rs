@@ -202,9 +202,23 @@ async fn handle_camera_connection(mut conn: Connection) -> Result<()> {
                     .expect_or_log("Should be able to send message down CAMERA_SEND");
             }
             CameraToServerMsg::PhotoTaken {
-                id: _,
-                brightest_pixel_pos: _,
-            } => todo!("Handle PhotoTaken"),
+                light_idx,
+                brightest_pixel_pos,
+            } => {
+                debug!(
+                    ?light_idx,
+                    ?brightest_pixel_pos,
+                    "Received photo data from the camera"
+                );
+                SEND_MESSAGE_TO_SCAN_MANAGER
+                    .send(ScanManagerMsg::ReceivedPhoto {
+                        light_idx,
+                        brightest_pixel_pos,
+                    })
+                    .expect_or_log(
+                        "Should be able to send message down SEND_MESSAGE_TO_SCAN_MANAGER",
+                    );
+            }
         }
 
         future::ok(())
@@ -304,9 +318,13 @@ async fn handle_controller_connection(mut conn: Connection) -> Result<()> {
                     )
                     .expect_or_log("Should be able to send message down CONTROLLER_SEND");
             }
-            ControllerToServerMsg::ReadyToTakePhotos {
-                camera_alignment: _,
-            } => todo!("Handle ReadyToTakePhotos"),
+            ControllerToServerMsg::ReadyToTakePhotos { camera_alignment } => {
+                SEND_MESSAGE_TO_SCAN_MANAGER
+                    .send(ScanManagerMsg::StartTakingPhotos { camera_alignment })
+                    .expect_or_log(
+                        "Should be able to send message down SEND_MESSAGE_TO_SCAN_MANAGER",
+                    );
+            }
         }
 
         future::ok(())

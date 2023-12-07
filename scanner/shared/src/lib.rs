@@ -51,7 +51,7 @@ impl TryFrom<u8> for ClientType {
 }
 
 /// Directions of a compass.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[allow(missing_docs, reason = "the variants are just compass directions")]
 pub enum CompassDirection {
     North,
@@ -95,8 +95,8 @@ pub enum ServerToCameraMsg {
 
     /// Tell the client that the lights are ready and a photo should be taken.
     TakePhoto {
-        /// The unique ID of this request. Used to make sure the server and client are in sync.
-        id: u32,
+        /// The index of the light being photographed.
+        light_idx: u32,
     },
 }
 
@@ -118,10 +118,10 @@ pub enum CameraToServerMsg {
 
     /// Tell the server that a photo has been taken and send the position of the brightest pixel.
     PhotoTaken {
-        /// The unique ID of this request. Used to make sure the server and client are in sync.
-        id: u32,
+        /// The index of the light being photographed.
+        light_idx: u32,
 
-        /// The position of the brightest pixel in the image as `(x, y)` with (0, 0) in the bottom
+        /// The position of the brightest pixel in the image as `(x, y)` with (0, 0) in the top
         /// left.
         brightest_pixel_pos: (u32, u32),
     },
