@@ -5,7 +5,7 @@ use egui::{
     load::{SizedTexture, TextureLoader},
     ColorImage, Context, ImageData, Response, TextureOptions, Ui,
 };
-use image::{GrayImage, Luma};
+use image::{imageops, GrayImage, Luma};
 use nokhwa::{
     pixel_format::LumaFormat,
     utils::{ApiBackend, CameraIndex, RequestedFormat, RequestedFormatType, Resolution},
@@ -27,6 +27,35 @@ const NOKHWA_API_BACKEND: ApiBackend = ApiBackend::Browser;
 /// The API backend for this platform.
 #[cfg(not(target_family = "wasm"))]
 const NOKHWA_API_BACKEND: ApiBackend = ApiBackend::Auto;
+
+/// A rotation of a number of degrees clockwise.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Rotation {
+    Original,
+    Rotate90,
+    Rotate180,
+    Rotate270,
+}
+
+impl Rotation {
+    fn next_clockwise(self) -> Self {
+        match self {
+            Self::Original => Self::Rotate90,
+            Self::Rotate90 => Self::Rotate180,
+            Self::Rotate180 => Self::Rotate270,
+            Self::Rotate270 => Self::Original,
+        }
+    }
+
+    fn next_anticlockwise(self) -> Self {
+        match self {
+            Self::Original => Self::Rotate270,
+            Self::Rotate90 => Self::Original,
+            Self::Rotate180 => Self::Rotate90,
+            Self::Rotate270 => Self::Rotate180,
+        }
+    }
+}
 
 /// Find the best camera on the device, if any. This function should only ever be called once.
 fn find_best_camera() -> Option<Camera> {
@@ -62,14 +91,20 @@ fn get_basic_camera_info(camera: &Camera) -> BasicCameraInfo {
 }
 
 /// Get an image from the camera, panicking on failure.
-fn get_image(camera: &mut Camera) -> GrayImage {
+fn get_image(camera: &mut Camera, rotation: Rotation) -> GrayImage {
     let frame = camera
         .frame()
         .expect_or_log("Should be able to get frame from camera");
     let image = frame
         .decode_image::<LumaFormat>()
         .expect_or_log("Should be able to decode image buffer");
-    image
+
+    match rotation {
+        Rotation::Original => image,
+        Rotation::Rotate90 => imageops::rotate90(&image),
+        Rotation::Rotate180 => imageops::rotate180(&image),
+        Rotation::Rotate270 => imageops::rotate270(&image),
+    }
 }
 
 /// A widget to encapsulate a whole camera client.
@@ -130,6 +165,9 @@ pub struct InnerCameraWidget {
 
     /// The image buffer for the latest frame.
     latest_frame: Arc<RwLock<GrayImage>>,
+
+    /// The rotation of the camera from the source.
+    rotation: Rotation,
 }
 
 impl fmt::Debug for InnerCameraWidget {
@@ -217,7 +255,7 @@ impl InnerCameraWidget {
 
         let time_of_latest_frame = Instant::now();
 
-        let latest_frame = Arc::new(RwLock::new(get_image(&mut camera)));
+        let latest_frame = Arc::new(RwLock::new(get_image(&mut camera, Rotation::Original)));
 
         let loader = NokhwaTextureLoader(Arc::clone(&latest_frame));
         ctx.add_texture_loader(Arc::new(loader));
@@ -228,6 +266,7 @@ impl InnerCameraWidget {
             duration_between_frames,
             time_of_latest_frame,
             latest_frame,
+            rotation: Rotation::Original,
         }
     }
 
@@ -282,7 +321,7 @@ impl InnerCameraWidget {
     fn refresh_frame(&mut self) {
         if self.time_of_latest_frame.elapsed() >= self.duration_between_frames {
             trace!("Refreshing latest_frame");
-            *self.latest_frame.write().unwrap() = get_image(&mut self.camera);
+            *self.latest_frame.write().unwrap() = get_image(&mut self.camera, self.rotation);
             self.time_of_latest_frame = Instant::now();
         } else {
         }
@@ -291,8 +330,21 @@ impl InnerCameraWidget {
     /// Display the UI for when the camera is connected and the server is ready to scan.
     fn display_main_ui(&mut self, ui: &mut Ui) -> Response {
         self.refresh_frame();
-        ui.image("nokhwacamera://");
-        ui.label("Server ready")
+
+        ui.vertical(|ui| {
+            ui.horizontal(|ui| {
+                ui.label("Rotate image:");
+                if ui.button("⟲").clicked() {
+                    self.rotation = self.rotation.next_anticlockwise();
+                }
+                if ui.button("⟳").clicked() {
+                    self.rotation = self.rotation.next_clockwise();
+                }
+            });
+
+            ui.image("nokhwacamera://");
+        })
+        .response
     }
 }
 

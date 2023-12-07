@@ -16,4 +16,4 @@ set -euxo pipefail
 droidcam-cli adb 47470 &> /dev/null & disown
 
 sudo modprobe v4l2loopback
-ffmpeg -f v4l2 -input_format yuv420p -i /dev/video0 -c:v mjpeg -vf "rotate=90*PI/180" -f v4l2 /dev/video1 &> /dev/null & disown
+ffmpeg -f v4l2 -input_format yuv420p -i /dev/video0 -c:v mjpeg -f v4l2 /dev/video1 &> /dev/null & disown
