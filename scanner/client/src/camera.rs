@@ -16,7 +16,7 @@ use std::{
     sync::{Arc, RwLock},
     time::{Duration, Instant},
 };
-use tracing::{debug, info, instrument};
+use tracing::{debug, info, instrument, trace};
 use tracing_unwrap::ResultExt;
 use ww_scanner_shared::{BasicCameraInfo, CameraToServerMsg, ServerToCameraMsg};
 
@@ -281,7 +281,7 @@ impl InnerCameraWidget {
     /// Refresh [`self.latest_frame`] if it needs to be refreshed.
     fn refresh_frame(&mut self) {
         if self.time_of_latest_frame.elapsed() >= self.duration_between_frames {
-            debug!("Refreshing latest_frame");
+            trace!("Refreshing latest_frame");
             *self.latest_frame.write().unwrap() = get_image(&mut self.camera);
             self.time_of_latest_frame = Instant::now();
         } else {

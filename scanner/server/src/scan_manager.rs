@@ -12,7 +12,7 @@ use tokio::{
     sync::{broadcast, oneshot},
     time::sleep,
 };
-use tracing::{info, instrument, trace};
+use tracing::{debug, info, instrument, trace};
 use tracing_unwrap::ResultExt;
 use ww_driver_trait::{Driver, LIGHTS_NUM};
 use ww_frame::FrameType;
@@ -197,85 +197,96 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
         };
     }
 
-    macro_rules! react_to_state_changes_in_loop {
-        () => {
-            match state {
-                ScanManagerState::WaitingForConnections
-                    if connected_state.camera && connected_state.controller =>
-                {
-                    info!("Camera and controller both connected; sending ServerReady");
-
-                    sleep(Duration::from_millis(250)).await;
-                    CAMERA_SEND
-                        .send(
-                            bincode::serialize(&ServerToCameraMsg::Generic(
-                                GenericServerToClientMsg::ServerReady,
-                            ))
-                            .expect_or_log("Should be able to serialize ServerReady"),
-                        )
-                        .expect_or_log("Should be able to send messge down CAMERA_SEND");
-                    CONTROLLER_SEND
-                        .send(
-                            bincode::serialize(&ServerToControllerMsg::Generic(
-                                GenericServerToClientMsg::ServerReady,
-                            ))
-                            .expect_or_log("Should be able to serialize ServerReady"),
-                        )
-                        .expect_or_log("Should be able to send messge down CONTROLLER_SEND");
-
-                    state = ScanManagerState::WaitingToScan;
-                }
-                ScanManagerState::ReadyToTakePhoto => {
-                    let light_idx = CURRENT_IDX.fetch_add(1, Ordering::Relaxed);
-                    if light_idx as usize >= LIGHTS_NUM {
-                        info!(
-                            ?current_camera_alignment,
-                            "Finished scanning from this angle"
-                        );
-
-                        state = ScanManagerState::WaitingToScan;
-                        CONTROLLER_SEND
-                            .send(
-                                bincode::serialize(&ServerToControllerMsg::PhotoSequenceDone)
-                                    .expect_or_log("Should be able to serialize PhotoSequenceDone"),
-                            )
-                            .expect_or_log("Should be able to send messge down CONTROLLER_SEND");
-
-                        continue;
-                    }
-
-                    info!(?light_idx, "Ready to take photo");
-
-                    driver_raw_data[light_idx as usize] = [255; 3];
-                    driver.display_frame(FrameType::RawData(driver_raw_data.clone()));
-                    driver_raw_data[light_idx as usize] = [0; 3];
-
-                    CAMERA_SEND
-                        .send(
-                            bincode::serialize(&ServerToCameraMsg::TakePhoto { light_idx })
-                                .expect_or_log("Should be able to serialize TakePhoto"),
-                        )
-                        .expect_or_log("Should be able to send messge down CAMERA_SEND");
-                    state = ScanManagerState::WaitingForPhoto;
-                }
-                ScanManagerState::WaitingForConnections
-                | ScanManagerState::WaitingToScan
-                | ScanManagerState::WaitingForPhoto => {} // Do nothing
-            };
-
-            sleep(Duration::from_millis(50)).await;
-        };
-    }
-
     let recv_msgs_and_manage_scan = async move {
         loop {
+            let react_to_state_changes_in_loop = async {
+                loop {
+                    match state {
+                        ScanManagerState::WaitingForConnections
+                            if connected_state.camera && connected_state.controller =>
+                        {
+                            info!("Camera and controller both connected; sending ServerReady");
+
+                            sleep(Duration::from_millis(250)).await;
+                            CAMERA_SEND
+                                .send(
+                                    bincode::serialize(&ServerToCameraMsg::Generic(
+                                        GenericServerToClientMsg::ServerReady,
+                                    ))
+                                    .expect_or_log("Should be able to serialize ServerReady"),
+                                )
+                                .expect_or_log("Should be able to send messge down CAMERA_SEND");
+                            CONTROLLER_SEND
+                                .send(
+                                    bincode::serialize(&ServerToControllerMsg::Generic(
+                                        GenericServerToClientMsg::ServerReady,
+                                    ))
+                                    .expect_or_log("Should be able to serialize ServerReady"),
+                                )
+                                .expect_or_log(
+                                    "Should be able to send messge down CONTROLLER_SEND",
+                                );
+
+                            state = ScanManagerState::WaitingToScan;
+                            driver.display_frame(FrameType::RawData(vec![[255; 3]; LIGHTS_NUM]));
+                        }
+                        ScanManagerState::ReadyToTakePhoto => {
+                            let light_idx = CURRENT_IDX.fetch_add(1, Ordering::Relaxed);
+                            if light_idx as usize >= LIGHTS_NUM {
+                                info!(
+                                    ?current_camera_alignment,
+                                    "Finished scanning from this angle"
+                                );
+                                debug!(?photo_map);
+
+                                state = ScanManagerState::WaitingToScan;
+                                CONTROLLER_SEND
+                                    .send(
+                                        bincode::serialize(
+                                            &ServerToControllerMsg::PhotoSequenceDone,
+                                        )
+                                        .expect_or_log(
+                                            "Should be able to serialize PhotoSequenceDone",
+                                        ),
+                                    )
+                                    .expect_or_log(
+                                        "Should be able to send messge down CONTROLLER_SEND",
+                                    );
+
+                                continue;
+                            }
+
+                            info!(?light_idx, "Ready to take photo");
+
+                            driver_raw_data[light_idx as usize] = [255; 3];
+                            driver.display_frame(FrameType::RawData(driver_raw_data.clone()));
+                            driver_raw_data[light_idx as usize] = [0; 3];
+
+                            CAMERA_SEND
+                                .send(
+                                    bincode::serialize(&ServerToCameraMsg::TakePhoto { light_idx })
+                                        .expect_or_log("Should be able to serialize TakePhoto"),
+                                )
+                                .expect_or_log("Should be able to send messge down CAMERA_SEND");
+                            state = ScanManagerState::WaitingForPhoto;
+                        }
+                        ScanManagerState::WaitingForConnections
+                        | ScanManagerState::WaitingToScan
+                        | ScanManagerState::WaitingForPhoto => {} // Do nothing
+                    };
+
+                    sleep(Duration::from_millis(50)).await;
+                }
+            };
+
             tokio::select! {
-            biased;
+                biased;
 
-            // First, we check if we've received a message on the channel and respond to it if so
-            msg = thread_message_rx.recv() => { respond_to_msg!(msg); }
+                // First, we check if we've received a message on the channel and respond to it if so
+                msg = thread_message_rx.recv() => { respond_to_msg!(msg); }
 
-            _ = async { loop { react_to_state_changes_in_loop!(); } } => {} }
+                _ = react_to_state_changes_in_loop => {}
+            }
         }
     };
 

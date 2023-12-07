@@ -2,6 +2,7 @@
 
 use crate::{app::AppState, generic_client::GenericClientWidget};
 use egui::{Response, Ui};
+use strum::IntoEnumIterator;
 use tracing::{debug, instrument};
 use tracing_unwrap::ResultExt;
 use ww_scanner_shared::{CompassDirection, ControllerToServerMsg, ServerToControllerMsg};
@@ -14,6 +15,9 @@ pub struct ControllerWidget {
 
     /// The direction of the tree which is currently facing the camera.
     direction: CompassDirection,
+
+    /// Are we ready to take photos? Or are we waiting for the camera to finish?
+    ready_to_take_photos: bool,
 }
 
 impl ControllerWidget {
@@ -24,6 +28,7 @@ impl ControllerWidget {
         Self {
             inner,
             direction: CompassDirection::South,
+            ready_to_take_photos: true,
         }
     }
 
@@ -40,7 +45,9 @@ impl ControllerWidget {
                 ServerToControllerMsg::Generic(msg) => {
                     new_state = Some(self.inner.respond_to_generic_server_message(msg));
                 }
-                ServerToControllerMsg::PhotoSequenceDone => todo!("Respond to PhotoSequenceDone"),
+                ServerToControllerMsg::PhotoSequenceDone => {
+                    self.ready_to_take_photos = true;
+                }
             }
         }
 
@@ -49,13 +56,29 @@ impl ControllerWidget {
 
     /// Display the UI for when the controller is connected and the server is ready to scan.
     fn display_main_ui(&mut self, ui: &mut Ui) -> Response {
-        if ui.button("Start taking photos").clicked() {
-            self.inner
-                .send_msg(ControllerToServerMsg::ReadyToTakePhotos {
-                    camera_alignment: self.direction,
+        ui.vertical(|ui| {
+            if ui
+                .add_enabled(self.ready_to_take_photos, |ui: &mut Ui| {
+                    ui.button("Start taking photos")
+                })
+                .clicked()
+            {
+                self.inner
+                    .send_msg(ControllerToServerMsg::ReadyToTakePhotos {
+                        camera_alignment: self.direction,
+                    });
+                self.ready_to_take_photos = false;
+            }
+
+            egui::ComboBox::from_label("Side of tree facing camera")
+                .selected_text(self.direction.name())
+                .show_ui(ui, |ui| {
+                    for direction in CompassDirection::iter() {
+                        ui.selectable_value(&mut self.direction, direction, direction.name());
+                    }
                 });
-        }
-        ui.heading("Server ready")
+        })
+        .response
     }
 }
 

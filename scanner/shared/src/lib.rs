@@ -13,6 +13,7 @@
 #![feature(lint_reasons)]
 
 use serde::{Deserialize, Serialize};
+use strum::EnumIter;
 
 /// The magic numbers expected at the start of a [`ClientType`] declaration see [the module
 /// documentation](self) for details.
@@ -51,7 +52,7 @@ impl TryFrom<u8> for ClientType {
 }
 
 /// Directions of a compass.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, EnumIter)]
 #[allow(missing_docs, reason = "the variants are just compass directions")]
 pub enum CompassDirection {
     North,
@@ -62,6 +63,21 @@ pub enum CompassDirection {
     SouthWest,
     West,
     NorthWest,
+}
+
+impl CompassDirection {
+    pub fn name(&self) -> &'static str {
+        match self {
+            CompassDirection::North => "North",
+            CompassDirection::NorthEast => "North East",
+            CompassDirection::East => "East",
+            CompassDirection::SouthEast => "South East",
+            CompassDirection::South => "South",
+            CompassDirection::SouthWest => "South West",
+            CompassDirection::West => "West",
+            CompassDirection::NorthWest => "North West",
+        }
+    }
 }
 
 /// A generic message from the server to a client.

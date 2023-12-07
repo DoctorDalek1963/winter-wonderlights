@@ -6766,6 +6766,7 @@ name = "ww-scanner-shared"
 version = "0.1.0-dev"
 dependencies = [
  "serde",
+ "strum",
 ]
 
 [[package]]
