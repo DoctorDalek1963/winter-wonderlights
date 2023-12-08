@@ -8,7 +8,7 @@
 
 use rs_ws281x::{ChannelBuilder, Controller, ControllerBuilder, StripType};
 use std::env;
-use tracing::instrument;
+use tracing::{debug, instrument};
 use tracing_unwrap::ResultExt;
 use ww_driver_trait::{Driver, LIGHTS_NUM};
 use ww_frame::FrameType;
@@ -17,12 +17,14 @@ use ww_frame::FrameType;
 ///
 /// 800,000 is a good default but it should never go below 400,000.
 fn frequency() -> u32 {
-    match env::var("WS2811_FREQUENCY") {
+    let freq = match env::var("WS2811_FREQUENCY") {
         Ok(frequency) => frequency
             .parse()
-            .expect("Unable to parse environment variable WS2811_FREQUENCY as u32"),
+            .expect_or_log("Unable to parse environment variable WS2811_FREQUENCY as u32"),
         Err(_) => 800_000,
-    }
+    };
+    debug!("Using frequency of {freq} Hz");
+    freq
 }
 
 /// The channel number for DMA.
@@ -30,12 +32,14 @@ fn frequency() -> u32 {
 /// 10 is a good default but you MUST AVOID 0, 1, 2, 3, 5, 6, or 7.
 /// Make sure this DMA channel is not already in use.
 fn dma_channel_number() -> i32 {
-    match env::var("WS2811_DMA_CHANNEL_NUMBER") {
+    let num = match env::var("WS2811_DMA_CHANNEL_NUMBER") {
         Ok(number) => number
             .parse()
-            .expect("Unable to parse environment variable WS2811_DMA_CHANNEL_NUMBER as i32"),
+            .expect_or_log("Unable to parse environment variable WS2811_DMA_CHANNEL_NUMBER as i32"),
         Err(_) => 10,
-    }
+    };
+    debug!("Using DMA channel {num}");
+    num
 }
 
 /// The GPIO pin number of the pin to send data down.
@@ -43,12 +47,14 @@ fn dma_channel_number() -> i32 {
 /// 18 is a good default but this can be any pin which is capable of any of PCM, PWM, or SPI. See
 /// <https://pinout.xyz> for details on which pins support these.
 fn gpio_pin_number() -> i32 {
-    match env::var("WS2811_GPIO_PIN_NUMBER") {
+    let num = match env::var("WS2811_GPIO_PIN_NUMBER") {
         Ok(number) => number
             .parse()
-            .expect("Unable to parse environment variable WS2811_GPIO_PIN_NUMBER as i32"),
+            .expect_or_log("Unable to parse environment variable WS2811_GPIO_PIN_NUMBER as i32"),
         Err(_) => 18,
-    }
+    };
+    debug!("Using GPIO pin {num}");
+    num
 }
 
 /// The type of the LED strip.
