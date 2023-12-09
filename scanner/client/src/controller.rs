@@ -86,15 +86,15 @@ impl ControllerWidget {
                 self.ready_to_take_photos = true;
             }
 
+            ui.add_space(20.0);
             ui.add(
                 egui::Slider::new(&mut self.pause_time_ms, 0..=1000)
                     .clamp_to_range(false)
                     .suffix("ms")
-                    .text(concat!(
-                        "Pause time between photos (NOTICE: increase ",
-                        "this if you don't like flashing lights)"
-                    )),
+                    .text("Pause time between photos"),
             );
+            ui.label("(NOTICE: increase this if you don't like flashing lights)");
+            ui.add_space(20.0);
 
             egui::ComboBox::from_label("Side of tree facing camera")
                 .selected_text(self.direction.name())
