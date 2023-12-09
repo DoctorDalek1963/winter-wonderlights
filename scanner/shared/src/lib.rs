@@ -166,6 +166,9 @@ pub enum ControllerToServerMsg {
     ReadyToTakePhotos {
         /// Which side of the tree is facing the camera?
         camera_alignment: CompassDirection,
+
+        /// The time to pause between taking photos, in milliseconds.
+        pause_time_ms: u16,
     },
 }
 

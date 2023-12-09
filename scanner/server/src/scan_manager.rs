@@ -44,7 +44,10 @@ pub enum ScanManagerMsg {
     ControllerDisconnected,
 
     /// Start to take photos.
-    StartTakingPhotos { camera_alignment: CompassDirection },
+    StartTakingPhotos {
+        camera_alignment: CompassDirection,
+        pause_time_ms: u16,
+    },
 
     /// We've received photo data from the camera.
     ReceivedPhoto {
@@ -112,6 +115,7 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
     let mut connected_state = ConnectedState::default();
     let mut state = ScanManagerState::default();
     let mut current_camera_alignment = CompassDirection::South;
+    let mut pause_time = 0;
     let mut photo_map: HashMap<CompassDirection, Vec<(u32, u32)>> = HashMap::new();
 
     info!("Beginning scan manager loop");
@@ -151,9 +155,10 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                         .expect_or_log("Should be able to serialize ServerNotReady"),
                     );
                 }
-                ScanManagerMsg::StartTakingPhotos { camera_alignment } => {
+                ScanManagerMsg::StartTakingPhotos { camera_alignment, pause_time_ms } => {
                     CURRENT_IDX.store(0, Ordering::Relaxed);
                     current_camera_alignment = camera_alignment;
+                    pause_time = pause_time_ms;
                     photo_map.entry(camera_alignment).and_modify(|list| list.clear());
                     state = ScanManagerState::ReadyToTakePhoto;
                 }
@@ -262,6 +267,7 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                             driver.display_frame(FrameType::RawData(driver_raw_data.clone()));
                             driver_raw_data[light_idx as usize] = [0; 3];
 
+                            sleep(Duration::from_millis(pause_time as u64)).await;
                             CAMERA_SEND
                                 .send(
                                     bincode::serialize(&ServerToCameraMsg::TakePhoto { light_idx })

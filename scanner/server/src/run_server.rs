@@ -318,9 +318,15 @@ async fn handle_controller_connection(mut conn: Connection) -> Result<()> {
                     )
                     .expect_or_log("Should be able to send message down CONTROLLER_SEND");
             }
-            ControllerToServerMsg::ReadyToTakePhotos { camera_alignment } => {
+            ControllerToServerMsg::ReadyToTakePhotos {
+                camera_alignment,
+                pause_time_ms,
+            } => {
                 SEND_MESSAGE_TO_SCAN_MANAGER
-                    .send(ScanManagerMsg::StartTakingPhotos { camera_alignment })
+                    .send(ScanManagerMsg::StartTakingPhotos {
+                        camera_alignment,
+                        pause_time_ms,
+                    })
                     .expect_or_log(
                         "Should be able to send message down SEND_MESSAGE_TO_SCAN_MANAGER",
                     );

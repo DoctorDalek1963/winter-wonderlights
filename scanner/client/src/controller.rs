@@ -18,6 +18,9 @@ pub struct ControllerWidget {
 
     /// Are we ready to take photos? Or are we waiting for the camera to finish?
     ready_to_take_photos: bool,
+
+    /// The time to pause between taking photos, in milliseconds.
+    pause_time_ms: u16,
 }
 
 impl ControllerWidget {
@@ -29,6 +32,7 @@ impl ControllerWidget {
             inner,
             direction: CompassDirection::South,
             ready_to_take_photos: true,
+            pause_time_ms: 50,
         }
     }
 
@@ -66,9 +70,20 @@ impl ControllerWidget {
                 self.inner
                     .send_msg(ControllerToServerMsg::ReadyToTakePhotos {
                         camera_alignment: self.direction,
+                        pause_time_ms: self.pause_time_ms,
                     });
                 self.ready_to_take_photos = false;
             }
+
+            ui.add(
+                egui::Slider::new(&mut self.pause_time_ms, 0..=1000)
+                    .clamp_to_range(false)
+                    .suffix("ms")
+                    .text(concat!(
+                        "Pause time between photos (NOTICE: increase ",
+                        "this if you don't like flashing lights)"
+                    )),
+            );
 
             egui::ComboBox::from_label("Side of tree facing camera")
                 .selected_text(self.direction.name())
