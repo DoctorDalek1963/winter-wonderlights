@@ -170,6 +170,9 @@ pub enum ControllerToServerMsg {
         /// The time to pause between taking photos, in milliseconds.
         pause_time_ms: u16,
     },
+
+    /// Tell the server to stop taking photos.
+    CancelPhotoSequence,
 }
 
 /// This module just contains the [`ClientToServerMsg`](client_impl::ClientToServerMsg) trait.

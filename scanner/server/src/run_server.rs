@@ -322,11 +322,24 @@ async fn handle_controller_connection(mut conn: Connection) -> Result<()> {
                 camera_alignment,
                 pause_time_ms,
             } => {
+                debug!(
+                    ?camera_alignment,
+                    ?pause_time_ms,
+                    "Controller ready to take photos"
+                );
                 SEND_MESSAGE_TO_SCAN_MANAGER
                     .send(ScanManagerMsg::StartTakingPhotos {
                         camera_alignment,
                         pause_time_ms,
                     })
+                    .expect_or_log(
+                        "Should be able to send message down SEND_MESSAGE_TO_SCAN_MANAGER",
+                    );
+            }
+            ControllerToServerMsg::CancelPhotoSequence => {
+                debug!("Controller wants to cancel photo sequence");
+                SEND_MESSAGE_TO_SCAN_MANAGER
+                    .send(ScanManagerMsg::CancelPhotoSequence)
                     .expect_or_log(
                         "Should be able to send message down SEND_MESSAGE_TO_SCAN_MANAGER",
                     );

@@ -49,6 +49,9 @@ pub enum ScanManagerMsg {
         pause_time_ms: u16,
     },
 
+    /// Cancel the current photo sequence.
+    CancelPhotoSequence,
+
     /// We've received photo data from the camera.
     ReceivedPhoto {
         light_idx: u32,
@@ -159,44 +162,63 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                     CURRENT_IDX.store(0, Ordering::Relaxed);
                     current_camera_alignment = camera_alignment;
                     pause_time = pause_time_ms;
-                    photo_map.entry(camera_alignment).and_modify(|list| list.clear());
+                    photo_map.entry(current_camera_alignment).and_modify(|list| list.clear());
                     state = ScanManagerState::ReadyToTakePhoto;
+                }
+                ScanManagerMsg::CancelPhotoSequence => {
+                    info!(?current_camera_alignment, "Cancelling photo sequence");
+                    photo_map.entry(current_camera_alignment).and_modify(|list| list.clear());
+                    state = ScanManagerState::WaitingToScan;
+                    CONTROLLER_SEND
+                        .send(
+                            bincode::serialize(
+                                &ServerToControllerMsg::PhotoSequenceDone,
+                            )
+                            .expect_or_log(
+                                "Should be able to serialize PhotoSequenceDone",
+                            ),
+                        )
+                        .expect_or_log(
+                            "Should be able to send messge down CONTROLLER_SEND",
+                        );
                 }
                 ScanManagerMsg::ReceivedPhoto {
                     light_idx,
                     brightest_pixel_pos,
                 } => {
-                    debug_assert_eq!(
-                        light_idx,
-                        CURRENT_IDX.load(Ordering::Relaxed) - 1,
-                        "The camera and server should be in sync with the light indices"
-                    );
+                    if state == ScanManagerState::WaitingForPhoto {
+                        debug_assert_eq!(
+                            light_idx,
+                            CURRENT_IDX.load(Ordering::Relaxed) - 1,
+                            "The camera and server should be in sync with the light indices"
+                        );
 
-                    info!(?light_idx, "Received photo from camera");
+                        info!(?light_idx, "Received photo from camera");
 
-                    photo_map
-                        .entry(current_camera_alignment)
-                        .and_modify(|list| {
-                            debug_assert_eq!(
-                                list.len(),
-                                light_idx as usize,
-                                concat!(
-                                    "The light_idx should be in sync with the length ",
-                                    "of the corresponding vec in photo_map"
-                                )
-                            );
-                            list.push(brightest_pixel_pos);
-                        })
-                        .or_insert_with(|| {
-                            debug_assert_eq!(
-                                light_idx,
-                                0,
-                                "If we're inserting a new vec into the map, the light_idx should be 0"
-                            );
-                            vec![brightest_pixel_pos]
-                        });
+                        photo_map
+                            .entry(current_camera_alignment)
+                            .and_modify(|list| {
+                                debug_assert_eq!(
+                                    list.len(),
+                                    light_idx as usize,
+                                    concat!(
+                                        "The light_idx should be in sync with the length ",
+                                        "of the corresponding vec in photo_map"
+                                    )
+                                );
+                                list.push(brightest_pixel_pos);
+                            })
+                            .or_insert_with(|| {
+                                debug_assert_eq!(
+                                    light_idx,
+                                    0,
+                                    "If we're inserting a new vec into the map, the light_idx should be 0"
+                                );
+                                vec![brightest_pixel_pos]
+                            });
 
-                    state = ScanManagerState::ReadyToTakePhoto;
+                        state = ScanManagerState::ReadyToTakePhoto;
+                    }
                 }
             };
         };

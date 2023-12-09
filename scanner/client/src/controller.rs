@@ -75,6 +75,17 @@ impl ControllerWidget {
                 self.ready_to_take_photos = false;
             }
 
+            if ui
+                .add_enabled(!self.ready_to_take_photos, |ui: &mut Ui| {
+                    ui.button("Cancel photo sequence")
+                })
+                .clicked()
+            {
+                self.inner
+                    .send_msg(ControllerToServerMsg::CancelPhotoSequence);
+                self.ready_to_take_photos = true;
+            }
+
             ui.add(
                 egui::Slider::new(&mut self.pause_time_ms, 0..=1000)
                     .clamp_to_range(false)
