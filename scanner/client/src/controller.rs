@@ -21,6 +21,10 @@ pub struct ControllerWidget {
 
     /// The time to pause between taking photos, in milliseconds.
     pause_time_ms: u16,
+
+    /// The progress that the server has made scanning the lights. See
+    /// [`ServerToControllerMsg::ProgressUpdate`].
+    progress: (u16, u16),
 }
 
 impl ControllerWidget {
@@ -33,6 +37,7 @@ impl ControllerWidget {
             direction: CompassDirection::South,
             ready_to_take_photos: true,
             pause_time_ms: 50,
+            progress: (0, 0),
         }
     }
 
@@ -51,6 +56,10 @@ impl ControllerWidget {
                 }
                 ServerToControllerMsg::PhotoSequenceDone => {
                     self.ready_to_take_photos = true;
+                    self.progress.0 = 0;
+                }
+                ServerToControllerMsg::ProgressUpdate { scanned, total } => {
+                    self.progress = (scanned, total);
                 }
             }
         }
@@ -60,6 +69,8 @@ impl ControllerWidget {
 
     /// Display the UI for when the controller is connected and the server is ready to scan.
     fn display_main_ui(&mut self, ui: &mut Ui) -> Response {
+        const UI_SPACING: f32 = 20.0;
+
         ui.vertical(|ui| {
             if ui
                 .add_enabled(self.ready_to_take_photos, |ui: &mut Ui| {
@@ -75,18 +86,23 @@ impl ControllerWidget {
                 self.ready_to_take_photos = false;
             }
 
-            if ui
-                .add_enabled(!self.ready_to_take_photos, |ui: &mut Ui| {
-                    ui.button("Cancel photo sequence")
-                })
-                .clicked()
-            {
-                self.inner
-                    .send_msg(ControllerToServerMsg::CancelPhotoSequence);
-                self.ready_to_take_photos = true;
+            if !self.ready_to_take_photos {
+                ui.add_space(UI_SPACING);
+
+                let (scanned, total) = self.progress;
+                ui.add(
+                    egui::ProgressBar::new(scanned as f32 / total as f32)
+                        .text(format!("{scanned}/{total} lights scanned")),
+                );
+
+                if ui.button("Cancel photo sequence").clicked() {
+                    self.inner
+                        .send_msg(ControllerToServerMsg::CancelPhotoSequence);
+                    self.ready_to_take_photos = true;
+                }
             }
 
-            ui.add_space(20.0);
+            ui.add_space(UI_SPACING);
             ui.add(
                 egui::Slider::new(&mut self.pause_time_ms, 0..=1000)
                     .clamp_to_range(false)
@@ -94,7 +110,7 @@ impl ControllerWidget {
                     .text("Pause time between photos"),
             );
             ui.label("(NOTICE: increase this if you don't like flashing lights)");
-            ui.add_space(20.0);
+            ui.add_space(UI_SPACING);
 
             egui::ComboBox::from_label("Side of tree facing camera")
                 .selected_text(self.direction.name())

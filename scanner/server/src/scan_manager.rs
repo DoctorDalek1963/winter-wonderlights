@@ -218,6 +218,17 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                             });
 
                         state = ScanManagerState::ReadyToTakePhoto;
+
+                        debug!(?light_idx, "Updating controller with progress");
+                        CONTROLLER_SEND
+                            .send(
+                                bincode::serialize(&ServerToControllerMsg::ProgressUpdate {
+                                    scanned: light_idx as u16 + 1,
+                                    total: LIGHTS_NUM as u16,
+                                })
+                                .expect_or_log("Should be able to serialize ProgressUpdate")
+                            )
+                            .expect_or_log("Should be able to send messge down CONTROLLER_SEND");
                     }
                 }
             };

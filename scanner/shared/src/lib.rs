@@ -151,6 +151,15 @@ pub enum ServerToControllerMsg {
 
     /// The camera has finished taking photos and the tree should be rotated to the next angle.
     PhotoSequenceDone,
+
+    /// The progress that the server has made scanning the lights.
+    ProgressUpdate {
+        /// The number of lights that have already been scanned.
+        scanned: u16,
+
+        /// The total number of lights to scan.
+        total: u16,
+    },
 }
 
 /// A message from the controller client to the server.
