@@ -3,18 +3,23 @@
 #![feature(lint_reasons)]
 
 mod drivers;
+mod gift;
 mod logging;
 mod run_server;
 mod scan_manager;
 mod state;
 
 use color_eyre::Result;
+use std::sync::atomic::AtomicBool;
 use tokio::{signal, sync::oneshot};
 use tracing::{info, instrument, warn};
 use tracing_unwrap::ResultExt;
 
 /// The version of this crate.
 pub const CRATE_VERSION: &str = env!("CARGO_PKG_VERSION");
+
+/// Have we finished channing the tree yet?
+pub(crate) static FINISHED_SCANNING: AtomicBool = AtomicBool::new(false);
 
 #[tokio::main]
 #[instrument]

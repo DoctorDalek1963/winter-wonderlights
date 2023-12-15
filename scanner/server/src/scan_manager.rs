@@ -232,7 +232,7 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                     let msg = msg.expect_or_log("There should not be an error in receiving a ScanManagerMsg");
                     trace!(?msg, "Received ScanManagerMsg");
 
-                    respond_to_msg(
+                    if respond_to_msg(
                         msg,
                         &mut connected_state,
                         &mut state,
@@ -240,7 +240,11 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                         &mut finished_sides,
                         &mut pause_time,
                         &mut photo_map,
-                    );
+                    ) {
+                        crate::gift::generate_gift_file(photo_map);
+                        crate::FINISHED_SCANNING.store(true, std::sync::atomic::Ordering::Relaxed);
+                        return;
+                    }
                 }
 
                 _ = react_to_state_changes_in_loop => {}
@@ -275,7 +279,7 @@ fn respond_to_msg(
     finished_sides: &mut CompassDirectionFlags,
     pause_time: &mut u16,
     photo_map: &mut HashMap<CompassDirection, Vec<((u32, u32), u8)>>,
-) {
+) -> bool {
     match msg {
         ScanManagerMsg::CameraConnected => {
             connected_state.camera = true;
@@ -399,8 +403,9 @@ fn respond_to_msg(
                 finished_sides.is_ready_to_finish(),
                 "Controller should only send FinishScanning when we've scanned enough sides"
             );
-
-            todo!("Respond to FinishScanning");
+            return true;
         }
     };
+
+    false
 }

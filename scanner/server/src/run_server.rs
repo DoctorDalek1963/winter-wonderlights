@@ -455,8 +455,13 @@ pub async fn run_server(kill_rx: oneshot::Receiver<()>) -> Result<()> {
                 tokio::time::sleep(Duration::from_millis(500)).await;
             }
         } => {
-            error!("scan-manager thread has terminated prematurely. Killing server");
-            return Err(Report::msg("scan-manager terminated prematurely"));
+            if crate::FINISHED_SCANNING.load(std::sync::atomic::Ordering::Relaxed) {
+                info!("scan-manager thread has finished scanning. Killing server");
+                return Ok(());
+            } else {
+                error!("scan-manager thread has terminated prematurely. Killing server");
+                return Err(Report::msg("scan-manager terminated prematurely"));
+            }
         }
 
         _ = accept_new_connections => {}

@@ -45,18 +45,28 @@ pub struct GIFTCoords {
 impl GIFTCoords {
     /// Create a set of GIFT coordinates by normalising a list of integer coordinates.
     pub fn from_int_coords(int_coords: &[(i32, i32, i32)]) -> Option<Self> {
-        let xs = int_coords.iter().map(|&(x, _, _)| x);
-        let ys = int_coords.iter().map(|&(_, y, _)| y);
-        let zs = int_coords.iter().map(|&(_, _, z)| z);
+        Self::from_unnormalized_coords(
+            &int_coords
+                .iter()
+                .map(|&(x, y, z)| (x as f32, y as f32, z as f32))
+                .collect::<Vec<_>>(),
+        )
+    }
 
-        let min_z = zs.clone().min()?;
+    /// Create a set of GIFT coordinates by normalising a list of unnormalised [`f32`] coordinates.
+    pub fn from_unnormalized_coords(coords: &[(f32, f32, f32)]) -> Option<Self> {
+        let xs = coords.iter().map(|&(x, _, _)| x);
+        let ys = coords.iter().map(|&(_, y, _)| y);
+        let zs = coords.iter().map(|&(_, _, z)| z);
 
-        let mid_x = (xs.clone().min()? + xs.clone().max()?) as f32 / 2.;
-        let mid_y = (ys.clone().min()? + ys.clone().max()?) as f32 / 2.;
+        let min_z = zs.clone().reduce(f32::min)?;
+
+        let mid_x = (xs.clone().reduce(f32::min)? + xs.clone().reduce(f32::max)?) / 2.;
+        let mid_y = (ys.clone().reduce(f32::min)? + ys.clone().reduce(f32::max)?) / 2.;
 
         // Centered on 0
-        let centered_xs = xs.into_iter().map(|x| x as f32 - mid_x);
-        let centered_ys = ys.into_iter().map(|y| y as f32 - mid_y);
+        let centered_xs = xs.into_iter().map(|x| x - mid_x);
+        let centered_ys = ys.into_iter().map(|y| y - mid_y);
 
         let max_x_y: f32 = [
             centered_xs.clone().reduce(f32::max)?.abs(),
@@ -69,7 +79,7 @@ impl GIFTCoords {
 
         let new_xs = centered_xs.into_iter().map(|x| x / max_x_y);
         let new_ys = centered_ys.into_iter().map(|y| y / max_x_y);
-        let new_zs = zs.into_iter().map(|z| (z - min_z) as f32 / max_x_y);
+        let new_zs = zs.into_iter().map(|z| (z - min_z) / max_x_y);
 
         let max_z = new_zs.clone().reduce(f32::max)?;
         let coords: Vec<(f32, f32, f32)> = new_xs
