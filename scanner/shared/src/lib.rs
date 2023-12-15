@@ -12,6 +12,7 @@
 
 #![feature(lint_reasons)]
 
+use bitflags::bitflags;
 use serde::{Deserialize, Serialize};
 use strum::EnumIter;
 
@@ -54,28 +55,69 @@ impl TryFrom<u8> for ClientType {
 /// Directions of a compass.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, EnumIter)]
 #[allow(missing_docs, reason = "the variants are just compass directions")]
+#[repr(u8)]
 pub enum CompassDirection {
-    North,
-    NorthEast,
-    East,
-    SouthEast,
-    South,
-    SouthWest,
-    West,
-    NorthWest,
+    North = 1,
+    NorthEast = 2,
+    East = 4,
+    SouthEast = 8,
+    South = 16,
+    SouthWest = 32,
+    West = 64,
+    NorthWest = 128,
 }
 
 impl CompassDirection {
     pub fn name(&self) -> &'static str {
         match self {
-            CompassDirection::North => "North",
-            CompassDirection::NorthEast => "North East",
-            CompassDirection::East => "East",
-            CompassDirection::SouthEast => "South East",
-            CompassDirection::South => "South",
-            CompassDirection::SouthWest => "South West",
-            CompassDirection::West => "West",
-            CompassDirection::NorthWest => "North West",
+            Self::North => "North",
+            Self::NorthEast => "North East",
+            Self::East => "East",
+            Self::SouthEast => "South East",
+            Self::South => "South",
+            Self::SouthWest => "South West",
+            Self::West => "West",
+            Self::NorthWest => "North West",
+        }
+    }
+}
+
+/// A flag of completed [`CompassDirection`]s.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[repr(transparent)]
+pub struct CompassDirectionFlags(u8);
+
+bitflags! {
+    impl CompassDirectionFlags: u8 {
+        const North     = 0b0000_0001;
+        const NorthEast = 0b0000_0010;
+        const East      = 0b0000_0100;
+        const SouthEast = 0b0000_1000;
+        const South     = 0b0001_0000;
+        const SouthWest = 0b0010_0000;
+        const West      = 0b0100_0000;
+        const NorthWest = 0b1000_0000;
+    }
+}
+
+impl CompassDirectionFlags {
+    /// Having done these directions, are we ready to finish scanning?
+    pub fn is_ready_to_finish(&self) -> bool {
+        self.contains(Self::North | Self::East | Self::South | Self::West)
+    }
+}
+
+impl From<CompassDirection> for CompassDirectionFlags {
+    fn from(value: CompassDirection) -> Self {
+        match value {
+            CompassDirection::North => Self::North,
+            CompassDirection::NorthEast => Self::NorthEast,
+            CompassDirection::East => Self::East,
+            CompassDirection::SouthEast => Self::SouthEast,
+            CompassDirection::South => Self::South,
+            CompassDirection::SouthWest => Self::SouthWest,
+            CompassDirection::West => Self::West,
+            CompassDirection::NorthWest => Self::NorthWest,
         }
     }
 }
@@ -140,6 +182,9 @@ pub enum CameraToServerMsg {
         /// The position of the brightest pixel in the image as `(x, y)` with (0, 0) in the top
         /// left.
         brightest_pixel_pos: (u32, u32),
+
+        /// The brightness of the brightest pixel in the image. Uses the full `u8` range.
+        pixel_brightness: u8,
     },
 }
 
@@ -150,9 +195,18 @@ pub enum ServerToControllerMsg {
     Generic(GenericServerToClientMsg),
 
     /// The camera has finished taking photos and the tree should be rotated to the next angle.
-    PhotoSequenceDone,
+    PhotoSequenceDone {
+        /// The sides of the tree that we've successfully finished scanning.
+        finished_sides: CompassDirectionFlags,
+    },
 
-    /// The progress that the server has made scanning the lights.
+    /// The photo sequence was cancelled.
+    PhotoSequenceCancelled {
+        /// The sides of the tree that we've successfully finished scanning.
+        finished_sides: CompassDirectionFlags,
+    },
+
+    /// The progress that the server has made scanning the lights from the current direction.
     ProgressUpdate {
         /// The number of lights that have already been scanned.
         scanned: u16,
@@ -182,6 +236,10 @@ pub enum ControllerToServerMsg {
 
     /// Tell the server to stop taking photos.
     CancelPhotoSequence,
+
+    /// We're finished scanning the tree, and the server should process the photos to make a GIFT
+    /// file.
+    FinishScanning,
 }
 
 /// This module just contains the [`ClientToServerMsg`](client_impl::ClientToServerMsg) trait.

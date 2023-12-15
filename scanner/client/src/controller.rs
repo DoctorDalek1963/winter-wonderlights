@@ -5,7 +5,9 @@ use egui::{Response, Ui};
 use strum::IntoEnumIterator;
 use tracing::{debug, instrument};
 use tracing_unwrap::ResultExt;
-use ww_scanner_shared::{CompassDirection, ControllerToServerMsg, ServerToControllerMsg};
+use ww_scanner_shared::{
+    CompassDirection, CompassDirectionFlags, ControllerToServerMsg, ServerToControllerMsg,
+};
 
 /// A widget to encapsulate a whole controller client.
 #[derive(Clone, Debug)]
@@ -15,6 +17,9 @@ pub struct ControllerWidget {
 
     /// The direction of the tree which is currently facing the camera.
     direction: CompassDirection,
+
+    /// Which sides have we already scanned?
+    finished_sides: CompassDirectionFlags,
 
     /// Are we ready to take photos? Or are we waiting for the camera to finish?
     ready_to_take_photos: bool,
@@ -35,6 +40,7 @@ impl ControllerWidget {
         Self {
             inner,
             direction: CompassDirection::South,
+            finished_sides: CompassDirectionFlags::empty(),
             ready_to_take_photos: true,
             pause_time_ms: 50,
             progress: (0, 0),
@@ -54,7 +60,9 @@ impl ControllerWidget {
                 ServerToControllerMsg::Generic(msg) => {
                     new_state = Some(self.inner.respond_to_generic_server_message(msg));
                 }
-                ServerToControllerMsg::PhotoSequenceDone => {
+                ServerToControllerMsg::PhotoSequenceDone { finished_sides }
+                | ServerToControllerMsg::PhotoSequenceCancelled { finished_sides } => {
+                    self.finished_sides = finished_sides;
                     self.ready_to_take_photos = true;
                     self.progress.0 = 0;
                 }
@@ -119,6 +127,13 @@ impl ControllerWidget {
                         ui.selectable_value(&mut self.direction, direction, direction.name());
                     }
                 });
+
+            if self.finished_sides.is_ready_to_finish() {
+                ui.add_space(UI_SPACING);
+                if ui.button("Finish scanning").clicked() {
+                    self.inner.send_msg(ControllerToServerMsg::FinishScanning);
+                }
+            }
         })
         .response
     }

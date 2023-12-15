@@ -285,9 +285,12 @@ impl InnerCameraWidget {
                 }
                 ServerToCameraMsg::TakePhoto { light_idx } => {
                     info!(?light_idx, "Taking photo");
+
+                    let (brightest_pixel_pos, pixel_brightness) = self.get_brightest_pixel();
                     self.inner.send_msg(CameraToServerMsg::PhotoTaken {
                         light_idx,
-                        brightest_pixel_pos: self.get_brightest_pixel_pos(),
+                        brightest_pixel_pos,
+                        pixel_brightness,
                     })
                 }
             }
@@ -296,10 +299,11 @@ impl InnerCameraWidget {
         new_state
     }
 
-    /// Get the position of the brightest pixel in the current image. Returns a tuple `(x, y)`,
-    /// where (0, 0) is the top left of the image.
-    fn get_brightest_pixel_pos(&self) -> (u32, u32) {
-        let (x, y, _pixel) = self
+    /// Get the position of the brightest pixel in the current image and it's brightness.
+    ///
+    /// Returns a tuple `(x, y)`, where (0, 0) is the top left of the image, along with
+    fn get_brightest_pixel(&self) -> ((u32, u32), u8) {
+        let (x, y, pixel_brightness) = self
             .latest_frame
             .read()
             .unwrap_or_log()
@@ -314,7 +318,7 @@ impl InnerCameraWidget {
                     }
                 },
             );
-        (x, y)
+        ((x, y), pixel_brightness)
     }
 
     /// Refresh [`self.latest_frame`] if it needs to be refreshed.

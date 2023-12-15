@@ -6765,6 +6765,7 @@ dependencies = [
 name = "ww-scanner-shared"
 version = "0.1.0-dev"
 dependencies = [
+ "bitflags 2.4.1",
  "serde",
  "strum",
 ]

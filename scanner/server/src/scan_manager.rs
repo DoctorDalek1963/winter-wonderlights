@@ -17,7 +17,8 @@ use tracing_unwrap::ResultExt;
 use ww_driver_trait::{Driver, LIGHTS_NUM};
 use ww_frame::FrameType;
 use ww_scanner_shared::{
-    CompassDirection, GenericServerToClientMsg, ServerToCameraMsg, ServerToControllerMsg,
+    CompassDirection, CompassDirectionFlags, GenericServerToClientMsg, ServerToCameraMsg,
+    ServerToControllerMsg,
 };
 
 lazy_static! {
@@ -56,7 +57,11 @@ pub enum ScanManagerMsg {
     ReceivedPhoto {
         light_idx: u32,
         brightest_pixel_pos: (u32, u32),
+        pixel_brightness: u8,
     },
+
+    /// Finish scanning and produce a GIFT file.
+    FinishScanning,
 }
 
 /// The state of the connections.
@@ -118,122 +123,11 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
     let mut connected_state = ConnectedState::default();
     let mut state = ScanManagerState::default();
     let mut current_camera_alignment = CompassDirection::South;
+    let mut finished_sides = CompassDirectionFlags::empty();
     let mut pause_time = 0;
-    let mut photo_map: HashMap<CompassDirection, Vec<(u32, u32)>> = HashMap::new();
+    let mut photo_map: HashMap<CompassDirection, Vec<((u32, u32), u8)>> = HashMap::new();
 
     info!("Beginning scan manager loop");
-
-    macro_rules! respond_to_msg {
-        ($msg:ident) => {
-            trace!(?$msg, "Recieved ScanManagerMsg");
-
-            match $msg.expect_or_log("There should not be an error in receiving a ScanManagerMsg") {
-                ScanManagerMsg::CameraConnected => {
-                    connected_state.camera = true;
-                }
-                ScanManagerMsg::CameraDisconnected => {
-                    connected_state.camera = false;
-                    state = ScanManagerState::WaitingForConnections;
-
-                    // We can fail to send if there's no controller connected
-                    let _ = CONTROLLER_SEND.send(
-                        bincode::serialize(&ServerToControllerMsg::Generic(
-                            GenericServerToClientMsg::ServerNotReady,
-                        ))
-                        .expect_or_log("Should be able to serialize ServerNotReady"),
-                    );
-                }
-                ScanManagerMsg::ControllerConnected => {
-                    connected_state.controller = true;
-                }
-                ScanManagerMsg::ControllerDisconnected => {
-                    connected_state.controller = false;
-                    state = ScanManagerState::WaitingForConnections;
-
-                    // We can fail to send if there's no camera connected
-                    let _ = CAMERA_SEND.send(
-                        bincode::serialize(&ServerToCameraMsg::Generic(
-                            GenericServerToClientMsg::ServerNotReady,
-                        ))
-                        .expect_or_log("Should be able to serialize ServerNotReady"),
-                    );
-                }
-                ScanManagerMsg::StartTakingPhotos { camera_alignment, pause_time_ms } => {
-                    CURRENT_IDX.store(0, Ordering::Relaxed);
-                    current_camera_alignment = camera_alignment;
-                    pause_time = pause_time_ms;
-                    photo_map.entry(current_camera_alignment).and_modify(|list| list.clear());
-                    state = ScanManagerState::ReadyToTakePhoto;
-                }
-                ScanManagerMsg::CancelPhotoSequence => {
-                    info!(?current_camera_alignment, "Cancelling photo sequence");
-                    photo_map.entry(current_camera_alignment).and_modify(|list| list.clear());
-                    state = ScanManagerState::WaitingToScan;
-                    CONTROLLER_SEND
-                        .send(
-                            bincode::serialize(
-                                &ServerToControllerMsg::PhotoSequenceDone,
-                            )
-                            .expect_or_log(
-                                "Should be able to serialize PhotoSequenceDone",
-                            ),
-                        )
-                        .expect_or_log(
-                            "Should be able to send messge down CONTROLLER_SEND",
-                        );
-                }
-                ScanManagerMsg::ReceivedPhoto {
-                    light_idx,
-                    brightest_pixel_pos,
-                } => {
-                    if state == ScanManagerState::WaitingForPhoto {
-                        debug_assert_eq!(
-                            light_idx,
-                            CURRENT_IDX.load(Ordering::Relaxed) - 1,
-                            "The camera and server should be in sync with the light indices"
-                        );
-
-                        info!(?light_idx, "Received photo from camera");
-
-                        photo_map
-                            .entry(current_camera_alignment)
-                            .and_modify(|list| {
-                                debug_assert_eq!(
-                                    list.len(),
-                                    light_idx as usize,
-                                    concat!(
-                                        "The light_idx should be in sync with the length ",
-                                        "of the corresponding vec in photo_map"
-                                    )
-                                );
-                                list.push(brightest_pixel_pos);
-                            })
-                            .or_insert_with(|| {
-                                debug_assert_eq!(
-                                    light_idx,
-                                    0,
-                                    "If we're inserting a new vec into the map, the light_idx should be 0"
-                                );
-                                vec![brightest_pixel_pos]
-                            });
-
-                        state = ScanManagerState::ReadyToTakePhoto;
-
-                        debug!(?light_idx, "Updating controller with progress");
-                        CONTROLLER_SEND
-                            .send(
-                                bincode::serialize(&ServerToControllerMsg::ProgressUpdate {
-                                    scanned: light_idx as u16 + 1,
-                                    total: LIGHTS_NUM as u16,
-                                })
-                                .expect_or_log("Should be able to serialize ProgressUpdate")
-                            )
-                            .expect_or_log("Should be able to send messge down CONTROLLER_SEND");
-                    }
-                }
-            };
-        };
-    }
 
     let recv_msgs_and_manage_scan = async move {
         loop {
@@ -244,8 +138,8 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                             if connected_state.camera && connected_state.controller =>
                         {
                             info!("Camera and controller both connected; sending ServerReady");
-
                             sleep(Duration::from_millis(250)).await;
+
                             CAMERA_SEND
                                 .send(
                                     bincode::serialize(&ServerToCameraMsg::Generic(
@@ -254,6 +148,7 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                                     .expect_or_log("Should be able to serialize ServerReady"),
                                 )
                                 .expect_or_log("Should be able to send messge down CAMERA_SEND");
+
                             CONTROLLER_SEND
                                 .send(
                                     bincode::serialize(&ServerToControllerMsg::Generic(
@@ -277,11 +172,20 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                                 );
                                 debug!(?photo_map);
 
+                                finished_sides.insert(current_camera_alignment.into());
+                                debug!(
+                                    ?current_camera_alignment,
+                                    ?finished_sides,
+                                    "Inserted alignment into finished_sides"
+                                );
                                 state = ScanManagerState::WaitingToScan;
+
                                 CONTROLLER_SEND
                                     .send(
                                         bincode::serialize(
-                                            &ServerToControllerMsg::PhotoSequenceDone,
+                                            &ServerToControllerMsg::PhotoSequenceDone {
+                                                finished_sides,
+                                            },
                                         )
                                         .expect_or_log(
                                             "Should be able to serialize PhotoSequenceDone",
@@ -301,12 +205,14 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                             driver_raw_data[light_idx as usize] = [0; 3];
 
                             sleep(Duration::from_millis(pause_time as u64)).await;
+
                             CAMERA_SEND
                                 .send(
                                     bincode::serialize(&ServerToCameraMsg::TakePhoto { light_idx })
                                         .expect_or_log("Should be able to serialize TakePhoto"),
                                 )
                                 .expect_or_log("Should be able to send messge down CAMERA_SEND");
+
                             state = ScanManagerState::WaitingForPhoto;
                         }
                         ScanManagerState::WaitingForConnections
@@ -322,7 +228,20 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                 biased;
 
                 // First, we check if we've received a message on the channel and respond to it if so
-                msg = thread_message_rx.recv() => { respond_to_msg!(msg); }
+                msg = thread_message_rx.recv() => {
+                    let msg = msg.expect_or_log("There should not be an error in receiving a ScanManagerMsg");
+                    trace!(?msg, "Received ScanManagerMsg");
+
+                    respond_to_msg(
+                        msg,
+                        &mut connected_state,
+                        &mut state,
+                        &mut current_camera_alignment,
+                        &mut finished_sides,
+                        &mut pause_time,
+                        &mut photo_map,
+                    );
+                }
 
                 _ = react_to_state_changes_in_loop => {}
             }
@@ -346,4 +265,142 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
             _ = recv_msgs_and_manage_scan => {}
         }
     });
+}
+
+fn respond_to_msg(
+    msg: ScanManagerMsg,
+    connected_state: &mut ConnectedState,
+    state: &mut ScanManagerState,
+    current_camera_alignment: &mut CompassDirection,
+    finished_sides: &mut CompassDirectionFlags,
+    pause_time: &mut u16,
+    photo_map: &mut HashMap<CompassDirection, Vec<((u32, u32), u8)>>,
+) {
+    match msg {
+        ScanManagerMsg::CameraConnected => {
+            connected_state.camera = true;
+        }
+        ScanManagerMsg::CameraDisconnected => {
+            connected_state.camera = false;
+            *state = ScanManagerState::WaitingForConnections;
+
+            // We can fail to send if there's no controller connected
+            let _ = CONTROLLER_SEND.send(
+                bincode::serialize(&ServerToControllerMsg::Generic(
+                    GenericServerToClientMsg::ServerNotReady,
+                ))
+                .expect_or_log("Should be able to serialize ServerNotReady"),
+            );
+        }
+        ScanManagerMsg::ControllerConnected => {
+            connected_state.controller = true;
+        }
+        ScanManagerMsg::ControllerDisconnected => {
+            connected_state.controller = false;
+            *state = ScanManagerState::WaitingForConnections;
+
+            // We can fail to send if there's no camera connected
+            let _ = CAMERA_SEND.send(
+                bincode::serialize(&ServerToCameraMsg::Generic(
+                    GenericServerToClientMsg::ServerNotReady,
+                ))
+                .expect_or_log("Should be able to serialize ServerNotReady"),
+            );
+        }
+        ScanManagerMsg::StartTakingPhotos {
+            camera_alignment,
+            pause_time_ms,
+        } => {
+            CURRENT_IDX.store(0, Ordering::Relaxed);
+            *current_camera_alignment = camera_alignment;
+            *pause_time = pause_time_ms;
+
+            photo_map
+                .entry(*current_camera_alignment)
+                .and_modify(|list| list.clear());
+
+            *state = ScanManagerState::ReadyToTakePhoto;
+        }
+        ScanManagerMsg::CancelPhotoSequence => {
+            info!(?current_camera_alignment, "Cancelling photo sequence");
+
+            photo_map
+                .entry(*current_camera_alignment)
+                .and_modify(|list| list.clear());
+
+            finished_sides.remove((*current_camera_alignment).into());
+            debug!(
+                ?current_camera_alignment,
+                ?finished_sides,
+                "Removed alignment from finished_sides"
+            );
+            *state = ScanManagerState::WaitingToScan;
+
+            CONTROLLER_SEND
+                .send(
+                    bincode::serialize(&ServerToControllerMsg::PhotoSequenceCancelled {
+                        finished_sides: *finished_sides,
+                    })
+                    .expect_or_log("Should be able to serialize PhotoSequenceDone"),
+                )
+                .expect_or_log("Should be able to send messge down CONTROLLER_SEND");
+        }
+        ScanManagerMsg::ReceivedPhoto {
+            light_idx,
+            brightest_pixel_pos,
+            pixel_brightness,
+        } => {
+            if *state == ScanManagerState::WaitingForPhoto {
+                debug_assert_eq!(
+                    light_idx,
+                    CURRENT_IDX.load(Ordering::Relaxed) - 1,
+                    "The camera and server should be in sync with the light indices"
+                );
+
+                info!(?light_idx, "Received photo from camera");
+
+                photo_map
+                    .entry(*current_camera_alignment)
+                    .and_modify(|list| {
+                        debug_assert_eq!(
+                            list.len(),
+                            light_idx as usize,
+                            concat!(
+                                "The light_idx should be in sync with the length ",
+                                "of the corresponding vec in photo_map"
+                            )
+                        );
+                        list.push((brightest_pixel_pos, pixel_brightness));
+                    })
+                    .or_insert_with(|| {
+                        debug_assert_eq!(
+                            light_idx, 0,
+                            "If we're inserting a new vec into the map, the light_idx should be 0"
+                        );
+                        vec![(brightest_pixel_pos, pixel_brightness)]
+                    });
+
+                *state = ScanManagerState::ReadyToTakePhoto;
+
+                debug!(?light_idx, "Updating controller with progress");
+                CONTROLLER_SEND
+                    .send(
+                        bincode::serialize(&ServerToControllerMsg::ProgressUpdate {
+                            scanned: light_idx as u16 + 1,
+                            total: LIGHTS_NUM as u16,
+                        })
+                        .expect_or_log("Should be able to serialize ProgressUpdate"),
+                    )
+                    .expect_or_log("Should be able to send messge down CONTROLLER_SEND");
+            }
+        }
+        ScanManagerMsg::FinishScanning => {
+            assert!(
+                finished_sides.is_ready_to_finish(),
+                "Controller should only send FinishScanning when we've scanned enough sides"
+            );
+
+            todo!("Respond to FinishScanning");
+        }
+    };
 }

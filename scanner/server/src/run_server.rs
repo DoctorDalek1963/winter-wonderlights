@@ -204,6 +204,7 @@ async fn handle_camera_connection(mut conn: Connection) -> Result<()> {
             CameraToServerMsg::PhotoTaken {
                 light_idx,
                 brightest_pixel_pos,
+                pixel_brightness,
             } => {
                 debug!(
                     ?light_idx,
@@ -214,6 +215,7 @@ async fn handle_camera_connection(mut conn: Connection) -> Result<()> {
                     .send(ScanManagerMsg::ReceivedPhoto {
                         light_idx,
                         brightest_pixel_pos,
+                        pixel_brightness,
                     })
                     .expect_or_log(
                         "Should be able to send message down SEND_MESSAGE_TO_SCAN_MANAGER",
@@ -340,6 +342,14 @@ async fn handle_controller_connection(mut conn: Connection) -> Result<()> {
                 debug!("Controller wants to cancel photo sequence");
                 SEND_MESSAGE_TO_SCAN_MANAGER
                     .send(ScanManagerMsg::CancelPhotoSequence)
+                    .expect_or_log(
+                        "Should be able to send message down SEND_MESSAGE_TO_SCAN_MANAGER",
+                    );
+            }
+            ControllerToServerMsg::FinishScanning => {
+                debug!("Controller wants to finish scanning");
+                SEND_MESSAGE_TO_SCAN_MANAGER
+                    .send(ScanManagerMsg::FinishScanning)
                     .expect_or_log(
                         "Should be able to send message down SEND_MESSAGE_TO_SCAN_MANAGER",
                     );

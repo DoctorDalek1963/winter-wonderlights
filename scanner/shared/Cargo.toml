@@ -9,6 +9,7 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
+bitflags = { version = "2.4.1", features = ["serde"] }
 serde.workspace = true
 strum = { workspace = true, features = ["derive"] }
 
