@@ -114,10 +114,10 @@ impl App {
         {
             egui::CentralPanel::default().show(ctx, |ui| {
                 ui.vertical(|ui| {
-                    // The camera is only allowed to fill 75% of the vertical space. Without this
+                    // The camera is only allowed to fill 50% of the vertical space. Without this
                     // resriction, it would try to fill as much space as possible and push the
                     // controller off the bottom of the window
-                    ui.allocate_ui(ui.max_rect().size() * Vec2::new(1.0, 0.75), |ui| {
+                    ui.allocate_ui(ui.max_rect().size() * Vec2::new(1.0, 0.5), |ui| {
                         ui.add(camera)
                     });
 

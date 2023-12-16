@@ -5,6 +5,7 @@ mod direction_widget;
 use self::direction_widget::direction_widget;
 use crate::{app::AppState, generic_client::GenericClientWidget};
 use egui::{Response, Ui};
+use strum::IntoEnumIterator;
 use tracing::{debug, instrument};
 use tracing_unwrap::ResultExt;
 use ww_scanner_shared::{
@@ -121,6 +122,14 @@ impl ControllerWidget {
             );
             ui.label("(NOTICE: increase this if you don't like flashing lights)");
             ui.add_space(UI_SPACING);
+
+            egui::ComboBox::from_label("Side of tree facing camera")
+                .selected_text(self.direction.name())
+                .show_ui(ui, |ui| {
+                    for direction in CompassDirection::iter() {
+                        ui.selectable_value(&mut self.direction, direction, direction.name());
+                    }
+                });
 
             ui.add(direction_widget(
                 &mut self.direction,

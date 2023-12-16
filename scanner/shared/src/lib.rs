@@ -80,6 +80,20 @@ impl CompassDirection {
             Self::NorthWest => "North West",
         }
     }
+
+    /// How many clockwise turns of 45 degrees do we have to do to get here from [`Self::North`]?
+    pub fn turns_from_north(&self) -> u8 {
+        match self {
+            Self::North => 0,
+            Self::NorthEast => 1,
+            Self::East => 2,
+            Self::SouthEast => 3,
+            Self::South => 4,
+            Self::SouthWest => 5,
+            Self::West => 6,
+            Self::NorthWest => 7,
+        }
+    }
 }
 
 /// A flag of completed [`CompassDirection`]s.
