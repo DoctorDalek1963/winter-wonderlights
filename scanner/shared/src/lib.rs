@@ -151,6 +151,10 @@ pub enum ServerToCameraMsg {
     /// A generic message from the server to a client.
     Generic(GenericServerToClientMsg),
 
+    /// Tell the client to lock the exposure of the camera. This should only be sent when all the
+    /// lights are currently on.
+    LockExposure,
+
     /// Tell the client that the lights are ready and a photo should be taken.
     TakePhoto {
         /// The index of the light being photographed.

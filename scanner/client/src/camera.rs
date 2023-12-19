@@ -8,7 +8,10 @@ use egui::{
 use image::{imageops, GrayImage, Luma};
 use nokhwa::{
     pixel_format::LumaFormat,
-    utils::{ApiBackend, CameraIndex, RequestedFormat, RequestedFormatType, Resolution},
+    utils::{
+        ApiBackend, CameraIndex, KnownCameraControl, RequestedFormat, RequestedFormatType,
+        Resolution,
+    },
     Camera,
 };
 use std::{
@@ -16,7 +19,7 @@ use std::{
     sync::{Arc, RwLock},
     time::{Duration, Instant},
 };
-use tracing::{debug, info, instrument, trace};
+use tracing::{debug, info, instrument, trace, warn};
 use tracing_unwrap::ResultExt;
 use ww_scanner_shared::{BasicCameraInfo, CameraToServerMsg, ServerToCameraMsg};
 
@@ -168,6 +171,9 @@ pub struct InnerCameraWidget {
 
     /// The rotation of the camera from the source.
     rotation: Rotation,
+
+    /// Has the exposure been locked?
+    exposure_locked: bool,
 }
 
 impl fmt::Debug for InnerCameraWidget {
@@ -195,6 +201,8 @@ impl fmt::Debug for InnerCameraWidget {
             .field("duration_between_frames", &self.duration_between_frames)
             .field("time_of_latest_frame", &self.time_of_latest_frame)
             .field("latest_frame", &..)
+            .field("latest_frame", &self.rotation)
+            .field("latest_frame", &self.exposure_locked)
             .finish()
     }
 }
@@ -267,6 +275,7 @@ impl InnerCameraWidget {
             time_of_latest_frame,
             latest_frame,
             rotation: Rotation::Original,
+            exposure_locked: false,
         }
     }
 
@@ -283,6 +292,7 @@ impl InnerCameraWidget {
                 ServerToCameraMsg::Generic(msg) => {
                     new_state = Some(self.inner.respond_to_generic_server_message(msg));
                 }
+                ServerToCameraMsg::LockExposure => self.lock_exposure(),
                 ServerToCameraMsg::TakePhoto { light_idx } => {
                     info!(?light_idx, "Taking photo");
 
@@ -291,12 +301,29 @@ impl InnerCameraWidget {
                         light_idx,
                         brightest_pixel_pos,
                         pixel_brightness,
-                    })
+                    });
                 }
             }
         }
 
         new_state
+    }
+
+    /// Lock the exposure of the camera to avoid auto-exposure messing with relative brightnesses.
+    #[instrument(skip_all)]
+    fn lock_exposure(&mut self) {
+        if self.exposure_locked {
+            trace!("Exposure already locked, so not re-locking it");
+            return;
+        }
+
+        if let Ok(control) = self.camera.camera_control(KnownCameraControl::Exposure) {
+            warn!("TODO: Lock exposure");
+        } else {
+            warn!("Unable to lock exposure on this camera");
+        };
+
+        self.exposure_locked = true;
     }
 
     /// Get the position of the brightest pixel in the current image and it's brightness.

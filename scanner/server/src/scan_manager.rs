@@ -147,7 +147,7 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                                     ))
                                     .expect_or_log("Should be able to serialize ServerReady"),
                                 )
-                                .expect_or_log("Should be able to send messge down CAMERA_SEND");
+                                .expect_or_log("Should be able to send message down CAMERA_SEND");
 
                             CONTROLLER_SEND
                                 .send(
@@ -157,7 +157,7 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                                     .expect_or_log("Should be able to serialize ServerReady"),
                                 )
                                 .expect_or_log(
-                                    "Should be able to send messge down CONTROLLER_SEND",
+                                    "Should be able to send message down CONTROLLER_SEND",
                                 );
 
                             state = ScanManagerState::WaitingToScan;
@@ -194,7 +194,7 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                                         ),
                                     )
                                     .expect_or_log(
-                                        "Should be able to send messge down CONTROLLER_SEND",
+                                        "Should be able to send message down CONTROLLER_SEND",
                                     );
 
                                 continue;
@@ -213,7 +213,7 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                                     bincode::serialize(&ServerToCameraMsg::TakePhoto { light_idx })
                                         .expect_or_log("Should be able to serialize TakePhoto"),
                                 )
-                                .expect_or_log("Should be able to send messge down CAMERA_SEND");
+                                .expect_or_log("Should be able to send message down CAMERA_SEND");
 
                             state = ScanManagerState::WaitingForPhoto;
                         }
@@ -242,7 +242,7 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                         &mut finished_sides,
                         &mut pause_time,
                         &mut photo_map,
-                    ) {
+                    ).await {
                         crate::gift::generate_gift_file(photo_map);
                         crate::FINISHED_SCANNING.store(true, std::sync::atomic::Ordering::Relaxed);
                         return;
@@ -273,7 +273,7 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
     });
 }
 
-fn respond_to_msg(
+async fn respond_to_msg(
     msg: ScanManagerMsg,
     connected_state: &mut ConnectedState,
     state: &mut ScanManagerState,
@@ -325,6 +325,18 @@ fn respond_to_msg(
                 .entry(*current_camera_alignment)
                 .and_modify(|list| list.clear());
 
+            CAMERA_SEND
+                .send(
+                    bincode::serialize(&ServerToCameraMsg::LockExposure)
+                        .expect_or_log("Should be able to serialize LockExposure"),
+                )
+                .expect_or_log("Should be able to send message down CAMERA_SEND");
+
+            // TODO: This is a bodge. We should ideally have a separate ScanManagerState for
+            // waiting for the camera to acknowledge the exposure lock, but I'm too lazy to
+            // implement that right now.
+            sleep(Duration::from_millis(100)).await;
+
             *state = ScanManagerState::ReadyToTakePhoto;
         }
         ScanManagerMsg::CancelPhotoSequence => {
@@ -349,7 +361,7 @@ fn respond_to_msg(
                     })
                     .expect_or_log("Should be able to serialize PhotoSequenceDone"),
                 )
-                .expect_or_log("Should be able to send messge down CONTROLLER_SEND");
+                .expect_or_log("Should be able to send message down CONTROLLER_SEND");
         }
         ScanManagerMsg::ReceivedPhoto {
             light_idx,
@@ -397,7 +409,7 @@ fn respond_to_msg(
                         })
                         .expect_or_log("Should be able to serialize ProgressUpdate"),
                     )
-                    .expect_or_log("Should be able to send messge down CONTROLLER_SEND");
+                    .expect_or_log("Should be able to send message down CONTROLLER_SEND");
             }
         }
         ScanManagerMsg::FinishScanning => {
