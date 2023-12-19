@@ -179,6 +179,8 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                                     "Inserted alignment into finished_sides"
                                 );
                                 state = ScanManagerState::WaitingToScan;
+                                driver
+                                    .display_frame(FrameType::RawData(vec![[255; 3]; LIGHTS_NUM]));
 
                                 CONTROLLER_SEND
                                     .send(
