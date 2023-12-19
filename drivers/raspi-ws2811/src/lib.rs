@@ -7,7 +7,7 @@
 #![feature(lint_reasons)]
 
 use rs_ws281x::{ChannelBuilder, Controller, ControllerBuilder, StripType};
-use tracing::instrument;
+use tracing::{info, instrument};
 use tracing_unwrap::ResultExt;
 use ww_driver_trait::Driver;
 use ww_frame::FrameType;
@@ -79,6 +79,8 @@ impl Driver for Ws2811Driver {
             )
             .build()
             .expect_or_log("Failed to build controller for raspi-ws2811 driver");
+
+        info!("Initted ws281x controller");
 
         Self { controller }
     }
