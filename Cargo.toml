@@ -1,6 +1,23 @@
 [workspace]
 resolver = "2"
-members = [ "drivers/debug", "drivers/raspi-ws2811", "drivers/virtual-tree", "scanner/client", "scanner/server", "scanner/shared", "shared/server-tls", "ww-benchmarks", "ww-client", "ww-driver-trait", "ww-effects", "ww-frame", "ww-gift-coords", "ww-server", "ww-shared"]
+members = [
+	"drivers/debug",
+	"drivers/raspi-ws2811",
+	"drivers/virtual-tree",
+	"gift-coord-editor",
+	"scanner/client",
+	"scanner/server",
+	"scanner/shared",
+	"shared/server-tls",
+	"ww-benchmarks",
+	"ww-client",
+	"ww-driver-trait",
+	"ww-effects",
+	"ww-frame",
+	"ww-gift-coords",
+	"ww-server",
+	"ww-shared"
+]
 
 [workspace.package]
 authors = ["Dyson Dyson <dyson.dyson@icloud.com>"]
