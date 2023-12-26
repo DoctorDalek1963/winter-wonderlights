@@ -21,10 +21,21 @@ use tracing_unwrap::ResultExt;
 /// A point in 3D space with f32 values.
 pub type PointF = (f32, f32, f32);
 
+/// Get the name of the file containing the coordinates.
+fn get_coords_file_name() -> String {
+    if cfg!(test) {
+        return concat!(env!("DATA_DIR"), "/coords/2020-matt-parker.gift").to_owned();
+    }
+
+    let path = concat!(env!("DATA_DIR"), "/coords/");
+    let filename = std::env::var("COORDS_FILENAME")
+        .expect_or_log("COORDS_FILENAME should be defined at runtime");
+    path.to_owned() + &filename
+}
+
 lazy_static! {
-    /// The GIFTCoords loaded from `coords.gift`.
-    pub static ref COORDS: GIFTCoords =
-        GIFTCoords::from_file(concat!(env!("DATA_DIR"), "/coords.gift")).expect_or_log("We need the coordinates to build the tree");
+    /// The GIFTCoords loaded from the file in `COORDS_FILENAME`.
+    pub static ref COORDS: GIFTCoords = GIFTCoords::from_file(&get_coords_file_name()).expect_or_log("Failed to load coordinates from file");
 }
 
 /// A simple struct to hold and manage GIFT coordinates. See the module documentation for details.

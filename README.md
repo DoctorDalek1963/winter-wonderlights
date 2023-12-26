@@ -20,6 +20,8 @@ If you just want to use the tree, the `.env` file should look like this:
 ```bash
 # Server
 export DATA_DIR=/path/to/winter/wonderlights/data
+export COORDS_FILENAME=coords-filename.gift
+
 export SERVER_SSL_CERT_PATH=/path/to/ssl/certificate.pem
 export SERVER_SSL_KEY_PATH=/path/to/ssl/privatekey.pem
 
@@ -42,6 +44,8 @@ If you want to develop Winter WonderLights, the `.env` file should look like thi
 ```bash
 # Server
 export DATA_DIR=/path/to/project/folder/data
+export COORDS_FILENAME=2020-matt-parker.gift
+
 export SERVER_SSL_CERT_PATH=/dev/null
 export SERVER_SSL_KEY_PATH=/dev/null
 
