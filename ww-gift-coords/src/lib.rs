@@ -263,7 +263,8 @@ mod tests {
     #[test]
     fn from_file_test() {
         assert_eq!(
-            GIFTCoords::from_file(concat!(env!("DATA_DIR"), "/coords.gift")).unwrap_or_log(),
+            GIFTCoords::from_file(concat!(env!("DATA_DIR"), "/coords/2020-matt-parker.gift"))
+                .unwrap_or_log(),
             gift_coords()
         );
     }
