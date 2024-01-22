@@ -16,6 +16,8 @@ pub fn parse_command(input: &str) -> IResult<&str, Command> {
         parse_help.map(|()| Command::Help),
         parse_show.map(|range| Command::Show(range)),
         parse_set.map(|(idx, point)| Command::Set(idx, point)),
+        #[cfg(feature = "_driver")]
+        parse_light.map(|idx| Command::Light(idx)),
         parse_save.map(|filename| Command::Save(filename)),
     ))(input)
 }
@@ -88,6 +90,14 @@ fn parse_pointf(input: &str) -> IResult<&str, PointF> {
     let (input, _) = tag(")")(input)?;
 
     Ok((input, (x, y, z)))
+}
+
+#[cfg(feature = "_driver")]
+fn parse_light(input: &str) -> IResult<&str, usize> {
+    let (input, _) = tag("light")(input)?;
+    let (input, _) = multispace1(input)?;
+    let (input, idx) = complete::u16(input)?;
+    Ok((input, idx as usize))
 }
 
 fn parse_save(input: &str) -> IResult<&str, Option<&str>> {

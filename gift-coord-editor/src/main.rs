@@ -2,17 +2,22 @@
 
 #![feature(lint_reasons)]
 
+mod driver;
 mod parse;
 
 use clap::Parser;
 use color_eyre::{eyre::Context, Result};
+use driver::EditorDriver;
 use parse::parse_command;
 use rustyline::{error::ReadlineError, DefaultEditor};
 use std::ops::RangeInclusive;
 use termion::{color, style};
 use ww_gift_coords::{GIFTCoords, PointF};
 
-const HELP_TEXT: &str = r#"Use the following commands to edit the GIFT coordinates in the provided file:
+/// Generate the help text for the editor based on whether or not a driver has been enabled.
+fn get_help_text() -> String {
+    let mut text = String::from(
+        r#"Use the following commands to edit the GIFT coordinates in the provided file:
 
     help  -  Show this help text
     ?     -  Same as help
@@ -23,7 +28,13 @@ const HELP_TEXT: &str = r#"Use the following commands to edit the GIFT coordinat
 
     set 10 (0.234, -0.567, 2.345)  -  Set the light at index 10 to have the given coordinate
 
-    save             -  Save the new coordinates back to the original file
+"#,
+    );
+    if cfg!(feature = "_driver") {
+        text.push_str("    light 10  -  Light up the light at index 10\n\n");
+    }
+    text.push_str(
+        r#"    save             -  Save the new coordinates back to the original file
     save "filename"  -  Save the new coordinates to a given file
 
 When saving the coordinates to a file, they get re-normalized to fit
@@ -35,7 +46,10 @@ with (0, 0, z) being a point on the trunk of the tree. Positive x is in
 the direction of "east" relative to the tree, and positive y is in the
 direction of "north" relative to the tree.
 
-Use Ctrl+D with an empty prompt to quit."#;
+Use Ctrl+D with an empty prompt to quit."#,
+    );
+    text
+}
 
 /// Edit GIFT coordinates with a simple CLI.
 #[derive(Debug, Parser)]
@@ -57,14 +71,20 @@ enum Command<'s> {
     /// Set the coordinate of one light.
     Set(usize, PointF),
 
+    /// Light up the light at the specified index.
+    #[cfg(feature = "_driver")]
+    Light(usize),
+
     /// Save the coordinates back to the original file or a new one.
     Save(Option<&'s str>),
 }
 
 impl<'s> Command<'s> {
-    fn execute(self, coords: &mut [PointF], original_filename: &str) {
+    /// Execute this command.
+    #[cfg_attr(not(feature = "_driver"), allow(unused_variables))]
+    fn execute(self, coords: &mut [PointF], original_filename: &str, driver: &mut EditorDriver) {
         match self {
-            Command::Help => println!("{HELP_TEXT}"),
+            Command::Help => println!("{}", get_help_text()),
             Command::Show(range) => match range {
                 Some(range) => {
                     for idx in range {
@@ -83,6 +103,8 @@ impl<'s> Command<'s> {
                 coords[idx] = point;
                 println!("Set light {idx} to ({}, {}, {})", point.0, point.1, point.2);
             }
+            #[cfg(feature = "_driver")]
+            Command::Light(idx) => driver.enable_one_light(idx, coords.len()),
             Command::Save(new_filename) => {
                 let filename = new_filename.unwrap_or(original_filename);
                 GIFTCoords::from_unnormalized_coords(coords)
@@ -107,6 +129,9 @@ fn main() -> Result<()> {
     let mut coords = gift_coords.coords().clone();
     let mut prompt = DefaultEditor::new()?;
 
+    // Safety: This method is only called once, so it's fine
+    let mut driver = unsafe { self::driver::EditorDriver::init() };
+
     let prompt_string = format!(
         "{}{}==> {}",
         style::Bold,
@@ -114,7 +139,7 @@ fn main() -> Result<()> {
         style::Reset
     );
 
-    println!("{HELP_TEXT}\n");
+    println!("{}\n", get_help_text());
 
     loop {
         match prompt.readline(&prompt_string) {
@@ -122,7 +147,7 @@ fn main() -> Result<()> {
                 prompt.add_history_entry(&input)?;
                 match parse_command(&input) {
                     Ok(("", command)) => {
-                        command.execute(&mut coords, &filename);
+                        command.execute(&mut coords, &filename, &mut driver);
                     }
                     Ok((extra, _)) => eprintln!(
                         "{}{}ERROR:{} Trailing input: `{extra}`",
