@@ -12,7 +12,7 @@ bench filter='':
 
 # build the docs and optionally open them
 doc-build open='':
-	RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --document-private-items --workspace --release --target-dir target {{open}}
+	RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --document-private-items --workspace --release --target-dir target --features "gift-coord-editor/_driver" {{open}}
 
 # a convenience function to build the server and client
 _build_server_client driver flags='':
