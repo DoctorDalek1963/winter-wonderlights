@@ -2792,6 +2792,7 @@ dependencies = [
 name = "gift-coord-editor"
 version = "0.1.0-dev"
 dependencies = [
+ "bincode",
  "clap 4.4.11",
  "color-eyre",
  "nom 7.1.3",

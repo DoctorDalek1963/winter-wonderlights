@@ -10,7 +10,7 @@ use color_eyre::{eyre::Context, Result};
 use driver::EditorDriver;
 use parse::parse_command;
 use rustyline::{error::ReadlineError, DefaultEditor};
-use std::ops::RangeInclusive;
+use std::{fs, ops::RangeInclusive};
 use termion::{color, style};
 use ww_gift_coords::{GIFTCoords, PointF};
 
@@ -36,6 +36,9 @@ fn get_help_text() -> String {
     text.push_str(
         r#"    save             -  Save the new coordinates back to the original file
     save "filename"  -  Save the new coordinates to a given file
+
+    saveraw             -  Save the new coordinates back to the original file without renormalizing them
+    saveraw "filename"  -  Save the new coordinates to a given file without renormalizing them
 
 When saving the coordinates to a file, they get re-normalized to fit
 within the GIFT coordinate format.
@@ -75,8 +78,9 @@ enum Command<'s> {
     #[cfg(feature = "_driver")]
     Light(usize),
 
-    /// Save the coordinates back to the original file or a new one.
-    Save(Option<&'s str>),
+    /// Save the coordinates back to the original file or a new one. The bool represents if the
+    /// coords should be raw or not.
+    Save(Option<&'s str>, bool),
 }
 
 impl<'s> Command<'s> {
@@ -105,13 +109,26 @@ impl<'s> Command<'s> {
             }
             #[cfg(feature = "_driver")]
             Command::Light(idx) => driver.enable_one_light(idx, coords.len()),
-            Command::Save(new_filename) => {
-                let filename = new_filename.unwrap_or(original_filename);
-                GIFTCoords::from_unnormalized_coords(coords)
-                    .expect("Should be able to build GIFT coords")
-                    .save_to_file(filename)
-                    .expect("Should be able to save GIFT coords to file");
-                println!("Saved coords to {filename:?}");
+            Command::Save(new_filename, raw) => {
+                let mut filename = new_filename.unwrap_or(original_filename).to_string();
+                if raw {
+                    if !filename.ends_with(".raw") {
+                        filename.push_str(".raw");
+                    }
+                    let data =
+                        bincode::serialize(coords).expect("Should be able to serialize raw coords");
+                    fs::write(&filename, data).expect("Should be able to write raw coords to file");
+                    println!("Saved raw coords to {filename:?}");
+                } else {
+                    if filename.ends_with(".raw") {
+                        filename = filename.strip_suffix(".raw").unwrap().to_string();
+                    }
+                    GIFTCoords::from_unnormalized_coords(coords)
+                        .expect("Should be able to build GIFT coords")
+                        .save_to_file(&filename)
+                        .expect("Should be able to save GIFT coords to file");
+                    println!("Saved coords to {filename:?}");
+                }
             }
         };
         println!();

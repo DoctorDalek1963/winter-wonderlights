@@ -18,7 +18,10 @@ pub fn parse_command(input: &str) -> IResult<&str, Command> {
         parse_set.map(|(idx, point)| Command::Set(idx, point)),
         #[cfg(feature = "_driver")]
         parse_light.map(|idx| Command::Light(idx)),
-        parse_save.map(|filename| Command::Save(filename)),
+        (|input| parse_save_or_saveraw(input, "saveraw"))
+            .map(|filename| Command::Save(filename, true)),
+        (|input| parse_save_or_saveraw(input, "save"))
+            .map(|filename| Command::Save(filename, false)),
     ))(input)
 }
 
@@ -100,7 +103,10 @@ fn parse_light(input: &str) -> IResult<&str, usize> {
     Ok((input, idx as usize))
 }
 
-fn parse_save(input: &str) -> IResult<&str, Option<&str>> {
+fn parse_save_or_saveraw<'i>(
+    input: &'i str,
+    command: &'static str,
+) -> IResult<&'i str, Option<&'i str>> {
     fn parse_filename(input: &str) -> IResult<&str, &str> {
         let (input, _) = multispace1(input)?;
         alt((
@@ -116,7 +122,7 @@ fn parse_save(input: &str) -> IResult<&str, Option<&str>> {
         ))(input)
     }
 
-    let (input, _) = tag("save")(input)?;
+    let (input, _) = tag(command)(input)?;
     match parse_filename(input) {
         Ok((input, filename)) => Ok((input, Some(filename))),
         Err(_) => Ok((input, None)),
@@ -159,22 +165,43 @@ mod tests {
             Ok(("", Command::Set(0, (-0.567, -0.345, 1.234))))
         );
 
-        assert_eq!(parse_command("save"), Ok(("", Command::Save(None))));
+        assert_eq!(parse_command("save"), Ok(("", Command::Save(None, false))));
         assert_eq!(
             parse_command("save \"file name\""),
-            Ok(("", Command::Save(Some("file name"))))
+            Ok(("", Command::Save(Some("file name"), false)))
         );
         assert_eq!(
             parse_command("save 'file name'"),
-            Ok(("", Command::Save(Some("file name"))))
+            Ok(("", Command::Save(Some("file name"), false)))
         );
         assert_eq!(
             parse_command("save filename"),
-            Ok(("", Command::Save(Some("filename"))))
+            Ok(("", Command::Save(Some("filename"), false)))
         );
         assert_eq!(
             parse_command("save /path/to/filename"),
-            Ok(("", Command::Save(Some("/path/to/filename"))))
+            Ok(("", Command::Save(Some("/path/to/filename"), false)))
+        );
+
+        assert_eq!(
+            parse_command("saveraw"),
+            Ok(("", Command::Save(None, true)))
+        );
+        assert_eq!(
+            parse_command("saveraw \"file name\""),
+            Ok(("", Command::Save(Some("file name"), true)))
+        );
+        assert_eq!(
+            parse_command("saveraw 'file name'"),
+            Ok(("", Command::Save(Some("file name"), true)))
+        );
+        assert_eq!(
+            parse_command("saveraw filename"),
+            Ok(("", Command::Save(Some("filename"), true)))
+        );
+        assert_eq!(
+            parse_command("saveraw /path/to/filename"),
+            Ok(("", Command::Save(Some("/path/to/filename"), true)))
         );
     }
 }
