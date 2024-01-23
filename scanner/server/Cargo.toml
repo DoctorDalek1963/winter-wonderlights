@@ -1,7 +1,7 @@
 [package]
-name = "ww-server"
+name = "ww-scanner-server"
 version = "0.1.0-dev"
-description = "The server for Winter WonderLights."
+description = "The server for the scanner part of Winter WonderLights."
 authors.workspace = true
 edition.workspace = true
 publish.workspace = true
@@ -11,13 +11,11 @@ license.workspace = true
 [dependencies]
 bincode.workspace = true
 cfg-if.workspace = true
-chrono = { version = "0.4.26", default-features = false, features = ["clock"] }
 color-eyre.workspace = true
 futures-util = "0.3.28"
 lazy_static.workspace = true
-regex = "1.8.4"
-ron.workspace = true
 tokio = { workspace = true, features = ["macros", "process", "rt", "rt-multi-thread", "signal", "sync", "time"] }
+tokio-rustls.workspace = true
 tokio-stream = { version = "0.1.14", features = ["sync"] }
 tokio-tungstenite = "0.19.0"
 tracing.workspace = true
@@ -25,21 +23,18 @@ tracing-appender = "0.2.2"
 tracing-subscriber.workspace = true
 tracing-unwrap.workspace = true
 ww-driver-trait.workspace = true
-ww-effects = { workspace = true, features = ["effect-impls"] }
 ww-frame.workspace = true
-ww-shared.workspace = true
+ww-gift-coords.workspace = true
+ww-scanner-shared = { path = "../shared" }
 ww-shared-server-tls.workspace = true
 
 ### Optional dependencies for drivers
 
 # driver-debug
-debug = { path = "../drivers/debug", optional = true }
-
-# driver-virtual-tree
-virtual-tree = { path = "../drivers/virtual-tree", optional = true }
+debug = { path = "../../drivers/debug", optional = true }
 
 # driver-raspi-ws2811
-raspi-ws2811 = { path = "../drivers/raspi-ws2811", optional = true }
+raspi-ws2811 = { path = "../../drivers/raspi-ws2811", optional = true }
 
 [features]
 # To let rust-analyzer run faster
@@ -47,9 +42,6 @@ default = ["driver-debug"]
 
 # Just log whatever the driver was asked to display at the info level using tracing.
 driver-debug = ["dep:debug"]
-
-# Display the effect on a virtual tree render with Bevy - uses `coords.gift` to work out where the lights are.
-driver-virtual-tree = ["dep:virtual-tree"]
 
 # Display the effect on WS2811 RGB LEDs on a Raspberry Pi.
 driver-raspi-ws2811 = ["dep:raspi-ws2811"]

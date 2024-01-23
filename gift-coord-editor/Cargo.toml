@@ -1,0 +1,28 @@
+[package]
+name = "gift-coord-editor"
+version = "0.1.0-dev"
+description = "A simple CLI GIFT coordinate editor."
+authors.workspace = true
+edition.workspace = true
+publish.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+bincode.workspace = true
+clap = { version = "4.4.11", features = ["derive"] }
+color-eyre.workspace = true
+nom = "7.1.3"
+rustyline = "13.0.0"
+termion = "2.0.3"
+ww-gift-coords.workspace = true
+
+ww-driver-trait = { workspace = true, optional = true }
+ww-frame = { workspace = true, optional = true }
+
+raspi-ws2811 = { path = "../drivers/raspi-ws2811", optional = true }
+
+[features]
+default = []
+_driver = ["dep:ww-driver-trait", "dep:ww-frame"]
+driver-raspi-ws2811 = ["_driver", "dep:raspi-ws2811"]

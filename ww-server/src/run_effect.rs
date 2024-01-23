@@ -65,7 +65,7 @@ pub fn run_effect(client_state: WrappedClientState, kill_thread: oneshot::Receiv
                 msg = thread_message_rx.recv() => {
                     trace!(?msg, "Received ThreadMessage");
 
-                    match msg.expect_or_log("There should not be an error in receiving from the channel") {
+                    match msg.expect_or_log("There should not be an error in receiving a ThreadMessage") {
                         ThreadMessage::Restart => {
                             info!(
                                 "Restarting effect {:?}",

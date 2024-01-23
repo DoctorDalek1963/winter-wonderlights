@@ -7,28 +7,55 @@
 #![feature(lint_reasons)]
 
 use rs_ws281x::{ChannelBuilder, Controller, ControllerBuilder, StripType};
-use tracing::{info, instrument};
+use std::env;
+use tracing::{debug, info, instrument};
 use tracing_unwrap::ResultExt;
-use ww_driver_trait::Driver;
+use ww_driver_trait::{Driver, LIGHTS_NUM};
 use ww_frame::FrameType;
-use ww_gift_coords::COORDS;
 
 /// The frequency of the signal to the LEDs in Hz.
 ///
 /// 800,000 is a good default but it should never go below 400,000.
-const FREQUENCY: u32 = 800_000;
+fn frequency() -> u32 {
+    let freq = match env::var("WS2811_FREQUENCY") {
+        Ok(frequency) => frequency
+            .parse()
+            .expect_or_log("Unable to parse environment variable WS2811_FREQUENCY as u32"),
+        Err(_) => 800_000,
+    };
+    debug!("Using frequency of {freq} Hz");
+    freq
+}
 
 /// The channel number for DMA.
 ///
 /// 10 is a good default but you MUST AVOID 0, 1, 2, 3, 5, 6, or 7.
 /// Make sure this DMA channel is not already in use.
-const DMA_CHANNEL_NUMBER: i32 = 10;
+fn dma_channel_number() -> i32 {
+    let num = match env::var("WS2811_DMA_CHANNEL_NUMBER") {
+        Ok(number) => number
+            .parse()
+            .expect_or_log("Unable to parse environment variable WS2811_DMA_CHANNEL_NUMBER as i32"),
+        Err(_) => 10,
+    };
+    debug!("Using DMA channel {num}");
+    num
+}
 
 /// The GPIO pin number of the pin to send data down.
 ///
 /// 18 is a good default but this can be any pin which is capable of any of PCM, PWM, or SPI. See
 /// <https://pinout.xyz> for details on which pins support these.
-const GPIO_PIN_NUMBER: i32 = 18;
+fn gpio_pin_number() -> i32 {
+    let num = match env::var("WS2811_GPIO_PIN_NUMBER") {
+        Ok(number) => number
+            .parse()
+            .expect_or_log("Unable to parse environment variable WS2811_GPIO_PIN_NUMBER as i32"),
+        Err(_) => 18,
+    };
+    debug!("Using GPIO pin {num}");
+    num
+}
 
 /// The type of the LED strip.
 ///
@@ -66,13 +93,13 @@ impl Driver for Ws2811Driver {
     #[instrument]
     unsafe fn init() -> Self {
         let controller = ControllerBuilder::new()
-            .freq(FREQUENCY)
-            .dma(DMA_CHANNEL_NUMBER)
+            .freq(frequency())
+            .dma(dma_channel_number())
             .channel(
                 0,
                 ChannelBuilder::new()
-                    .pin(GPIO_PIN_NUMBER)
-                    .count(COORDS.lights_num() as _)
+                    .pin(gpio_pin_number())
+                    .count(LIGHTS_NUM as _)
                     .strip_type(STRIP_TYPE)
                     .brightness(255)
                     .build(),
@@ -96,6 +123,6 @@ impl Driver for Ws2811Driver {
 
     #[inline]
     fn get_lights_count(&self) -> usize {
-        COORDS.lights_num()
+        LIGHTS_NUM
     }
 }

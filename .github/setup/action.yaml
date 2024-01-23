@@ -61,5 +61,8 @@ runs:
         echo 'SERVER_SSL_CERT_PATH=/dev/null' >> .env
         echo 'SERVER_SSL_KEY_PATH=/dev/null' >> .env
         echo 'PORT=23120' >> .env
+        echo 'LIGHTS_NUM=250' >> .env
         echo 'SERVER_URL=ws://localhost:${PORT}' >> .env
+        echo 'SCANNER_PORT=23121' >> .env
+        echo 'SCANNER_SERVER_URL=ws://localhost:${SCANNER_PORT}' >> .env
       shell: bash

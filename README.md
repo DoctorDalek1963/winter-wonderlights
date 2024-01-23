@@ -20,13 +20,22 @@ If you just want to use the tree, the `.env` file should look like this:
 ```bash
 # Server
 export DATA_DIR=/path/to/winter/wonderlights/data
+export COORDS_FILENAME=coords-filename.gift
+
 export SERVER_SSL_CERT_PATH=/path/to/ssl/certificate.pem
 export SERVER_SSL_KEY_PATH=/path/to/ssl/privatekey.pem
 
 export PORT=23120
+export LIGHTS_NUM=250
 
 # Client
 export SERVER_URL=wss://my.server.net:${PORT}
+
+# Scanner server
+export SCANNER_PORT=23121
+
+# Scanner clients
+export SCANNER_SERVER_URL=wss://my.server.net:${SCANNER_PORT}
 ```
 
 If you're just using the project at home and all clients will be on your home Wi-Fi, then you can use the local IP of the server (Raspberry Pi) instead of a DNS address for the `SERVER_URL`.
@@ -35,13 +44,22 @@ If you want to develop Winter WonderLights, the `.env` file should look like thi
 ```bash
 # Server
 export DATA_DIR=/path/to/project/folder/data
+export COORDS_FILENAME=2020-matt-parker.gift
+
 export SERVER_SSL_CERT_PATH=/dev/null
 export SERVER_SSL_KEY_PATH=/dev/null
 
 export PORT=23120
+export LIGHTS_NUM=250
 
 # Client
 export SERVER_URL=ws://localhost:${PORT}
+
+# Scanner server
+export SCANNER_PORT=23121
+
+# Scanner clients
+export SCANNER_SERVER_URL=ws://localhost:${SCANNER_PORT}
 ```
 
 #### Dependencies

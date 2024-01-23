@@ -14,24 +14,23 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: true
 
       - uses: ./.github/setup
         with:
           components: rustfmt
 
-      # Debug version information
-      - run: |
-          rustup --version
-          rustfmt --version
-          cargo fmt --version
-
       - run: cargo fmt --all --check
 
   clippy:
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: true
 
       - uses: ./.github/setup
         with:
@@ -45,6 +44,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: true
+
       - uses: ./.github/setup
       - run: just test
 
@@ -53,6 +55,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: true
+
       - uses: ./.github/setup
       - run: sudo apt install libclang-dev
       - run: just doc-build
@@ -61,12 +66,15 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
-        build-type: ['client', 'driver-debug', 'driver-virtual-tree', 'driver-raspi-ws2811']
+        build-type: ['scanner-server', 'scanner-client', 'client', 'driver-debug', 'driver-virtual-tree', 'driver-raspi-ws2811']
         flags: ['', '--release']
 
     steps:
       - uses: actions/checkout@v3
-      - uses: ./.github/setup
+        with:
+          submodules: true
 
+      - uses: ./.github/setup
       - run: just ci-build ${{ matrix.build-type }} ${{ matrix.flags }}

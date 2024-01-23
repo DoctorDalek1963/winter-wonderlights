@@ -9,7 +9,6 @@ use ww_frame::FrameType;
 // Thanks to the build script, we are guaranteed to have exactly one of these features enabled.
 cfg_if::cfg_if! {
     if #[cfg(feature = "driver-debug")] {
-        mod debug;
         use debug::DebugDriver as DriverImpl;
     } else if #[cfg(feature = "driver-virtual-tree")] {
         use virtual_tree::VirtualTreeDriver as DriverImpl;

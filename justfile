@@ -12,9 +12,9 @@ bench filter='':
 
 # build the docs and optionally open them
 doc-build open='':
-	RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --document-private-items --workspace --release --target-dir target {{open}}
+	RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --document-private-items --workspace --release --target-dir target --features "gift-coord-editor/_driver" {{open}}
 
-# a little convenience function to build the server and client
+# a convenience function to build the server and client
 _build_server_client driver flags='':
 	cd {{justfile_directory()}}/ww-server && cargo build --no-default-features --features {{driver}} {{flags}}
 	cd {{justfile_directory()}}/ww-client && trunk build {{flags}}
@@ -26,6 +26,19 @@ build driver flags='':
 # build the server and client in release mode
 build-release driver flags='':
 	@just _build_server_client {{driver}} '--release' {{flags}}
+
+# a convenience function to build the scanner server and client
+_build_scanner_server_client flags='':
+	cd {{justfile_directory()}}/scanner/server && cargo build {{flags}}
+	cd {{justfile_directory()}}/scanner/client && trunk build {{flags}}
+
+# build the scanner server and client in debug mode
+build-scanner flags='':
+	@just _build_scanner_server_client {{flags}}
+
+# build the scanner server and client in release mode
+build-scanner-release flags='':
+	@just _build_scanner_server_client '--release' {{flags}}
 
 # watch the server and rerun anytime the code is changed
 watch-server flags='':
@@ -56,6 +69,17 @@ ci-build build-type flags='':
 	set -euxo pipefail
 
 	case "{{build-type}}" in
+		'scanner-server')
+			cd {{justfile_directory()}}/scanner/server
+			cargo build {{flags}}
+		;;
+
+		'scanner-client')
+			rustup target add wasm32-unknown-unknown
+			cd {{justfile_directory()}}/scanner/client
+			trunk build {{flags}}
+		;;
+
 		'client')
 			rustup target add wasm32-unknown-unknown
 			cd {{justfile_directory()}}/ww-client
@@ -116,6 +140,7 @@ clippy args='':
 	-A clippy::restriction \
 	-W clippy::style \
 	-W clippy::suspicious \
+	-A clippy::cargo-common-metadata \
 	-A clippy::cognitive-complexity \
 	-A clippy::derivable-impls \
 	-A clippy::needless-update \

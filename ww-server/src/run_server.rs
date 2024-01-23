@@ -7,23 +7,11 @@ use crate::{
 use color_eyre::{Report, Result};
 use futures_util::{future, pin_mut, stream::TryStreamExt, StreamExt};
 use lazy_static::lazy_static;
-use std::{
-    fs::File,
-    io::{self, BufReader},
-    net::SocketAddr,
-    path::Path,
-    sync::Arc,
-    thread,
-    time::Duration,
-};
+use std::{io, net::SocketAddr, thread, time::Duration};
 use tokio::{
     io::{AsyncRead, AsyncWrite},
     net::TcpListener,
     sync::{broadcast, oneshot},
-};
-use tokio_rustls::{
-    rustls::{self, Certificate, PrivateKey},
-    TlsAcceptor,
 };
 use tokio_stream::wrappers::BroadcastStream;
 use tokio_tungstenite::tungstenite;
@@ -212,62 +200,6 @@ async fn handle_connection(
     Ok(())
 }
 
-/// Read the file at the given path and try to read it as a list of SSL certificates.
-fn load_certs(path: &Path) -> io::Result<Vec<Certificate>> {
-    rustls_pemfile::certs(&mut BufReader::new(File::open(path)?))
-        .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "Invalid certificate"))
-        .map(|certs| certs.into_iter().map(Certificate).collect())
-}
-
-/// Read the file at the given path and try to read it as a list of SSL private keys.
-fn load_keys(path: &Path) -> io::Result<Vec<PrivateKey>> {
-    use rustls_pemfile::{read_all, Item::*};
-
-    read_all(&mut BufReader::new(File::open(path)?))
-        .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "Invalid keys"))
-        .map(|keys| {
-            keys.into_iter()
-                .filter_map(|item| match item {
-                    RSAKey(key) | PKCS8Key(key) | ECKey(key) => Some(PrivateKey(key)),
-                    _ => None,
-                })
-                .collect()
-        })
-}
-
-/// Make a [`TlsAcceptor`] by reading the `SERVER_SSL_CERT_PATH` and `SERVER_SSL_KEY_PATH`
-/// environment variables *at compile time*. Return an error if we failed to make the acceptor.
-///
-/// This method allows [`run_server`] to call [`handle_connection`] with a `TcpStream` or a
-/// `TlsStream` depending on whether we can create a [`TlsAcceptor`]. This means that we don't need
-/// SSL when developing, since the server can work unencrypted and the client can talk to
-/// localhost. But in production, the client web browser normally wants an encrypted connection.
-#[instrument]
-fn make_tls_acceptor() -> Result<TlsAcceptor> {
-    let certs = load_certs(Path::new(
-        option_env!("SERVER_SSL_CERT_PATH")
-            .ok_or_else(|| Report::msg("We need a path for the certificate file"))?,
-    ))?;
-    let mut keys = load_keys(Path::new(
-        option_env!("SERVER_SSL_KEY_PATH")
-            .ok_or_else(|| Report::msg("We need a path for the key file"))?,
-    ))?;
-
-    if certs.is_empty() {
-        return Err(Report::msg("We need to have at least one certificate"));
-    }
-    if keys.is_empty() {
-        return Err(Report::msg("We need to have at least one key"));
-    }
-
-    let tls_config = rustls::ServerConfig::builder()
-        .with_safe_defaults()
-        .with_no_client_auth()
-        .with_single_cert(certs, keys.remove(0))?;
-
-    Ok(TlsAcceptor::from(Arc::new(tls_config)))
-}
-
 /// Run the server asynchronously.
 #[instrument(skip_all)]
 pub async fn run_server(
@@ -276,7 +208,7 @@ pub async fn run_server(
 ) -> Result<()> {
     info!(port = env!("PORT"), "Initialising server");
 
-    let tls_acceptor = match make_tls_acceptor() {
+    let tls_acceptor = match ww_shared_server_tls::make_tls_acceptor() {
         Ok(acceptor) => {
             info!("Successfully created TLS acceptor");
             Some(acceptor)
