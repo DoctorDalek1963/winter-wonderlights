@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1703008597315,
+  "lastUpdate": 1706057261928,
   "repoUrl": "https://github.com/DoctorDalek1963/winter-wonderlights",
   "entries": {
     "Benchmark": [
@@ -4247,6 +4247,54 @@ window.BENCHMARK_DATA = {
             "name": "(ConvertFrameDriver) AiSnake",
             "value": 11030057,
             "range": "± 31611",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "committer": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "distinct": true,
+          "id": "6a25a3e5a9deef314bf048c3e88d7422d16ab74a",
+          "message": "Satisfy clippy in source code",
+          "timestamp": "2024-01-24T00:28:47Z",
+          "tree_id": "40b80c71fd686ccc00907930c75f9977d2dca0df",
+          "url": "https://github.com/DoctorDalek1963/winter-wonderlights/commit/6a25a3e5a9deef314bf048c3e88d7422d16ab74a"
+        },
+        "date": 1706057261550,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "(SimpleDriver) DebugOneByOne",
+            "value": 28884,
+            "range": "± 199",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugOneByOne",
+            "value": 127855,
+            "range": "± 1518",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) DebugBinaryIndex",
+            "value": 89518,
+            "range": "± 2469",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugBinaryIndex",
+            "value": 95362,
+            "range": "± 490",
             "unit": "ns/iter"
           }
         ]
