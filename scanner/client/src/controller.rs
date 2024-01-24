@@ -77,6 +77,7 @@ impl ControllerWidget {
 
     /// Display the UI for when the controller is connected and the server is ready to scan.
     fn display_main_ui(&mut self, ui: &mut Ui) -> Response {
+        /// The default spacing between UI elements.
         const UI_SPACING: f32 = 20.0;
 
         ui.vertical(|ui| {

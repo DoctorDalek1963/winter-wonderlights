@@ -119,17 +119,18 @@ ci-build build-type flags='':
 clippy args='':
 	cargo clippy --no-deps -- \
 	-D absolute-paths-not-starting-with-crate \
+	-D dead-code \
 	-D missing-abi \
 	-D missing-docs \
 	-D redundant-semicolons \
 	-D unsafe-op-in-unsafe-fn \
+	-D unused-attributes \
 	-D unused-import-braces \
 	-D unused-lifetimes \
 	-W noop-method-call \
 	-W single-use-lifetimes \
 	-W trivial-numeric-casts \
 	-W unused-macro-rules \
-	-W unused-tuple-struct-fields \
 	-W variant-size-differences \
 	-W clippy::cargo \
 	-W clippy::complexity \

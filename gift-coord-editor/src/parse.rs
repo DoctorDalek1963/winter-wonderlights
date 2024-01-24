@@ -11,6 +11,8 @@ use nom::{
 use std::ops::RangeInclusive;
 use ww_gift_coords::PointF;
 
+/// Parse a command from the user's input.
+#[allow(clippy::redundant_closure, reason = "style preference")]
 pub fn parse_command(input: &str) -> IResult<&str, Command> {
     alt((
         parse_help.map(|()| Command::Help),
@@ -25,11 +27,13 @@ pub fn parse_command(input: &str) -> IResult<&str, Command> {
     ))(input)
 }
 
+/// Parse the `help` or `?` command. See [`Command::Help`].
 fn parse_help(input: &str) -> IResult<&str, ()> {
     let (input, _) = alt((tag("help"), tag("?")))(input)?;
     Ok((input, ()))
 }
 
+/// Parse a `show` command. See [`Command::Show`].
 fn parse_show(input: &str) -> IResult<&str, Option<RangeInclusive<usize>>> {
     let (input, _) = tag("show")(input)?;
     let (input, _) = multispace0(input)?;
@@ -40,11 +44,14 @@ fn parse_show(input: &str) -> IResult<&str, Option<RangeInclusive<usize>>> {
     }
 }
 
+/// Parse the arguments for a `show` command.
 fn parse_show_args(input: &str) -> IResult<&str, RangeInclusive<usize>> {
+    /// Parse an index for the lights.
     fn parse_one_idx(input: &str) -> IResult<&str, usize> {
         complete::u16.map(|idx| idx as usize).parse(input)
     }
 
+    /// Parse a pair of indices for the lights.
     fn parse_pair_of_idx(input: &str) -> IResult<&str, (usize, usize)> {
         let (input, start) = parse_one_idx(input)?;
         let (input, _) = multispace0(input)?;
@@ -60,6 +67,7 @@ fn parse_show_args(input: &str) -> IResult<&str, RangeInclusive<usize>> {
     ))(input)
 }
 
+/// Parse a `set` command. See [`Command::Set`].
 fn parse_set(input: &str) -> IResult<&str, (usize, PointF)> {
     let (input, _) = tag("set")(input)?;
     let (input, _) = multispace1(input)?;
@@ -71,6 +79,7 @@ fn parse_set(input: &str) -> IResult<&str, (usize, PointF)> {
     Ok((input, (idx.into(), point)))
 }
 
+/// Parse a [`PointF`].
 fn parse_pointf(input: &str) -> IResult<&str, PointF> {
     let (input, _) = tag("(")(input)?;
     let (input, _) = multispace0(input)?;
@@ -95,6 +104,7 @@ fn parse_pointf(input: &str) -> IResult<&str, PointF> {
     Ok((input, (x, y, z)))
 }
 
+/// Parse a `light` command. See [`Command::Light`].
 #[cfg(feature = "_driver")]
 fn parse_light(input: &str) -> IResult<&str, usize> {
     let (input, _) = tag("light")(input)?;
@@ -103,10 +113,13 @@ fn parse_light(input: &str) -> IResult<&str, usize> {
     Ok((input, idx as usize))
 }
 
-fn parse_save_or_saveraw<'i>(
-    input: &'i str,
+/// Parse a `save` or `saveraw` command. See [`Command::Save`].
+fn parse_save_or_saveraw<'input>(
+    input: &'input str,
     command: &'static str,
-) -> IResult<&'i str, Option<&'i str>> {
+) -> IResult<&'input str, Option<&'input str>> {
+    /// Parse a filename. This could be a simple filename with no escapes, or a filename in double
+    /// or single quotes.
     fn parse_filename(input: &str) -> IResult<&str, &str> {
         let (input, _) = multispace1(input)?;
         alt((

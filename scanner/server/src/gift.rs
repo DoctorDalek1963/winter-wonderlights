@@ -71,7 +71,10 @@ pub fn generate_gift_file(photo_map: HashMap<CompassDirection, Vec<(ImgPoint, u8
         })
         .collect();
 
-    let lights_num = gift_point_list.first().unwrap().len();
+    let lights_num = gift_point_list
+        .first()
+        .expect("There should be at least one element in gift_point_list")
+        .len();
     let mut coordinates = Vec::with_capacity(lights_num);
 
     let directions_num = gift_point_list.len() as f32;
@@ -81,7 +84,11 @@ pub fn generate_gift_file(photo_map: HashMap<CompassDirection, Vec<(ImgPoint, u8
             (0., 0., 0.),
             |(acc_x, acc_y, acc_z), ((x, y, z), brightness)| {
                 let weight = brightness as f32 / 255.;
-                (acc_x + x * weight, acc_y + y * weight, acc_z + z * weight)
+                (
+                    x.mul_add(weight, acc_x),
+                    y.mul_add(weight, acc_y),
+                    z.mul_add(weight, acc_z),
+                )
             },
         );
         coordinates.push((x / directions_num, y / directions_num, z / directions_num));

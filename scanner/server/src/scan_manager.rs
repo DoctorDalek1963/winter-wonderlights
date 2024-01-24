@@ -30,6 +30,10 @@ lazy_static! {
 static CURRENT_IDX: AtomicU32 = AtomicU32::new(0);
 
 /// Possible messages to send to the scan manager.
+#[allow(
+    variant_size_differences,
+    reason = "the ReceivedPhoto variant just needs to carry more data"
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ScanManagerMsg {
     /// The camera has connected.
@@ -46,7 +50,10 @@ pub enum ScanManagerMsg {
 
     /// Start to take photos.
     StartTakingPhotos {
+        /// The current alignment of the camera.
         camera_alignment: CompassDirection,
+
+        /// How long should we pause between photos?
         pause_time_ms: u16,
     },
 
@@ -55,8 +62,13 @@ pub enum ScanManagerMsg {
 
     /// We've received photo data from the camera.
     ReceivedPhoto {
+        /// The index of the light that was on.
         light_idx: u32,
+
+        /// The position of the brightest pixel in the image.
         brightest_pixel_pos: (u32, u32),
+
+        /// The brightness of the brightest pixel in the image.
         pixel_brightness: u8,
     },
 
@@ -105,6 +117,10 @@ impl Default for ScanManagerState {
     }
 }
 
+/// The data from a photo. The first element is the position of the brightest pixel, and the
+/// second element is the brightness of the brightest pixel.
+type PhotoData = ((u32, u32), u8);
+
 /// Run the scan manager.
 #[instrument(skip_all)]
 pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
@@ -125,7 +141,7 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
     let mut current_camera_alignment = CompassDirection::South;
     let mut finished_sides = CompassDirectionFlags::empty();
     let mut pause_time = 0;
-    let mut photo_map: HashMap<CompassDirection, Vec<((u32, u32), u8)>> = HashMap::new();
+    let mut photo_map: HashMap<CompassDirection, Vec<PhotoData>> = HashMap::new();
 
     info!("Beginning scan manager loop");
 
@@ -273,6 +289,7 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
     });
 }
 
+/// Respond to the given message by mutating the given state.
 async fn respond_to_msg(
     msg: ScanManagerMsg,
     connected_state: &mut ConnectedState,
@@ -280,7 +297,7 @@ async fn respond_to_msg(
     current_camera_alignment: &mut CompassDirection,
     finished_sides: &mut CompassDirectionFlags,
     pause_time: &mut u16,
-    photo_map: &mut HashMap<CompassDirection, Vec<((u32, u32), u8)>>,
+    photo_map: &mut HashMap<CompassDirection, Vec<PhotoData>>,
 ) -> bool {
     match msg {
         ScanManagerMsg::CameraConnected => {

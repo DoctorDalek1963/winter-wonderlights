@@ -34,13 +34,21 @@ const NOKHWA_API_BACKEND: ApiBackend = ApiBackend::Auto;
 /// A rotation of a number of degrees clockwise.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Rotation {
+    /// The image is exactly as it came from the camera.
     Original,
+
+    /// The image is rotated 90 degrees clockwise.
     Rotate90,
+
+    /// The image is rotated 180 degrees.
     Rotate180,
+
+    /// The image is rotated 270 degrees clockwise (90 degrees anti-clockwise).
     Rotate270,
 }
 
 impl Rotation {
+    /// Rotate by 90 degrees clockwise.
     fn next_clockwise(self) -> Self {
         match self {
             Self::Original => Self::Rotate90,
@@ -50,6 +58,7 @@ impl Rotation {
         }
     }
 
+    /// Rotate by 90 degrees anti-clockwise.
     fn next_anticlockwise(self) -> Self {
         match self {
             Self::Original => Self::Rotate270,
@@ -72,7 +81,6 @@ fn find_best_camera() -> Option<Camera> {
                 camera_info.index().clone(),
                 RequestedFormat::new::<LumaFormat>(RequestedFormatType::AbsoluteHighestResolution),
             )
-            .or_else(|err| Err(err))
             .ok()
         })
         .max_by_key(|camera| {
@@ -133,8 +141,8 @@ impl CameraWidget {
     #[inline]
     pub fn respond_to_server_messages(&mut self) -> Option<AppState> {
         match self {
-            CameraWidget::Camera(inner) => inner.respond_to_server_messages(),
-            CameraWidget::NoCameraFound => {
+            Self::Camera(inner) => inner.respond_to_server_messages(),
+            Self::NoCameraFound => {
                 // We have to tell the app that we're connected to the server if we don't have a camera
                 // so that it defers rendering to [`CameraWidget`], which can display the error
                 Some(AppState::Connected)
@@ -178,26 +186,32 @@ pub struct InnerCameraWidget {
 
 impl fmt::Debug for InnerCameraWidget {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        #[derive(Debug)]
         #[allow(
             dead_code,
+            clippy::missing_docs_in_private_items,
             reason = "this struct is only used for formatting debug info"
         )]
-        struct NokhwaCamera {
+        struct DebuggableNokhwaCamera {
             idx: CameraIndex,
         }
 
-        impl From<&Camera> for NokhwaCamera {
+        impl From<&Camera> for DebuggableNokhwaCamera {
             fn from(value: &Camera) -> Self {
-                NokhwaCamera {
+                Self {
                     idx: value.index().clone(),
                 }
             }
         }
 
+        impl fmt::Debug for DebuggableNokhwaCamera {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                f.debug_struct("Camera").field("idx", &self.idx).finish()
+            }
+        }
+
         f.debug_struct("InnerCameraWidget")
             .field("inner", &self.inner)
-            .field("camera", &NokhwaCamera::from(&self.camera))
+            .field("camera", &DebuggableNokhwaCamera::from(&self.camera))
             .field("duration_between_frames", &self.duration_between_frames)
             .field("time_of_latest_frame", &self.time_of_latest_frame)
             .field("latest_frame", &..)
@@ -317,7 +331,7 @@ impl InnerCameraWidget {
             return;
         }
 
-        if let Ok(control) = self.camera.camera_control(KnownCameraControl::Exposure) {
+        if let Ok(_control) = self.camera.camera_control(KnownCameraControl::Exposure) {
             warn!("TODO: Lock exposure");
         } else {
             warn!("Unable to lock exposure on this camera");
@@ -352,9 +366,12 @@ impl InnerCameraWidget {
     fn refresh_frame(&mut self) {
         if self.time_of_latest_frame.elapsed() >= self.duration_between_frames {
             trace!("Refreshing latest_frame");
-            *self.latest_frame.write().unwrap() = get_image(&mut self.camera, self.rotation);
+            *self
+                .latest_frame
+                .write()
+                .expect("latest_frame should not have been poisoned") =
+                get_image(&mut self.camera, self.rotation);
             self.time_of_latest_frame = Instant::now();
-        } else {
         }
     }
 

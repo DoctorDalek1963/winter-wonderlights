@@ -12,7 +12,6 @@
 
 #![feature(lint_reasons)]
 
-use bitflags::bitflags;
 use serde::{Deserialize, Serialize};
 use strum::EnumIter;
 
@@ -68,6 +67,7 @@ pub enum CompassDirection {
 }
 
 impl CompassDirection {
+    /// Get the human readable name of the direction.
     pub fn name(&self) -> &'static str {
         match self {
             Self::North => "North",
@@ -87,16 +87,28 @@ impl CompassDirection {
 #[repr(transparent)]
 pub struct CompassDirectionFlags(u8);
 
-bitflags! {
-    impl CompassDirectionFlags: u8 {
-        const North     = 0b0000_0001;
-        const NorthEast = 0b0000_0010;
-        const East      = 0b0000_0100;
-        const SouthEast = 0b0000_1000;
-        const South     = 0b0001_0000;
-        const SouthWest = 0b0010_0000;
-        const West      = 0b0100_0000;
-        const NorthWest = 0b1000_0000;
+/// This module is a bodge to allow me to allow clippy attributes for the `bitflags!` invocation.
+#[allow(missing_docs, reason = "the values are just compass directions")]
+#[allow(
+    clippy::same_name_method,
+    reason = "this is some weird internal bitflags thing"
+)]
+#[doc(hidden)]
+mod _bodge {
+    use super::CompassDirectionFlags;
+    use bitflags::bitflags;
+
+    bitflags! {
+        impl CompassDirectionFlags: u8 {
+            const North     = 0b0000_0001;
+            const NorthEast = 0b0000_0010;
+            const East      = 0b0000_0100;
+            const SouthEast = 0b0000_1000;
+            const South     = 0b0001_0000;
+            const SouthWest = 0b0010_0000;
+            const West      = 0b0100_0000;
+            const NorthWest = 0b1000_0000;
+        }
     }
 }
 
@@ -193,6 +205,10 @@ pub enum CameraToServerMsg {
 }
 
 /// A message from the server to the controller client.
+#[allow(
+    variant_size_differences,
+    reason = "the ProgressUpdate variant needs to be big enough to allow for more than 255 lights"
+)]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ServerToControllerMsg {
     /// A generic message from the server to a client.

@@ -64,7 +64,7 @@ struct Args {
 
 /// A user-given command.
 #[derive(Clone, Debug, PartialEq)]
-enum Command<'s> {
+enum Command<'save_filename> {
     /// Show available commands.
     Help,
 
@@ -80,12 +80,18 @@ enum Command<'s> {
 
     /// Save the coordinates back to the original file or a new one. The bool represents if the
     /// coords should be raw or not.
-    Save(Option<&'s str>, bool),
+    Save(Option<&'save_filename str>, bool),
 }
 
-impl<'s> Command<'s> {
+impl Command<'_> {
     /// Execute this command.
-    #[cfg_attr(not(feature = "_driver"), allow(unused_variables))]
+    #[cfg_attr(
+        not(feature = "_driver"),
+        allow(
+            unused_variables,
+            reason = "the `driver` argument is a ZST when we don't have a proper driver"
+        )
+    )]
     fn execute(self, coords: &mut [PointF], original_filename: &str, driver: &mut EditorDriver) {
         match self {
             Command::Help => println!("{}", get_help_text()),
@@ -97,8 +103,7 @@ impl<'s> Command<'s> {
                     }
                 }
                 None => {
-                    for idx in 0..coords.len() {
-                        let (x, y, z) = coords[idx];
+                    for (idx, (x, y, z)) in coords.iter().enumerate() {
                         println!("{idx}: ({x}, {y}, {z})");
                     }
                 }
@@ -121,7 +126,10 @@ impl<'s> Command<'s> {
                     println!("Saved raw coords to {filename:?}");
                 } else {
                     if filename.ends_with(".raw") {
-                        filename = filename.strip_suffix(".raw").unwrap().to_string();
+                        filename = filename
+                            .strip_suffix(".raw")
+                            .expect("We already checked that the filename ends with `.raw`")
+                            .to_string();
                     }
                     GIFTCoords::from_unnormalized_coords(coords)
                         .expect("Should be able to build GIFT coords")
