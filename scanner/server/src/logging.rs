@@ -4,15 +4,19 @@ use tracing_appender::{non_blocking, non_blocking::WorkerGuard, rolling};
 use tracing_subscriber::{filter::LevelFilter, fmt::Layer, prelude::*, EnvFilter};
 use tracing_unwrap::ResultExt;
 
-/// The directory for the server's log files.
-const LOG_DIR: &str = concat!(env!("DATA_DIR"), "/scanner_logs");
-
-/// The common prefix for the server's log files.
-const LOG_PREFIX: &str = "scanner_server.log";
-
 /// Initialise a subscriber for tracing to log to `stdout` and a file.
 pub fn init_tracing() -> WorkerGuard {
-    let (appender, guard) = non_blocking(rolling::never(LOG_DIR, LOG_PREFIX));
+    #[allow(
+        clippy::expect_used,
+        reason = "we can't call expect_or_log before we've initted tracing"
+    )]
+    let (appender, guard) = non_blocking(rolling::never(
+        format!(
+            "{}/scanner_logs",
+            std::env::var("DATA_DIR").expect("DATA_DIR must be defined")
+        ),
+        "scanner_server.log",
+    ));
 
     let subscriber = tracing_subscriber::registry()
         .with(

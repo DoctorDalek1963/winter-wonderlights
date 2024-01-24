@@ -4,11 +4,22 @@
 
 #![feature(lint_reasons)]
 
-use konst::{primitive::parse_usize, result::unwrap_ctx};
+use std::sync::OnceLock;
+use tracing_unwrap::ResultExt;
 use ww_frame::FrameType;
 
+/// A [`OnceCell`] to cache the parsed `LIGHTS_NUM`.
+static PARSED_LIGHTS_NUM_CELL: OnceLock<usize> = OnceLock::new();
+
 /// The number of lights provided by the user in the `LIGHTS_NUM` environment variable.
-pub const LIGHTS_NUM: usize = unwrap_ctx!(parse_usize(env!("LIGHTS_NUM")));
+pub fn lights_num() -> usize {
+    *PARSED_LIGHTS_NUM_CELL.get_or_init(|| {
+        std::env::var("LIGHTS_NUM")
+            .expect_or_log("LIGHTS_NUM must be defined")
+            .parse::<usize>()
+            .expect_or_log("LIGHTS_NUM must be a positive integer")
+    })
+}
 
 /// The trait implemented by all drivers.
 pub trait Driver {

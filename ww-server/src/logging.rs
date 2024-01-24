@@ -8,6 +8,7 @@ use std::{
     collections::HashMap,
     fs::{self, DirEntry},
     path::PathBuf,
+    sync::OnceLock,
 };
 use tokio::process::Command;
 use tracing::{debug, error, instrument, trace};
@@ -15,15 +16,29 @@ use tracing_appender::{non_blocking, non_blocking::WorkerGuard, rolling};
 use tracing_subscriber::{filter::LevelFilter, fmt::Layer, prelude::*, EnvFilter};
 use tracing_unwrap::ResultExt;
 
+/// A [`OnceCell`] to cache the logging directory.
+static LOG_DIR_CACHE: OnceLock<String> = OnceLock::new();
+
 /// The directory for the server's log files.
-const LOG_DIR: &str = concat!(env!("DATA_DIR"), "/logs");
+fn log_dir() -> &'static str {
+    LOG_DIR_CACHE.get_or_init(|| {
+        format!(
+            "{}/logs",
+            std::env::var("DATA_DIR").expect("DATA_DIR must be defined")
+        )
+    })
+}
 
 /// The common prefix for the server's log files.
 const LOG_PREFIX: &str = "server.log";
 
 /// Initialise a subscriber for tracing to log to `stdout` and a file.
 pub fn init_tracing() -> WorkerGuard {
-    let (appender, guard) = non_blocking(rolling::hourly(LOG_DIR, LOG_PREFIX));
+    #[allow(
+        clippy::expect_used,
+        reason = "we can't call expect_or_log before we've initted tracing"
+    )]
+    let (appender, guard) = non_blocking(rolling::hourly(log_dir(), LOG_PREFIX));
 
     let subscriber = tracing_subscriber::registry()
         .with(
@@ -61,8 +76,8 @@ pub async fn zip_log_files_older_than_hours(hours: u64) {
     // Look through everything in the log files folder and filter it down to just the log files and
     // parse their datetimes, and then filter down to only the log files which are older than the
     // given number of hours
-    let log_files_older_than_hours: Vec<PathBuf> = fs::read_dir(LOG_DIR)
-        .expect_or_log(&format!("Should be able to read entries in {LOG_DIR}"))
+    let log_files_older_than_hours: Vec<PathBuf> = fs::read_dir(log_dir())
+        .expect_or_log(&format!("Should be able to read entries in {}", log_dir()))
         .filter_map(|file_result| match file_result {
             Ok(dir_entry)
                 if dir_entry
@@ -134,8 +149,8 @@ pub async fn zip_log_files_older_than_days(days: u64) {
     // Look through everything in the log files folder and filter it down to just the log files and
     // parse their dates, and then filter down to only the log files which are older than the
     // given number of days
-    let log_files_older_than_days: Vec<(NaiveDate, PathBuf)> = fs::read_dir(LOG_DIR)
-        .expect_or_log(&format!("Should be able to read entries in {LOG_DIR}"))
+    let log_files_older_than_days: Vec<(NaiveDate, PathBuf)> = fs::read_dir(log_dir())
+        .expect_or_log(&format!("Should be able to read entries in {}", log_dir()))
         .filter_map(|file_result| match file_result {
             Ok(dir_entry)
                 if dir_entry
@@ -194,7 +209,8 @@ pub async fn zip_log_files_older_than_days(days: u64) {
             }
 
             let tgz_name = PathBuf::from(format!(
-                "{LOG_DIR}/{LOG_PREFIX}.{}-{:0>2}-{:0>2}.tgz",
+                "{}/{LOG_PREFIX}.{}-{:0>2}-{:0>2}.tgz",
+                log_dir(),
                 date.year(),
                 date.month(),
                 date.day()
@@ -208,7 +224,7 @@ pub async fn zip_log_files_older_than_days(days: u64) {
                     .args(files.into_iter().filter_map(|path| {
                         path.with_extension("").file_name().map(|x| x.to_owned())
                     }))
-                    .current_dir(LOG_DIR)
+                    .current_dir(log_dir())
                     .spawn()
                     .expect_or_log("Should be able to run `tar` on old log files");
             tar_command.wait().await.unwrap_or_log();

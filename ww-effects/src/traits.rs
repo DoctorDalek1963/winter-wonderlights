@@ -25,7 +25,7 @@ pub fn get_config_filename(effect_name: &str) -> String {
 
     format!(
         "{}/config/{}.ron",
-        env!("DATA_DIR"),
+        std::env::var("DATA_DIR").expect("DATA_DIR must be defined"),
         effect_name.to_snake_case()
     )
 }
@@ -67,9 +67,10 @@ pub trait EffectConfig: BaseEffectConfig {
     /// Load the effect configuration from the config file, or use the default if the file is
     /// unavailable. Also save the default to the file for future editing.
     fn from_file(filename: &str) -> Self {
-        let _ = fs::DirBuilder::new()
-            .recursive(true)
-            .create(format!("{}/config", env!("DATA_DIR")));
+        let _ = fs::DirBuilder::new().recursive(true).create(format!(
+            "{}/config",
+            std::env::var("DATA_DIR").expect("DATA_DIR must be defined")
+        ));
 
         let write_and_return_default = || -> Self {
             let default = Self::default();

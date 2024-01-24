@@ -14,7 +14,7 @@ use tokio::{
 };
 use tracing::{debug, info, instrument, trace};
 use tracing_unwrap::ResultExt;
-use ww_driver_trait::{Driver, LIGHTS_NUM};
+use ww_driver_trait::{lights_num, Driver};
 use ww_frame::FrameType;
 use ww_scanner_shared::{
     CompassDirection, CompassDirectionFlags, GenericServerToClientMsg, ServerToCameraMsg,
@@ -133,7 +133,7 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
     // Safety: This function gets run once in a background thread for the duration of the server,
     // so this call to `init()` only happens once and is thus safe.
     let mut driver = unsafe { crate::drivers::DriverWrapper::init() };
-    let mut driver_raw_data = vec![[0; 3]; LIGHTS_NUM];
+    let mut driver_raw_data = vec![[0; 3]; lights_num()];
 
     let mut thread_message_rx = SEND_MESSAGE_TO_SCAN_MANAGER.subscribe();
     let mut connected_state = ConnectedState::default();
@@ -177,11 +177,11 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                                 );
 
                             state = ScanManagerState::WaitingToScan;
-                            driver.display_frame(FrameType::RawData(vec![[255; 3]; LIGHTS_NUM]));
+                            driver.display_frame(FrameType::RawData(vec![[255; 3]; lights_num()]));
                         }
                         ScanManagerState::ReadyToTakePhoto => {
                             let light_idx = CURRENT_IDX.fetch_add(1, Ordering::Relaxed);
-                            if light_idx as usize >= LIGHTS_NUM {
+                            if light_idx as usize >= lights_num() {
                                 info!(
                                     ?current_camera_alignment,
                                     "Finished scanning from this angle"
@@ -195,8 +195,10 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                                     "Inserted alignment into finished_sides"
                                 );
                                 state = ScanManagerState::WaitingToScan;
-                                driver
-                                    .display_frame(FrameType::RawData(vec![[255; 3]; LIGHTS_NUM]));
+                                driver.display_frame(FrameType::RawData(vec![
+                                    [255; 3];
+                                    lights_num()
+                                ]));
 
                                 CONTROLLER_SEND
                                     .send(
@@ -422,7 +424,7 @@ async fn respond_to_msg(
                     .send(
                         bincode::serialize(&ServerToControllerMsg::ProgressUpdate {
                             scanned: light_idx as u16 + 1,
-                            total: LIGHTS_NUM as u16,
+                            total: lights_num() as u16,
                         })
                         .expect_or_log("Should be able to serialize ProgressUpdate"),
                     )

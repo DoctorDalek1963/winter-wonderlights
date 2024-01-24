@@ -206,7 +206,8 @@ pub async fn run_server(
     client_state: WrappedClientState,
     kill_run_effect_thread: oneshot::Receiver<()>,
 ) -> Result<()> {
-    info!(port = env!("PORT"), "Initialising server");
+    let port = std::env::var("PORT").expect_or_log("PORT must be defined");
+    info!(port, "Initialising server");
 
     let tls_acceptor = match ww_shared_server_tls::make_tls_acceptor() {
         Ok(acceptor) => {
@@ -225,7 +226,7 @@ pub async fn run_server(
         }
     };
 
-    let listener = TcpListener::bind(concat!("0.0.0.0:", env!("PORT")))
+    let listener = TcpListener::bind(format!("0.0.0.0:{port}"))
         .await
         .expect_or_log("Unable to start TcpListener");
 

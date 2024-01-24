@@ -24,13 +24,17 @@ pub type PointF = (f32, f32, f32);
 /// Get the name of the file containing the coordinates.
 fn get_coords_file_name() -> String {
     if cfg!(test) {
-        return concat!(env!("DATA_DIR"), "/coords/2020-matt-parker.gift").to_owned();
+        return format!(
+            "{}/coords/2020-matt-parker.gift",
+            std::env::var("DATA_DIR").expect_or_log("DATA_DIR must be defined")
+        );
     }
 
-    let path = concat!(env!("DATA_DIR"), "/coords/");
-    let filename = std::env::var("COORDS_FILENAME")
-        .expect_or_log("COORDS_FILENAME should be defined at runtime");
-    path.to_owned() + &filename
+    format!(
+        "{}/coords/{}",
+        std::env::var("DATA_DIR").expect_or_log("DATA_DIR must be defined"),
+        std::env::var("COORDS_FILENAME").expect_or_log("COORDS_FILENAME must be defined")
+    )
 }
 
 lazy_static! {
@@ -263,8 +267,11 @@ mod tests {
     #[test]
     fn from_file_test() {
         assert_eq!(
-            GIFTCoords::from_file(concat!(env!("DATA_DIR"), "/coords/2020-matt-parker.gift"))
-                .unwrap_or_log(),
+            GIFTCoords::from_file(&format!(
+                "{}/coords/2020-matt-parker.gift",
+                std::env::var("DATA_DIR").expect_or_log("DATA_DIR must be defined")
+            ))
+            .unwrap_or_log(),
             gift_coords()
         );
     }

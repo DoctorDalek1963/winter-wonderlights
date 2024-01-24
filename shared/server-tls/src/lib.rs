@@ -4,6 +4,7 @@
 #![feature(lint_reasons)]
 
 use std::{
+    env,
     fs::File,
     io::{self, BufReader},
     path::Path,
@@ -62,7 +63,7 @@ pub enum MakeTlsAcceptorError {
 }
 
 /// Make a [`TlsAcceptor`] by reading the `SERVER_SSL_CERT_PATH` and `SERVER_SSL_KEY_PATH`
-/// environment variables *at compile time*. Return an error if we failed to make the acceptor.
+/// environment variables at runtime. Return an error if we failed to make the acceptor.
 ///
 /// This method allows connections to be handled with a `TcpStream` or a `TlsStream` depending on
 /// whether we can create a [`TlsAcceptor`]. This means that we don't need SSL when developing,
@@ -74,13 +75,27 @@ pub enum MakeTlsAcceptorError {
 /// This function will error if either environment variable isn't defined, we fail to read a file,
 /// a file doesn't contain what we expect, or [`rustls`] fails to build a
 /// [`ServerConfig`](rustls::ServerConfig).
+///
+/// # Panics
+///
+/// This function will panic if either environment variable is not valid Unicode.
 pub fn make_tls_acceptor() -> Result<TlsAcceptor, MakeTlsAcceptorError> {
-    let certs = load_certs(Path::new(
-        option_env!("SERVER_SSL_CERT_PATH").ok_or(MakeTlsAcceptorError::NoCertificatePath)?,
-    ))?;
-    let mut keys = load_keys(Path::new(
-        option_env!("SERVER_SSL_KEY_PATH").ok_or(MakeTlsAcceptorError::NoKeyPath)?,
-    ))?;
+    let certs = load_certs(Path::new(&env::var("SERVER_SSL_CERT_PATH").map_err(
+        |err| match err {
+            env::VarError::NotPresent => MakeTlsAcceptorError::NoCertificatePath,
+            env::VarError::NotUnicode(os_str) => {
+                panic!("SERVER_SSL_CERT_PATH is not valid Unicode: {os_str:?}")
+            }
+        },
+    )?))?;
+    let mut keys = load_keys(Path::new(&env::var("SERVER_SSL_KEY_PATH").map_err(
+        |err| match err {
+            env::VarError::NotPresent => MakeTlsAcceptorError::NoKeyPath,
+            env::VarError::NotUnicode(os_str) => {
+                panic!("SERVER_SSL_KEY_PATH is not valid Unicode: {os_str:?}")
+            }
+        },
+    )?))?;
 
     if certs.is_empty() {
         return Err(MakeTlsAcceptorError::FoundNoCertificates);

@@ -100,7 +100,10 @@ pub fn generate_gift_file(photo_map: HashMap<CompassDirection, Vec<(ImgPoint, u8
     debug!(?gift_coords, "Generated GIFT coords");
 
     gift_coords
-        .save_to_file(concat!(env!("DATA_DIR"), "/scanned_coords.gift"))
+        .save_to_file(&format!(
+            "{}/scanned_coords.gift",
+            std::env::var("DATA_DIR").expect_or_log("DATA_DIR must be defined")
+        ))
         .expect_or_log("We should be able to save the new GIFT coordinates to the file");
 
     info!("Successfully created GIFT file");

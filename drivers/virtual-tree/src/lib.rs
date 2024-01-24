@@ -30,14 +30,17 @@ impl Driver for VirtualTreeDriver {
 
         let socket_path = match NameTypeSupport::query() {
             NameTypeSupport::OnlyPaths => {
-                concat!(env!("DATA_DIR"), "/winter-wonderlights-virtual-tree.sock")
+                format!(
+                    "{}/winter-wonderlights-virtual-tree.sock",
+                    std::env::var("DATA_DIR").expect("DATA_DIR must be defined")
+                )
             }
             NameTypeSupport::OnlyNamespaced | NameTypeSupport::Both => {
-                "@winter-wonderlights-virtual-tree.sock"
+                "@winter-wonderlights-virtual-tree.sock".to_owned()
             }
         };
 
-        let socket_listener = match LocalSocketListener::bind(socket_path) {
+        let socket_listener = match LocalSocketListener::bind(&socket_path[..]) {
             Ok(x) => x,
             Err(e) => {
                 if e.kind() == io::ErrorKind::AddrInUse {

@@ -389,7 +389,8 @@ async fn handle_controller_connection(mut conn: Connection) -> Result<()> {
 /// Run the server asynchronously.
 #[instrument(skip_all)]
 pub async fn run_server(kill_rx: oneshot::Receiver<()>) -> Result<()> {
-    info!(port = env!("SCANNER_PORT"), "Initialising server");
+    let port = std::env::var("SCANNER_PORT").expect_or_log("SCANNER_PORT must be defined");
+    info!(port, "Initialising server");
 
     let tls_acceptor = match ww_shared_server_tls::make_tls_acceptor() {
         Ok(acceptor) => {
@@ -408,7 +409,7 @@ pub async fn run_server(kill_rx: oneshot::Receiver<()>) -> Result<()> {
         }
     };
 
-    let listener = TcpListener::bind(concat!("0.0.0.0:", env!("SCANNER_PORT")))
+    let listener = TcpListener::bind(format!("0.0.0.0:{port}"))
         .await
         .expect_or_log("Unable to start TcpListener");
 

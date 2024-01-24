@@ -1,7 +1,7 @@
 //! This crate provides a very simple [`DebugDriver`] to test things with.
 
 use tracing::{info, instrument};
-use ww_driver_trait::{Driver, LIGHTS_NUM};
+use ww_driver_trait::{lights_num, Driver};
 use ww_frame::FrameType;
 
 /// A simple debug driver that just logs all its input with tracing at the info level.
@@ -18,6 +18,6 @@ impl Driver for DebugDriver {
     }
 
     fn get_lights_count(&self) -> usize {
-        LIGHTS_NUM
+        lights_num()
     }
 }

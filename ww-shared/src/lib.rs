@@ -82,9 +82,10 @@ pub struct ClientState {
 impl ClientState {
     /// Load the client state from a file.
     pub fn from_file(filename: &str) -> Self {
-        let _ = fs::DirBuilder::new()
-            .recursive(true)
-            .create(format!("{}/config", env!("DATA_DIR")));
+        let _ = fs::DirBuilder::new().recursive(true).create(format!(
+            "{}/config",
+            std::env::var("DATA_DIR").expect_or_log("DATA_DIR must be defined")
+        ));
 
         let write_and_return_default = || -> Self {
             let default = Self::default();
@@ -92,7 +93,10 @@ impl ClientState {
             default
         };
 
-        let Ok(text) = fs::read_to_string(format!("{}/config/{filename}", env!("DATA_DIR"))) else {
+        let Ok(text) = fs::read_to_string(format!(
+            "{}/config/{filename}",
+            std::env::var("DATA_DIR").expect_or_log("DATA_DIR must be defined")
+        )) else {
             return write_and_return_default();
         };
 
@@ -102,7 +106,10 @@ impl ClientState {
     /// Save the client to a file.
     pub fn save_to_file(&self, filename: &str) {
         let _ = fs::write(
-            format!("{}/config/{filename}", env!("DATA_DIR")),
+            format!(
+                "{}/config/{filename}",
+                std::env::var("DATA_DIR").expect_or_log("DATA_DIR must be defined")
+            ),
             ron::ser::to_string_pretty(self, ron::ser::PrettyConfig::default().struct_names(true))
                 .expect_or_log("ClientState should be serializable"),
         );

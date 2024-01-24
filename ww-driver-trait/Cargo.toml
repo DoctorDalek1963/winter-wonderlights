@@ -9,5 +9,5 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
-konst = "0.3.8"
+tracing-unwrap.workspace = true
 ww-frame.workspace = true
