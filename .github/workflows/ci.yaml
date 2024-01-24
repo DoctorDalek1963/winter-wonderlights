@@ -50,7 +50,7 @@ jobs:
 
       - uses: ./.github/setup
 
-      - run: cargo binstall cargo-deny
+      - run: cargo binstall -y cargo-deny
       - run: just deny -Dwarnings
 
   test:
