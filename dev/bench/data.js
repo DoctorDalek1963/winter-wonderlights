@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706057261928,
+  "lastUpdate": 1706060987689,
   "repoUrl": "https://github.com/DoctorDalek1963/winter-wonderlights",
   "entries": {
     "Benchmark": [
@@ -4295,6 +4295,54 @@ window.BENCHMARK_DATA = {
             "name": "(ConvertFrameDriver) DebugBinaryIndex",
             "value": 95362,
             "range": "± 490",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "committer": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "distinct": true,
+          "id": "1f9ee2f91cc6e9d84c8b9299d2d70e49b6e311fb",
+          "message": "Test building of `gift-coord-editor` in CI",
+          "timestamp": "2024-01-24T01:47:24Z",
+          "tree_id": "f6fd14b478e747bff7db5747706644122264bfb6",
+          "url": "https://github.com/DoctorDalek1963/winter-wonderlights/commit/1f9ee2f91cc6e9d84c8b9299d2d70e49b6e311fb"
+        },
+        "date": 1706060987239,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "(SimpleDriver) DebugOneByOne",
+            "value": 28812,
+            "range": "± 560",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugOneByOne",
+            "value": 128472,
+            "range": "± 1789",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) DebugBinaryIndex",
+            "value": 92508,
+            "range": "± 3272",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugBinaryIndex",
+            "value": 87705,
+            "range": "± 219",
             "unit": "ns/iter"
           }
         ]
