@@ -23,13 +23,6 @@ pub type PointF = (f32, f32, f32);
 
 /// Get the name of the file containing the coordinates.
 fn get_coords_file_name() -> String {
-    if cfg!(test) {
-        return format!(
-            "{}/coords/2020-matt-parker.gift",
-            std::env::var("DATA_DIR").expect_or_log("DATA_DIR must be defined")
-        );
-    }
-
     format!(
         "{}/coords/{}",
         std::env::var("DATA_DIR").expect_or_log("DATA_DIR must be defined"),

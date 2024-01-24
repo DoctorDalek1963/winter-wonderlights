@@ -54,14 +54,14 @@ serve-client flags='':
 
 # run the tests in debug and release mode
 test:
-	cd {{justfile_directory()}}/ww-effects && cargo insta test --unreferenced reject --all-features
-	cd {{justfile_directory()}}/ww-effects && cargo insta test --unreferenced reject --all-features --release
-	cd {{justfile_directory()}}/ww-frame && cargo insta test --unreferenced reject --all-features
-	cd {{justfile_directory()}}/ww-frame && cargo insta test --unreferenced reject --all-features --release
-	cd {{justfile_directory()}}/ww-gift-coords && cargo insta test --unreferenced reject --all-features
-	cd {{justfile_directory()}}/ww-gift-coords && cargo insta test --unreferenced reject --all-features --release
-	cd {{justfile_directory()}}/ww-server && cargo insta test --unreferenced reject --no-default-features --features driver-debug
-	cd {{justfile_directory()}}/ww-server && cargo insta test --unreferenced reject --no-default-features --features driver-debug --release
+	cd {{justfile_directory()}}/ww-effects      && COORDS_FILENAME=2020-matt-parker.gift cargo insta test --unreferenced reject --all-features
+	cd {{justfile_directory()}}/ww-effects      && COORDS_FILENAME=2020-matt-parker.gift cargo insta test --unreferenced reject --all-features --release
+	cd {{justfile_directory()}}/ww-frame        && COORDS_FILENAME=2020-matt-parker.gift cargo insta test --unreferenced reject --all-features
+	cd {{justfile_directory()}}/ww-frame        && COORDS_FILENAME=2020-matt-parker.gift cargo insta test --unreferenced reject --all-features --release
+	cd {{justfile_directory()}}/ww-gift-coords  && COORDS_FILENAME=2020-matt-parker.gift cargo insta test --unreferenced reject --all-features
+	cd {{justfile_directory()}}/ww-gift-coords  && COORDS_FILENAME=2020-matt-parker.gift cargo insta test --unreferenced reject --all-features --release
+	cd {{justfile_directory()}}/ww-server       && COORDS_FILENAME=2020-matt-parker.gift cargo insta test --unreferenced reject --no-default-features --features driver-debug
+	cd {{justfile_directory()}}/ww-server       && COORDS_FILENAME=2020-matt-parker.gift cargo insta test --unreferenced reject --no-default-features --features driver-debug --release
 
 # Build things in CI, according to the specified build type
 ci-build build-type flags='':
