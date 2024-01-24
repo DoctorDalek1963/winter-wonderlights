@@ -1,0 +1,53 @@
+targets = [
+	{ triple = "x86_64-unknown-linux-gnu" },
+	{ triple = "wasm32-unknown-unknown" },
+	{ triple = "arm-unknown-linux-gnueabihf" },
+	{ triple = "armv7-unknown-linux-gnueabihf" },
+]
+
+[advisories]
+vulnerability = "deny"
+unmaintained = "allow"
+yanked = "warn"
+notice = "warn"
+ignore = [
+	# No part of this project will ever be run on Windows with a custom global
+	# allocator, so `atty` will never deref an unaligned pointer
+	"RUSTSEC-2021-0145",
+
+	# `shlex` v0.1.1 is only used by bindgen in the dev dependencies for nokhwa
+	# for the scanner client, so no end user could ever be affected by this
+	"RUSTSEC-2024-0006",
+]
+
+[licenses]
+allow = [
+	"MIT",
+	"Apache-2.0",
+	"GPL-3.0",
+]
+
+unlicensed = "deny"
+copyleft = "warn"
+allow-osi-fsf-free = "either"
+default = "deny"
+
+exceptions = [
+	{ allow = ["LicenseRef-UFL-1.0"], name = "epaint", version = ">=0.24" },
+	{ allow = ["MPL-2.0"], name = "webpki-roots", version = ">=0.22" },
+]
+
+[[licenses.clarify]]
+name = "ring"
+expression = "MIT AND ISC AND OpenSSL"
+license-files = [
+	{ path = "LICENSE", hash = 0xbd0eed23 }
+]
+
+[bans]
+multiple-versions = "allow"
+wildcards = "warn"
+allow-wildcard-paths = true
+
+[sources]
+allow-git = ["https://github.com/DoctorDalek1963/rpi-ws281x-rust.git"]

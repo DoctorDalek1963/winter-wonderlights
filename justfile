@@ -113,6 +113,11 @@ ci-build build-type flags='':
 		;;
 	esac
 
+# run cargo-deny over the whole project
+deny args='':
+	cargo deny --features "ww-server/driver-virtual-tree" check {{args}}
+	cargo deny --features "ww-server/driver-raspi-ws2811 ww-scanner-server/driver-raspi-ws2811 gift-coord-editor/driver-raspi-ws2811" check {{args}}
+
 # TODO: Deny clippy::multiple-unsafe-ops-per-block once it works properly
 
 # run clippy over the whole project

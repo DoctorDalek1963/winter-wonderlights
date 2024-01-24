@@ -17,7 +17,7 @@ lazy_static.workspace = true
 tokio = { workspace = true, features = ["macros", "process", "rt", "rt-multi-thread", "signal", "sync", "time"] }
 tokio-rustls.workspace = true
 tokio-stream = { version = "0.1.14", features = ["sync"] }
-tokio-tungstenite = "0.19.0"
+tokio-tungstenite = ">=0.20.1"
 tracing.workspace = true
 tracing-appender = "0.2.2"
 tracing-subscriber.workspace = true
