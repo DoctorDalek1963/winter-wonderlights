@@ -32,7 +32,7 @@ impl Driver for VirtualTreeDriver {
             NameTypeSupport::OnlyPaths => {
                 format!(
                     "{}/winter-wonderlights-virtual-tree.sock",
-                    std::env::var("DATA_DIR").expect("DATA_DIR must be defined")
+                    std::env::var("DATA_DIR").expect_or_log("DATA_DIR must be defined")
                 )
             }
             NameTypeSupport::OnlyNamespaced | NameTypeSupport::Both => {

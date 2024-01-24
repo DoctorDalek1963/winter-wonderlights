@@ -4,13 +4,15 @@ use egui::{Context, Ui};
 use serde::{Deserialize, Serialize};
 use std::fs;
 
+#[cfg(feature = "config-trait")]
+use tracing_unwrap::ResultExt;
+
 /// Save the given effect config to its appropriate config file.
 #[cfg(feature = "config-trait")]
 pub fn save_effect_config_to_file<T>(filename: &str, config: &T)
 where
     T: EffectConfig,
 {
-    use tracing_unwrap::ResultExt;
     let _ = fs::write(
         filename,
         ron::ser::to_string_pretty(config, ron::ser::PrettyConfig::default().struct_names(true))
@@ -25,7 +27,7 @@ pub fn get_config_filename(effect_name: &str) -> String {
 
     format!(
         "{}/config/{}.ron",
-        std::env::var("DATA_DIR").expect("DATA_DIR must be defined"),
+        std::env::var("DATA_DIR").expect_or_log("DATA_DIR must be defined"),
         effect_name.to_snake_case()
     )
 }
@@ -69,7 +71,7 @@ pub trait EffectConfig: BaseEffectConfig {
     fn from_file(filename: &str) -> Self {
         let _ = fs::DirBuilder::new().recursive(true).create(format!(
             "{}/config",
-            std::env::var("DATA_DIR").expect("DATA_DIR must be defined")
+            std::env::var("DATA_DIR").expect_or_log("DATA_DIR must be defined")
         ));
 
         let write_and_return_default = || -> Self {

@@ -20,6 +20,10 @@ use tracing_unwrap::ResultExt;
 static LOG_DIR_CACHE: OnceLock<String> = OnceLock::new();
 
 /// The directory for the server's log files.
+#[allow(
+    clippy::expect_used,
+    reason = "we can't call expect_or_log before we've initted tracing"
+)]
 fn log_dir() -> &'static str {
     LOG_DIR_CACHE.get_or_init(|| {
         format!(
@@ -34,10 +38,6 @@ const LOG_PREFIX: &str = "server.log";
 
 /// Initialise a subscriber for tracing to log to `stdout` and a file.
 pub fn init_tracing() -> WorkerGuard {
-    #[allow(
-        clippy::expect_used,
-        reason = "we can't call expect_or_log before we've initted tracing"
-    )]
     let (appender, guard) = non_blocking(rolling::hourly(log_dir(), LOG_PREFIX));
 
     let subscriber = tracing_subscriber::registry()

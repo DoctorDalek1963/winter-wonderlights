@@ -8,7 +8,7 @@ use std::sync::OnceLock;
 use tracing_unwrap::ResultExt;
 use ww_frame::FrameType;
 
-/// A [`OnceCell`] to cache the parsed `LIGHTS_NUM`.
+/// A cache for the parsed `LIGHTS_NUM`.
 static PARSED_LIGHTS_NUM_CELL: OnceLock<usize> = OnceLock::new();
 
 /// The number of lights provided by the user in the `LIGHTS_NUM` environment variable.
