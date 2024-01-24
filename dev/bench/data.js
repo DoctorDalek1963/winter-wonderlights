@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706061614547,
+  "lastUpdate": 1706061955554,
   "repoUrl": "https://github.com/DoctorDalek1963/winter-wonderlights",
   "entries": {
     "Benchmark": [
@@ -4391,6 +4391,54 @@ window.BENCHMARK_DATA = {
             "name": "(ConvertFrameDriver) DebugBinaryIndex",
             "value": 93245,
             "range": "± 2712",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "committer": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "distinct": true,
+          "id": "8de69c6a0cb14818510798aa2df20815c3b39210",
+          "message": "Disable confirmation for cargo binstall in CI",
+          "timestamp": "2024-01-24T02:03:33Z",
+          "tree_id": "b0bfd196b34a1a3e96ad072c20a0982759163530",
+          "url": "https://github.com/DoctorDalek1963/winter-wonderlights/commit/8de69c6a0cb14818510798aa2df20815c3b39210"
+        },
+        "date": 1706061955132,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "(SimpleDriver) DebugOneByOne",
+            "value": 29495,
+            "range": "± 132",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugOneByOne",
+            "value": 128136,
+            "range": "± 847",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) DebugBinaryIndex",
+            "value": 87746,
+            "range": "± 2700",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugBinaryIndex",
+            "value": 86732,
+            "range": "± 467",
             "unit": "ns/iter"
           }
         ]
