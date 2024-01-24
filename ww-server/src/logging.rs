@@ -16,7 +16,7 @@ use tracing_appender::{non_blocking, non_blocking::WorkerGuard, rolling};
 use tracing_subscriber::{filter::LevelFilter, fmt::Layer, prelude::*, EnvFilter};
 use tracing_unwrap::ResultExt;
 
-/// A [`OnceCell`] to cache the logging directory.
+/// A [`OnceLock`] to cache the logging directory.
 static LOG_DIR_CACHE: OnceLock<String> = OnceLock::new();
 
 /// The directory for the server's log files.
