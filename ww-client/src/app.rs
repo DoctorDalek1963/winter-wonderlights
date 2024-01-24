@@ -275,7 +275,9 @@ impl App {
                                     protocol_version: ww_shared::CRATE_VERSION.to_string(),
                                 })
                                 .await
-                                .expect("Unable to send EstablishConnection message down channel");
+                                .expect_or_log(
+                                    "Unable to send EstablishConnection message down channel",
+                                );
                         });
                     }
                 }

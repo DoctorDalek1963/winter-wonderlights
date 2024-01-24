@@ -4,6 +4,7 @@ use crate::{FrameObject, RGBArray};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use tracing::trace;
+use tracing_unwrap::OptionExt;
 use ww_gift_coords::COORDS;
 
 /// A type of frame data.
@@ -136,14 +137,10 @@ impl Frame3D {
     }
 
     /// Return the raw data for this frame.
-    #[allow(
-        clippy::missing_panics_doc,
-        reason = ".expect() is guaranteed to be fine since compute_raw_data() has been called"
-    )]
     #[must_use = "this method returns the raw data; to compute the raw data in place, use compute_raw_data()"]
     pub fn to_raw_data(mut self) -> Vec<RGBArray> {
         self.compute_raw_data();
-        self.pre_computed_raw_data.expect(
+        self.pre_computed_raw_data.expect_or_log(
             "pre_computed_raw_data must be populated since compute_raw_data() has been called",
         )
     }

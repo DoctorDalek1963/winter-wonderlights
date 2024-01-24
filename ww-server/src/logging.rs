@@ -113,7 +113,7 @@ fn unzipped_file_to_naive_datetime(name: &str) -> Option<NaiveDateTime> {
             let mut s = regex::escape(LOG_PREFIX);
             s.push_str(r"\.(\d{4})-(\d{2})-(\d{2})-(\d{2})$");
             s
-        }).expect("Regex should compile successfully");
+        }).expect_or_log("Regex should compile successfully");
     }
 
     let captures = REGEX.captures(name)?;
@@ -234,7 +234,7 @@ fn gzipped_file_to_naive_date(name: &str) -> Option<NaiveDate> {
             let mut s = regex::escape(LOG_PREFIX);
             s.push_str(r"\.(\d{4})-(\d{2})-(\d{2})-\d{2}.gz$");
             s
-        }).expect("Regex should compile successfully");
+        }).expect_or_log("Regex should compile successfully");
     }
 
     let captures = REGEX.captures(name)?;

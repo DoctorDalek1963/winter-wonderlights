@@ -73,7 +73,7 @@ pub fn generate_gift_file(photo_map: HashMap<CompassDirection, Vec<(ImgPoint, u8
 
     let lights_num = gift_point_list
         .first()
-        .expect("There should be at least one element in gift_point_list")
+        .expect_or_log("There should be at least one element in gift_point_list")
         .len();
     let mut coordinates = Vec::with_capacity(lights_num);
 

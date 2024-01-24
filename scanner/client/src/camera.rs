@@ -369,7 +369,7 @@ impl InnerCameraWidget {
             *self
                 .latest_frame
                 .write()
-                .expect("latest_frame should not have been poisoned") =
+                .expect_or_log("latest_frame should not have been poisoned") =
                 get_image(&mut self.camera, self.rotation);
             self.time_of_latest_frame = Instant::now();
         }

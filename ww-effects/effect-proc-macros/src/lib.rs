@@ -1,6 +1,10 @@
 //! Provide macros for working with effects in `Winter WonderLights`.
 
 #![feature(lint_reasons)]
+#![allow(
+    clippy::expect_used,
+    reason = "we can't used expect_or_log here because this is a proc-macro crate"
+)]
 
 use proc_macro::TokenStream;
 

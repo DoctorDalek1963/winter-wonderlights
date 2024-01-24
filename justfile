@@ -188,6 +188,7 @@ clippy args='':
 	-W clippy::empty-line-after-doc-comments \
 	-W clippy::empty-line-after-outer-attr \
 	-W clippy::equatable-if-let \
+	-W clippy::expect-used \
 	-W clippy::explicit-deref-methods \
 	-W clippy::explicit-into-iter-loop \
 	-W clippy::explicit-iter-loop \

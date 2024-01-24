@@ -13,6 +13,7 @@ glam = { workspace = true, features = ["serde"] }
 rand.workspace = true
 serde = { workspace = true, features = ["derive"] }
 tracing.workspace = true
+tracing-unwrap.workspace = true
 ww-gift-coords.workspace = true
 
 [dev-dependencies]

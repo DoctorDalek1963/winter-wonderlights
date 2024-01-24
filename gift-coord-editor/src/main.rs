@@ -1,6 +1,10 @@
 //! This crate provides a simple CLI to edit GIFT coordinates.
 
 #![feature(lint_reasons)]
+#![allow(
+    clippy::expect_used,
+    reason = "this crate doesn't use tracing, so we can't use expect_or_log"
+)]
 
 mod driver;
 mod parse;
