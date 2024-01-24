@@ -154,6 +154,7 @@ clippy args='':
 	-A clippy::cargo-common-metadata \
 	-A clippy::cognitive-complexity \
 	-A clippy::derivable-impls \
+	-A clippy::multiple-crate-versions \
 	-A clippy::needless-update \
 	-D clippy::allow-attributes-without-reason \
 	-D clippy::dbg-macro \
