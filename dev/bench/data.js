@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706061955554,
+  "lastUpdate": 1706135777664,
   "repoUrl": "https://github.com/DoctorDalek1963/winter-wonderlights",
   "entries": {
     "Benchmark": [
@@ -4439,6 +4439,54 @@ window.BENCHMARK_DATA = {
             "name": "(ConvertFrameDriver) DebugBinaryIndex",
             "value": 86732,
             "range": "± 467",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "committer": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "distinct": true,
+          "id": "fe989c450bb4b37a4de9d766fd6d252bf31f15d5",
+          "message": "Move all non-build-script environment variable accesses to runtime",
+          "timestamp": "2024-01-24T22:33:52Z",
+          "tree_id": "d475aaa394fc84341b413d7add5ab9d222426df6",
+          "url": "https://github.com/DoctorDalek1963/winter-wonderlights/commit/fe989c450bb4b37a4de9d766fd6d252bf31f15d5"
+        },
+        "date": 1706135776730,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "(SimpleDriver) DebugOneByOne",
+            "value": 28819,
+            "range": "± 187",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugOneByOne",
+            "value": 124695,
+            "range": "± 709",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) DebugBinaryIndex",
+            "value": 86781,
+            "range": "± 2266",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugBinaryIndex",
+            "value": 91934,
+            "range": "± 367",
             "unit": "ns/iter"
           }
         ]
