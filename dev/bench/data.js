@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706060987689,
+  "lastUpdate": 1706061614547,
   "repoUrl": "https://github.com/DoctorDalek1963/winter-wonderlights",
   "entries": {
     "Benchmark": [
@@ -4343,6 +4343,54 @@ window.BENCHMARK_DATA = {
             "name": "(ConvertFrameDriver) DebugBinaryIndex",
             "value": 87705,
             "range": "± 219",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "committer": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "distinct": true,
+          "id": "825238291e670a7b5ed2297d08740bbd91a17279",
+          "message": "Allow multiple crate versions with clippy\n\n`cargo-deny` now handles duplicate crate version (although I've allowed\nthis in `deny.toml` because most of the warnings were unnecessary), so\nit's no longer clippy's responsibility.",
+          "timestamp": "2024-01-24T01:56:56Z",
+          "tree_id": "5006580368e62eb00a70ed86531cdab89b1a92f5",
+          "url": "https://github.com/DoctorDalek1963/winter-wonderlights/commit/825238291e670a7b5ed2297d08740bbd91a17279"
+        },
+        "date": 1706061613575,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "(SimpleDriver) DebugOneByOne",
+            "value": 29454,
+            "range": "± 158",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugOneByOne",
+            "value": 128492,
+            "range": "± 2381",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) DebugBinaryIndex",
+            "value": 85243,
+            "range": "± 3010",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugBinaryIndex",
+            "value": 93245,
+            "range": "± 2712",
             "unit": "ns/iter"
           }
         ]
