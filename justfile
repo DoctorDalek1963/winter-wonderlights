@@ -80,6 +80,11 @@ ci-build build-type flags='':
 			trunk build {{flags}}
 		;;
 
+		'gift-coord-editor')
+			cd {{justfile_directory()}}/gift-coord-editor
+			cargo build {{flags}}
+		;;
+
 		'client')
 			rustup target add wasm32-unknown-unknown
 			cd {{justfile_directory()}}/ww-client

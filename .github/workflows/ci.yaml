@@ -82,7 +82,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build-type: ['scanner-server', 'scanner-client', 'client', 'driver-debug', 'driver-virtual-tree', 'driver-raspi-ws2811']
+        build-type: ['scanner-server', 'scanner-client', 'gift-coord-editor', 'client', 'driver-debug', 'driver-virtual-tree', 'driver-raspi-ws2811']
         flags: ['', '--release']
 
     steps:
