@@ -88,17 +88,21 @@ pub fn run_effect(client_state: WrappedClientState, kill_thread: oneshot::Receiv
                         let mut effect = effect_name.from_file();
 
                         loop {
-                            let state = client_state
-                                .read()
-                                .expect_or_log("Should be able to read from client state");
-                            let Some(config) = &state.effect_config else {
-                                drop(state);
-                                break;
+                            // This block is needed to let clippy know that we drop the state
+                            // before awaiting the sleep
+                            let (frame, duration) = {
+                                let state = client_state
+                                    .read()
+                                    .expect_or_log("Should be able to read from client state");
+                                let Some(config) = &state.effect_config else {
+                                    drop(state);
+                                    break;
+                                };
+                                let Some((frame, duration)) = effect.next_frame(config) else {
+                                    break;
+                                };
+                                (frame, duration)
                             };
-                            let Some((frame, duration)) = effect.next_frame(config) else {
-                                break;
-                            };
-                            drop(state);
 
                             driver.display_frame(frame);
                             tokio::time::sleep(duration).await;

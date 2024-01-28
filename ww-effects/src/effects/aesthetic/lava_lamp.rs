@@ -97,7 +97,7 @@ mod effect {
         }
 
         /// Create a frame object from the sphere.
-        fn into_frame_object(&self, base_colour: RGBArray, fadeoff: f32) -> FrameObject {
+        fn get_frame_object(&self, base_colour: RGBArray, fadeoff: f32) -> FrameObject {
             FrameObject {
                 object: Object::Sphere {
                     center: self.centre,
@@ -151,7 +151,7 @@ mod effect {
             let sphere_frame_objects = self
                 .spheres
                 .iter()
-                .map(|&sphere| sphere.into_frame_object(config.base_colour, config.fadeoff))
+                .map(|&sphere| sphere.get_frame_object(config.base_colour, config.fadeoff))
                 .collect();
 
             let frame = FrameType::Frame3D(Frame3D::new(sphere_frame_objects, true));

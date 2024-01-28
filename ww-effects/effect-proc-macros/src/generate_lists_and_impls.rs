@@ -332,6 +332,7 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
                 }
             }
 
+            /// Load this effect from the config given in its file.
             #[cfg(feature = "effect-impls")]
             pub fn from_file(&self) -> EffectDispatchList {
                 match self {

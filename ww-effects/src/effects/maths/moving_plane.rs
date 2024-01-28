@@ -89,6 +89,8 @@ mod effect {
         in_start_phase: bool,
     }
 
+    /// Generate one frame of the effect by creating a plane intersecting the given point with the
+    /// given normal vector and config.
     fn generate_frame(
         point: Vec3,
         colour: RGBArray,

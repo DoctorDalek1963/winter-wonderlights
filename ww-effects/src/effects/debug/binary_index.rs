@@ -102,7 +102,7 @@ mod effect {
             );
 
             let binary_numbers: Vec<String> = (0..COORDS.lights_num())
-                .map(|idx| format!("{:0>binary_number_length$b}", idx))
+                .map(|idx| format!("{idx:0>binary_number_length$b}"))
                 .collect();
 
             let patterns = (0..binary_number_length)
