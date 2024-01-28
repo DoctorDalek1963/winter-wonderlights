@@ -114,7 +114,7 @@ fn create_name_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStr
     quote! {
         /// This enum has a variant for each effect, but only the names. If the `effect-impls` feature is
         /// enabled, then you can call certain methods on this enum to get things like the like the
-        /// [`run`](Effect::run) method.
+        /// [`next_frame`](Effect::next_frame) method.
         ///
         /// If an effect is not accessible via this enum, then it should not be used.
         ///
@@ -229,20 +229,15 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
         })
         .collect();
 
-    let effect_dispatch_list_run: Vec<_> = effect_names
+    let effect_dispatch_list_next_frame: Vec<_> = effect_names
         .iter()
         .map(|ident| {
+            let config_ident = format_ident!("{ident}Config");
             quote! {
-                EffectDispatchList:: #ident (effect) => effect.run(driver).await
-            }
-        })
-        .collect();
-
-    let effect_dispatch_list_save_to_file: Vec<_> = effect_names
-        .iter()
-        .map(|ident| {
-            quote! {
-                EffectDispatchList:: #ident (effect) => effect.save_to_file()
+                (
+                    EffectDispatchList:: #ident (effect),
+                    EffectConfigDispatchList:: #config_ident (config)
+                ) => effect.next_frame(config)
             }
         })
         .collect();
@@ -346,17 +341,18 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
                 }
             }
 
-            /// Run the effect. See [`Effect::run`].
-            pub async fn run(self, driver: &mut dyn ::ww_driver_trait::Driver) {
-                match self {
-                    #( #effect_dispatch_list_run ),*
-                }
-            }
-
-            /// Save this effect to its file.
-            pub fn save_to_file(&self) {
-                match self {
-                    #( #effect_dispatch_list_save_to_file ),*
+            /// Get the next frame for this effect. See [`Effect::next_frame`].
+            pub fn next_frame(
+                &mut self,
+                config: &EffectConfigDispatchList,
+            ) -> Option<(::ww_frame::FrameType, ::std::time::Duration)> {
+                match (self, config) {
+                    #( #effect_dispatch_list_next_frame ),*,
+                    (effect, config) => panic!(
+                        "Cannot get the next frame for effect {} with config for {}",
+                        effect.effect_name(),
+                        config.effect_name()
+                    ),
                 }
             }
 

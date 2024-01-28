@@ -158,7 +158,7 @@ impl GIFTCoords {
 
     /// Return the central point of the bounding box.
     pub fn center(&self) -> PointF {
-        (0.5, 0.5, self.max_z / 2.)
+        (0., 0., self.max_z / 2.)
     }
 
     /// The vec of coordinates themselves.

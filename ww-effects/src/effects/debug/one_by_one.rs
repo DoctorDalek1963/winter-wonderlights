@@ -69,35 +69,57 @@ mod config {
 #[cfg(feature = "effect-impls")]
 mod effect {
     use super::*;
+    use ww_gift_coords::COORDS;
 
     /// Light up each light individually, one-by-one.
     #[derive(Clone, Debug, PartialEq, Eq, BaseEffect)]
     pub struct DebugOneByOne {
-        /// The config for this effect.
-        config: DebugOneByOneConfig,
+        /// Which index should we be displaying next frame?
+        index: usize,
+
+        /// Should the lights be on or off in the next frame?
+        on: bool,
     }
 
     impl Effect for DebugOneByOne {
-        fn from_config(config: DebugOneByOneConfig) -> Self {
-            Self { config }
+        fn from_config(_config: DebugOneByOneConfig) -> Self {
+            Self { index: 0, on: true }
         }
 
-        async fn run(self, driver: &mut dyn Driver) {
-            driver.clear();
+        fn next_frame(&mut self, config: &DebugOneByOneConfig) -> Option<(FrameType, Duration)> {
+            let ret_val = if self.on {
+                debug_assert!(
+                    self.index < COORDS.lights_num(),
+                    "The state machine should never let self.index get out of bounds"
+                );
 
-            let count = driver.get_lights_count();
-            let mut data = vec![[0, 0, 0]; count];
+                let mut frame_data = vec![[0; 3]; COORDS.lights_num()];
+                frame_data[self.index] = config.colour;
 
-            // Display the color on each LED, then blank it, pausing between each one.
-            for i in 0..count {
-                data[i] = self.config.colour;
-                driver.display_frame(FrameType::RawData(data.clone()));
-                data[i] = [0, 0, 0];
-                sleep!(Duration::from_millis(self.config.light_time_ms));
+                // The next frame will light up the next light
+                self.index += 1;
 
-                driver.clear();
-                sleep!(Duration::from_millis(self.config.dark_time_ms));
-            }
+                (
+                    FrameType::RawData(frame_data),
+                    Duration::from_millis(config.light_time_ms),
+                )
+            } else {
+                // If the previous frame was the final one, we don't want an extra pause before the
+                // server restarts this effect
+                if self.index == COORDS.lights_num() {
+                    return None;
+                }
+
+                (FrameType::Off, Duration::from_millis(config.dark_time_ms))
+            };
+
+            self.on = !self.on;
+            Some(ret_val)
+        }
+
+        #[cfg(any(test, feature = "bench"))]
+        fn loops_to_test() -> Option<NonZeroU16> {
+            None
         }
     }
 }
@@ -105,30 +127,10 @@ mod effect {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{traits::Effect, TestDriver};
-    use ww_frame::FrameType;
+    use crate::snapshot_effect;
 
-    #[tokio::test]
-    async fn debug_one_by_one_test() {
-        let mut driver = TestDriver::new(5);
-        DebugOneByOne::default().run(&mut driver).await;
-
-        #[rustfmt::skip]
-        assert_eq!(
-            driver.data,
-            vec![
-                FrameType::Off,
-                FrameType::RawData(vec![[255, 255, 255], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
-                FrameType::Off,
-                FrameType::RawData(vec![[0, 0, 0], [255, 255, 255], [0, 0, 0], [0, 0, 0], [0, 0, 0]]),
-                FrameType::Off,
-                FrameType::RawData(vec![[0, 0, 0], [0, 0, 0], [255, 255, 255], [0, 0, 0], [0, 0, 0]]),
-                FrameType::Off,
-                FrameType::RawData(vec![[0, 0, 0], [0, 0, 0], [0, 0, 0], [255, 255, 255], [0, 0, 0]]),
-                FrameType::Off,
-                FrameType::RawData(vec![[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [255, 255, 255]]),
-                FrameType::Off,
-            ]
-        );
+    #[test]
+    fn debug_one_by_one_test() {
+        snapshot_effect!(DebugOneByOne);
     }
 }

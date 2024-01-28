@@ -1,8 +1,113 @@
 //! This module contains the traits needed for effects and their associated configs to work.
+//!
+//! # Implementation
+//!
+//! Every individual effect must implement the [`Effect`] trait and have a config which is named
+//! in a particular way and implements [`EffectConfig`].
+//!
+//! For example, imagine we have a new effect called `MyEffect`. The first step is deciding on a
+//! category for the codebase. This is not user-facing, but is still important for organisation.
+//! The categories are the submodules of [`crate::effects`].
+//!
+//! We should then create a file `ww-effects/src/effects/chosen_category/my_effect.rs`, which will
+//! look something like this:
+//! ```ignore
+//! //! This module contains my effect.
+//!
+//! #[cfg(feature = "config-impls")]
+//! pub use config::MyEffectConfig;
+//!
+//! #[cfg(feature = "effect-impls")]
+//! pub use effect::MyEffect;
+//!
+//! use crate::effects::prelude::*;
+//!
+//! /// Contains the config for the [`MyEffect`] effect.
+//! #[cfg(feature = "config-impls")]
+//! mod config {
+//!     use super::*;
+//!
+//!     /// The config for the [`MyEffect`] effect.
+//!     #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, BaseEffectConfig)]
+//!     pub struct MyEffectConfig {
+//!         // Fields to describe the config of the effect
+//!     }
+//!
+//!     impl Default for MyEffectConfig {
+//!         fn default() -> Self {
+//!             Self {
+//!                 // Pick some sensible default config
+//!             }
+//!         }
+//!     }
+//!
+//!     impl EffectConfig for MyEffectConfig {
+//!         fn render_options_gui(&mut self, _ctx: &egui::Context, ui: &mut egui::Ui) -> bool {
+//!             let mut config_changed = false;
+//!
+//!             // Put relevant GUI code here
+//!
+//!             config_changed
+//!         }
+//!     }
+//! }
+//!
+//! /// Contains the [`MyEffect`] effect itself.
+//! #[cfg(feature = "effect-impls")]
+//! mod effect {
+//!     use super::*;
+//!
+//!     /// Describe the effect.
+//!     #[derive(Clone, Debug, PartialEq, BaseEffect)]
+//!     pub struct MyEffect {
+//!         // Fields to define the current state of the effect
+//!         // The effect should NOT contain a field for its config. It should only use the config
+//!         // passed into `next_frame`
+//!     }
+//!
+//!     impl Effect for MyEffect {
+//!         fn from_config(config: MyEffectConfig) -> Self {
+//!             // Initialize the struct using its config
+//!
+//!             Self {}
+//!         }
+//!
+//!         fn next_frame(&mut self, config: &MyEffectConfig) -> Option<(FrameType, Duration)> {
+//!             // Generate the next frame of the effect. See the trait docs for what this should
+//!             // return
+//!         }
+//!
+//!         #[cfg(any(test, feature = "bench"))]
+//!         fn loops_to_test() -> Option<NonZeroU16> {
+//!             // This should be `None` if your effect is guaranteed to halt on its own,
+//!             // otherwise it should be the number of loops to test or benchmark
+//!             NonZeroU16::new(100)
+//!         }
+//!     }
+//! }
+//!
+//! #[cfg(test)]
+//! mod tests {
+//!     use super::*;
+//!     use crate::snapshot_effect;
+//!
+//!     #[test]
+//!     fn my_effect_test() {
+//!         snapshot_effect!(MyEffect);
+//!     }
+//! }
+//! ```
+//! You should look at the source code for the other effects to see how they do things.
+//!
+//! Once you've created your effect, the effect and its config should be publicly exported in
+//! `ww-effects/src/effects/chosen_category/mod.rs` and `ww-effects/src/effects/mod.rs`. Follow the
+//! examples of the other effects. Then add your effect to the
+//! [`effect_proc_macros::generate_lists_and_impls`] list in `ww-effects/src/lib.rs`.
 
 use egui::{Context, Ui};
 use serde::{Deserialize, Serialize};
-use std::fs;
+use std::{fs, time::Duration};
+use ww_frame::FrameType;
 
 #[cfg(feature = "config-trait")]
 use tracing_unwrap::ResultExt;
@@ -36,12 +141,14 @@ pub fn get_config_filename(effect_name: &str) -> String {
 #[cfg(any(feature = "config-trait", feature = "effect-trait"))]
 pub(crate) mod private {
     #[cfg(doc)]
-    use super::{BaseEffect, BaseEffectConfig, Effect, EffectConfig};
+    use crate::{
+        traits::{BaseEffect, BaseEffectConfig, Effect, EffectConfig},
+        EffectNameList,
+    };
 
     /// This trait restricts implementors of [`Effect`], [`BaseEffect`], [`BaseEffectConfig`], and
     /// [`EffectConfig`] to only be in this crate. This restriction is needed so that
-    /// [`EffectNameList`](../list/enum.EffectNameList.html) and friends have variants for all the
-    /// effects.
+    /// [`EffectNameList`] and friends have variants for all the effects.
     pub trait Sealed {}
 }
 
@@ -102,34 +209,6 @@ pub trait BaseEffect: Default + private::Sealed {
 
     /// The name of the effect, used for config files and GUI editting.
     fn effect_name() -> &'static str;
-
-    /// Save the config to a file.
-    ///
-    /// The implementation should call [`save_effect_config_to_file`] with
-    /// `Self::config_filename()` and the internal config data.
-    ///
-    /// ```ignore
-    /// fn save_to_file(&self) {
-    ///     self.config.save_to_file(&Self::config_filename())
-    /// }
-    /// ```
-    fn save_to_file(&self);
-
-    /// Load the effect from a file.
-    ///
-    /// `Self::Config` will have a method [`from_file`](EffectConfig::from_file), so you can use
-    /// that for the config. Any internal state should be initial state.
-    ///
-    /// The recommended implementation is shown below:
-    ///
-    /// ```ignore
-    /// fn from_file() -> Self {
-    ///     Self {
-    ///         config: <Self as Effect>::Config::from_file(&Self::config_filename()),
-    ///     }
-    /// }
-    /// ```
-    fn from_file() -> Self;
 }
 
 /// The trait implemented by all effects, which defines how to run them.
@@ -145,17 +224,32 @@ pub trait Effect: BaseEffect {
         Self::Config::from_file(&Self::config_filename())
     }
 
+    /// Load the effect from the file.
+    fn from_file() -> Self {
+        Self::from_config(Self::config_from_file())
+    }
+
     /// Create the effect from its config.
     fn from_config(config: <Self as BaseEffect>::Config) -> Self;
 
-    /// Run the effect with the given driver.
+    /// Return the next frame of this effect, along with the duration that the server should wait
+    /// before calling this function again.
     ///
-    /// This function should not handle looping the effect. That's handled by the driver code, so
-    /// this function should just run the effect once.
+    /// This function could return `None` to indicate that the effect is finished and the server
+    /// should pause and restart it. This function should not handle looping the effect, and only
+    /// run it once, unless it's a procedural aesthetic thing like
+    /// [`LavaLamp`](../effects/aesthetic/struct.LavaLamp.html), then that should loop in this
+    /// function.
+    fn next_frame(
+        &mut self,
+        config: &<Self as BaseEffect>::Config,
+    ) -> Option<(FrameType, Duration)>;
+
+    /// How many loops should we run in test or benchmark builds?
     ///
-    /// However, if the effect is a procedural aesthetic thing like
-    /// [`LavaLamp`](../effects/aesthetic/struct.LavaLamp.html), then that should loop on its
-    /// own.
-    fn run(self, driver: &mut dyn ww_driver_trait::Driver)
-        -> impl std::future::Future<Output = ()>;
+    /// If this function returns `Some(number)`, then the test or benchmark will only call
+    /// [`next_frame`] that many times. If this function returns `None`, then the test or benchmark
+    /// will continue to call [`next_frame`] until it returns `None`.
+    #[cfg(any(test, feature = "bench"))]
+    fn loops_to_test() -> Option<std::num::NonZeroU16>;
 }

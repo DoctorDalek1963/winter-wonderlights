@@ -224,25 +224,6 @@ mod effect {
             }
         }
 
-        /// Clear the tail, and reset the head and apple to random positions.
-        fn reset(&mut self, rng: &mut StdRng) {
-            self.tail.clear();
-            self.current_path.clear();
-
-            self.head = self
-                .lattice
-                .random_point(rng)
-                .expect_or_log("Should have at least one point in lattice");
-
-            self.apple = self.head;
-            while self.apple == self.head {
-                self.apple = self
-                    .lattice
-                    .random_point(rng)
-                    .expect_or_log("Should have at least one point in lattice");
-            }
-        }
-
         /// Move the head to the new position.
         fn move_head(&mut self, new_pos: Coord) {
             debug_assert!(
@@ -449,9 +430,6 @@ mod effect {
     /// Create an AI snake that moves through the tree to collect the apple.
     #[derive(Clone, Debug, PartialEq, BaseEffect)]
     pub struct AiSnake {
-        /// The config for this effect.
-        config: AiSnakeConfig,
-
         /// The RNG to use for randomness.
         rng: StdRng,
 
@@ -464,59 +442,54 @@ mod effect {
             let mut rng = rng!();
             let snake = Snake::new(Lattice::new(&COORDS, &config), &mut rng);
 
-            Self { config, rng, snake }
+            Self { rng, snake }
         }
 
-        #[allow(
-            clippy::semicolon_if_nothing_returned,
-            reason = "this is a bodge for #[end_loop_in_test_or_bench]"
-        )]
-        async fn run(mut self, driver: &mut dyn Driver) {
-            #[end_loop_in_test_or_bench]
-            loop {
-                match self
-                    .snake
-                    .advance(&mut self.rng, self.config.allow_diagonal_movement)
-                {
-                    Ok(()) => {
-                        driver.display_frame(FrameType::Frame3D(Frame3D::new(
-                            vec![
-                                FrameObject {
-                                    object: Object::CatmullRomSpline {
-                                        points: self.snake.get_snake_gift_coords(),
-                                        threshold: self.config.thickness,
-                                        start_colour: self.config.head_colour,
-                                        end_colour: self.config.tail_colour,
-                                    },
-                                    colour: [0, 0, 0],
-                                    fadeoff: self.config.fadeoff,
+        fn next_frame(&mut self, config: &AiSnakeConfig) -> Option<(FrameType, Duration)> {
+            match self
+                .snake
+                .advance(&mut self.rng, config.allow_diagonal_movement)
+            {
+                Ok(()) => Some((
+                    FrameType::Frame3D(Frame3D::new(
+                        vec![
+                            FrameObject {
+                                object: Object::CatmullRomSpline {
+                                    points: self.snake.get_snake_gift_coords(),
+                                    threshold: config.thickness,
+                                    start_colour: config.head_colour,
+                                    end_colour: config.tail_colour,
                                 },
-                                FrameObject {
-                                    object: Object::Sphere {
-                                        center: self
-                                            .snake
-                                            .apple
-                                            .to_gift(self.snake.lattice.cell_width)
-                                            .into(),
-                                        radius: self.config.thickness,
-                                    },
-                                    colour: self.config.apple_colour,
-                                    fadeoff: self.config.fadeoff,
+                                colour: [0, 0, 0],
+                                fadeoff: config.fadeoff,
+                            },
+                            FrameObject {
+                                object: Object::Sphere {
+                                    center: self
+                                        .snake
+                                        .apple
+                                        .to_gift(self.snake.lattice.cell_width)
+                                        .into(),
+                                    radius: config.thickness,
                                 },
-                            ],
-                            true,
-                        )));
-                        sleep!(Duration::from_millis(self.config.milliseconds_per_step));
-                    }
-                    Err(error @ (SnakeError::PathfindingFail | SnakeError::PlaceAppleFail)) => {
-                        debug!(?error, "Failure in Snake::advance");
-                        self.snake.reset(&mut self.rng);
-                        sleep!(Duration::from_millis(self.config.milliseconds_per_step));
-                        driver.clear();
-                        continue;
-                    }
+                                colour: config.apple_colour,
+                                fadeoff: config.fadeoff,
+                            },
+                        ],
+                        true,
+                    )),
+                    Duration::from_millis(config.milliseconds_per_step),
+                )),
+                Err(error @ (SnakeError::PathfindingFail | SnakeError::PlaceAppleFail)) => {
+                    trace!(?error, "Failure in Snake::advance");
+                    None
                 }
             }
+        }
+
+        #[cfg(any(test, feature = "bench"))]
+        fn loops_to_test() -> Option<NonZeroU16> {
+            None
         }
     }
 }
@@ -524,13 +497,10 @@ mod effect {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{traits::Effect, TestDriver};
+    use crate::snapshot_effect;
 
-    #[tokio::test]
-    async fn ai_snake_test() {
-        let mut driver = TestDriver::new(10);
-        AiSnake::default().run(&mut driver).await;
-
-        insta::assert_ron_snapshot!(driver.data);
+    #[test]
+    fn ai_snake_test() {
+        snapshot_effect!(AiSnake);
     }
 }

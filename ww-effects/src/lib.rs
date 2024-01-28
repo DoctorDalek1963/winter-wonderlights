@@ -1,17 +1,11 @@
 //! This crate provides traits and implementations for various effects, as well as some utility
-//! functions.
+//! functions. See the documentation for the [`traits`] module for details on how to implement your
+//! own effect.
 
 #![feature(let_chains)]
 #![feature(lint_reasons)]
 #![feature(proc_macro_hygiene)]
 #![feature(stmt_expr_attributes)]
-#![cfg_attr(
-    any(test, feature = "bench"),
-    allow(
-        unused_imports,
-        reason = "std::time::Duration is imported for effects but unused in tests and benchmarks because of sleep!()"
-    )
-)]
 
 pub mod list {
     //! This module contains list enums for effects and their configs, in name and dispatch (instance
@@ -54,34 +48,58 @@ cfg_if::cfg_if! {
 
         /// A test driver that stores all the frames it receives so that they can be tested.
         pub struct TestDriver {
-            pub lights_num: usize,
             pub data: Vec<FrameType>,
         }
 
         impl TestDriver {
-            pub fn new(lights_num: usize) -> Self {
-                Self {
-                    lights_num,
-                    data: vec![],
+            pub fn new() -> Self {
+                Self { data: vec![] }
+            }
+
+            pub fn test_effect<E: Effect>(&mut self) {
+                let config = E::Config::default();
+                let mut effect = E::from_config(config.clone());
+
+                if let Some(number) = E::loops_to_test() {
+                    self.data.reserve_exact(u16::from(number) as usize);
+
+                    for i in 0..u16::from(number) {
+                        if let Some((frame, _duration)) = effect.next_frame(&config) {
+                            self.data.push(frame);
+                        } else {
+                            panic!(
+                                "Effect {} said it would loop {number} times but terminated after only {i} loops",
+                                E::effect_name()
+                            );
+                        }
+                    }
+                } else {
+                    while let Some((frame, _duration)) = effect.next_frame(&config) {
+                        self.data.push(frame);
+                    }
                 }
             }
         }
 
         impl Driver for TestDriver {
             unsafe fn init() -> Self {
-                Self {
-                    lights_num: 50,
-                    data: vec![],
-                }
+                Self::new()
             }
 
             fn display_frame(&mut self, frame: FrameType) {
                 self.data.push(frame);
             }
-
-            fn get_lights_count(&self) -> usize {
-                self.lights_num
-            }
         }
+
+        macro_rules! snapshot_effect {
+            ($effect_type:ident) => {
+                let mut driver = $crate::TestDriver::new();
+                driver.test_effect::<$effect_type>();
+
+                ::insta::assert_ron_snapshot!(driver.data);
+            };
+        }
+
+        pub(crate) use snapshot_effect;
     }
 }

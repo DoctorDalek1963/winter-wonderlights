@@ -27,6 +27,7 @@ heck = { version = "0.4.1", optional = true }
 ww-driver-trait = { workspace = true, optional = true }
 
 # effect-impls
+bitvec = { version = "1.0.1", optional = true }
 glam = { workspace = true, optional = true, features = ["serde"] }
 ordered-float = { version = "3.9.1", optional = true }
 pathfinding = { version = "4.3.1", optional = true }
@@ -42,7 +43,7 @@ bench = []
 config-trait = ["dep:egui", "dep:ron", "dep:tracing-unwrap"]
 config-impls = ["config-trait", "dep:heck", "serde/derive"]
 effect-trait = ["config-trait", "dep:heck", "dep:ww-driver-trait"]
-effect-impls = ["effect-trait", "config-impls", "dep:glam", "dep:ordered-float", "dep:pathfinding", "dep:rand", "dep:tokio", "dep:tracing", "dep:ww-frame", "dep:ww-gift-coords"]
+effect-impls = ["effect-trait", "config-impls", "dep:bitvec", "dep:glam", "dep:ordered-float", "dep:pathfinding", "dep:rand", "dep:tokio", "dep:tracing", "dep:ww-frame", "dep:ww-gift-coords"]
 
 [dev-dependencies]
 insta.workspace = true

@@ -40,9 +40,13 @@ mod config {
         /// the rotation axis oscillation will be vertically in the middle of the tree. Positive
         /// values move the middle point up and negative values move it down. Measured in GIFT
         /// coordinate space, so a distance of 1 is the radius of the base of the tree.
+        ///
+        /// This value has no effect when the vertical oscillation period is 0.
         pub rotation_axis_height_center_offset: f32,
 
         /// The number of seconds taken for a full vertical oscillation of the rotation axis.
+        ///
+        /// A period of 0 represents a plane which doesn't move at all.
         ///
         /// A negative period should just make it oscillate in reverse, since we're using sin, but
         /// that behaviour should not be relied on.
@@ -128,81 +132,101 @@ mod config {
 /// Contains the [`SplitPlane`] effect itself.
 #[cfg(feature = "effect-impls")]
 mod effect {
+    use std::f32::consts::TAU;
+
     use super::*;
     use ww_gift_coords::COORDS;
 
     /// Spin a split plane around a point in the center of the tree.
     #[derive(Clone, Debug, PartialEq, BaseEffect)]
     pub struct SplitPlane {
-        /// The config for this effect.
-        config: SplitPlaneConfig,
+        /// The center of the plane.
+        position: Vec3,
+
+        /// The current angle of the rotation. Must be between 0 and [`std::f32::consts::TAU`].
+        angle: f32,
+
+        /// Are we currently going up or down?
+        ///
+        /// This has no effect if [`SplitPlaneConfig::rotation_axis_vertical_oscillation_period`]
+        /// is 0.
+        going_up: bool,
     }
 
     impl Effect for SplitPlane {
         fn from_config(config: SplitPlaneConfig) -> Self {
-            Self { config }
+            Self {
+                position: Vec3::new(
+                    0.,
+                    0.,
+                    COORDS.max_z() / 2. + config.rotation_axis_height_center_offset,
+                ),
+                angle: 0.,
+                going_up: true,
+            }
         }
 
-        #[allow(
-            clippy::semicolon_if_nothing_returned,
-            reason = "this is a bodge for #[end_loop_in_test_or_bench]"
-        )]
-        async fn run(self, driver: &mut dyn Driver) {
-            let middle_point = Vec3::new(
-                0.,
-                0.,
-                COORDS.max_z() / 2. + self.config.rotation_axis_height_center_offset,
-            );
+        fn next_frame(&mut self, config: &SplitPlaneConfig) -> Option<(FrameType, Duration)> {
+            let normal =
+                Quat::from_rotation_z(config.rotation_axis_z_rotation_degrees.to_radians())
+                    * Quat::from_rotation_x(self.angle)
+                    * Vec3::Y;
 
-            let mut oscillation_base: f32 = 0.0;
-            let max_oscillation_offset = 0.9 * (COORDS.max_z() / 2.);
+            let frame = FrameType::Frame3D(Frame3D::new(
+                vec![FrameObject {
+                    object: Object::SplitPlane {
+                        normal,
+                        k: normal.dot(self.position),
+                        blend: config.colour_blend,
+                        positive_side_colour: config.side_a_colour,
+                        negative_side_colour: config.side_b_colour,
+                    },
+                    colour: [0; 3],
+                    fadeoff: 0.,
+                }],
+                false,
+            ));
 
-            let rotation_axis: Vec3 =
-                (Quat::from_rotation_z(self.config.rotation_axis_z_rotation_degrees.to_radians())
-                    * Vec3::X)
-                    .normalize();
+            // Update position
+            if config.rotation_axis_vertical_oscillation_period == 0. {
+                self.position = Vec3::new(
+                    0.,
+                    0.,
+                    COORDS.max_z() / 2. + config.rotation_axis_height_center_offset,
+                );
+            } else {
+                // TODO: Use sin to smooth out the oscillations
+                let delta = config.rotation_axis_vertical_oscillation_period / 50.
+                    * COORDS.max_z()
+                    * 0.8
+                    * 2.
+                    * Vec3::Z;
 
-            let mut normal = Vec3::Z;
-
-            #[end_loop_in_test_or_bench]
-            loop {
-                let point_on_plane = if self.config.rotation_axis_vertical_oscillation_period != 0.
-                {
-                    let sin = oscillation_base.sin();
-                    middle_point
-                        + Vec3::new(0., 0., max_oscillation_offset * sin * sin.abs().sqrt())
+                if self.going_up {
+                    self.position += delta;
+                    if self.position.z > COORDS.max_z() * 0.9 {
+                        self.going_up = false;
+                    }
                 } else {
-                    middle_point
-                };
-
-                driver.display_frame(FrameType::Frame3D(Frame3D::new(
-                    vec![FrameObject {
-                        object: Object::SplitPlane {
-                            normal,
-                            k: normal.dot(point_on_plane),
-                            blend: self.config.colour_blend,
-                            positive_side_colour: self.config.side_a_colour,
-                            negative_side_colour: self.config.side_b_colour,
-                        },
-                        colour: [0; 3],
-                        fadeoff: 0.,
-                    }],
-                    false,
-                )));
-
-                if self.config.rotation_axis_vertical_oscillation_period != 0. {
-                    oscillation_base += std::f32::consts::TAU
-                        / self.config.rotation_axis_vertical_oscillation_period
-                        / 100.;
+                    self.position -= delta;
+                    if self.position.z < COORDS.max_z() * 0.1 {
+                        self.going_up = true;
+                    }
                 }
-
-                normal = Quat::from_axis_angle(rotation_axis, self.config.rotation_speed / 100.)
-                    * normal;
-                trace!(?normal);
-                //trace!(length = normal.clone().length());
-
-                sleep!(Duration::from_millis(10));
             }
+
+            // Update angle
+            self.angle += config.rotation_speed / 50.;
+            if self.angle > TAU {
+                self.angle = 0.;
+            }
+
+            Some((frame, Duration::from_millis(20)))
+        }
+
+        #[cfg(any(test, feature = "bench"))]
+        fn loops_to_test() -> Option<NonZeroU16> {
+            NonZeroU16::new(100)
         }
     }
 }
@@ -210,13 +234,10 @@ mod effect {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{traits::Effect, TestDriver};
+    use crate::snapshot_effect;
 
-    #[tokio::test]
-    async fn split_plane_test() {
-        let mut driver = TestDriver::new(10);
-        SplitPlane::default().run(&mut driver).await;
-
-        insta::assert_ron_snapshot!(driver.data);
+    #[test]
+    fn split_plane_test() {
+        snapshot_effect!(SplitPlane);
     }
 }

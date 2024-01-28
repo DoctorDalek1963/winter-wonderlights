@@ -74,66 +74,96 @@ mod config {
 #[cfg(feature = "effect-impls")]
 mod effect {
     use super::*;
+    use bitvec::vec::BitVec;
+    use ww_gift_coords::COORDS;
 
     /// Make each light flash its index in binary.
     #[derive(Clone, Debug, PartialEq, Eq, BaseEffect)]
     pub struct DebugBinaryIndex {
-        /// The config for this effect.
-        config: DebugBinaryIndexConfig,
+        /// The list of patterns to display, *in reverse order*.
+        ///
+        /// Each [`BitVec`] says whether each light should be on or off this frame, and the [`Vec`]
+        /// contains the BitVecs in reverse order, so [`Vec::pop`] should give the next frame in
+        /// the sequence.
+        patterns: Vec<BitVec>,
+
+        /// Should the lights be on or off in the next frame?
+        on: bool,
     }
 
     impl Effect for DebugBinaryIndex {
-        fn from_config(config: DebugBinaryIndexConfig) -> Self {
-            Self { config }
-        }
+        fn from_config(_config: DebugBinaryIndexConfig) -> Self {
+            let binary_number_length =
+                f32::floor(f32::log2((COORDS.lights_num() - 1) as f32)) as usize + 1;
+            debug_assert_eq!(
+                format!("{:b}", COORDS.lights_num() - 1).len(),
+                binary_number_length,
+                "binary_number_length should be correct as calculated from the logarithm"
+            );
 
-        async fn run(self, driver: &mut dyn Driver) {
-            driver.clear();
-
-            // Get the simple binary versions of the index of each number in the range
-            let binary_index_vecs: Vec<Vec<char>> = (0..driver.get_lights_count())
-                .map(|n| format!("{n:b}").chars().collect())
+            let binary_numbers: Vec<String> = (0..COORDS.lights_num())
+                .map(|idx| format!("{:0>binary_number_length$b}", idx))
                 .collect();
 
-            // We need to pad each number to the same length, so we find the maxmimum length
-            let binary_number_length = binary_index_vecs
-                .last()
-                .expect_or_log("There should be at least one light")
-                .len();
-
-            // Now we pad out all the elements and convert them to colours
-            let colours_for_each_light: Vec<Vec<RGBArray>> = binary_index_vecs
-                .into_iter()
-                .map(|nums: Vec<char>| -> Vec<RGBArray> {
-                    // This vec has the right length, so we just have to copy the actual numbers into
-                    // the end of it.
-                    let mut v = vec!['0'; binary_number_length];
-                    v[binary_number_length - nums.len()..].copy_from_slice(&nums);
-
-                    // Now map each number char to a colour
-                    v.into_iter()
-                        .map(|c| match c {
-                            '0' => self.config.zero_color,
-                            '1' => self.config.one_color,
-                            _ => unreachable!("Binary numbers should only contain '0' and '1'"),
+            let patterns = (0..binary_number_length)
+                .rev()
+                .map(|num_idx| {
+                    binary_numbers
+                        .iter()
+                        .map(|bin_str| {
+                            bin_str.chars().nth(num_idx).expect_or_log(
+                                "Every string in binary_numbers should have enough padding",
+                            ) == '1'
                         })
                         .collect()
                 })
                 .collect();
 
-            // Now actually display the colours on the lights
-            for i in 0..binary_number_length {
-                let colours_at_idx: Vec<RGBArray> = colours_for_each_light
-                    .iter()
-                    .map(|colours_for_this_light| colours_for_this_light[i])
+            Self { patterns, on: true }
+        }
+
+        fn next_frame(&mut self, config: &DebugBinaryIndexConfig) -> Option<(FrameType, Duration)> {
+            let ret_val = if self.on {
+                let pattern = self.patterns.pop()?;
+
+                debug_assert_eq!(
+                    pattern.len(),
+                    COORDS.lights_num(),
+                    "We should have as many bits as there are lights on the tree"
+                );
+
+                let frame_data = pattern
+                    .into_iter()
+                    .map(|one| {
+                        if one {
+                            config.one_color
+                        } else {
+                            config.zero_color
+                        }
+                    })
                     .collect();
 
-                driver.display_frame(FrameType::RawData(colours_at_idx));
-                sleep!(Duration::from_millis(self.config.light_time_ms));
+                (
+                    FrameType::RawData(frame_data),
+                    Duration::from_millis(config.light_time_ms),
+                )
+            } else {
+                // If the previous frame was the final one, we don't want an extra pause before the
+                // server restarts this effect
+                if self.patterns.is_empty() {
+                    return None;
+                }
 
-                driver.clear();
-                sleep!(Duration::from_millis(self.config.dark_time_ms));
-            }
+                (FrameType::Off, Duration::from_millis(config.dark_time_ms))
+            };
+
+            self.on = !self.on;
+            Some(ret_val)
+        }
+
+        #[cfg(any(test, feature = "bench"))]
+        fn loops_to_test() -> Option<NonZeroU16> {
+            None
         }
     }
 }
@@ -141,35 +171,10 @@ mod effect {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{traits::Effect, TestDriver};
-    use ww_frame::FrameType;
+    use crate::snapshot_effect;
 
-    #[tokio::test]
-    async fn debug_binary_index_test() {
-        let mut driver = TestDriver::new(8);
-        DebugBinaryIndex::default().run(&mut driver).await;
-
-        #[rustfmt::skip]
-        assert_eq!(
-            driver.data,
-            vec![
-                FrameType::Off,
-                FrameType::RawData(vec![
-                    [255, 0, 0], [255, 0, 0], [255, 0, 0], [255, 0, 0],
-                    [0, 0, 255], [0, 0, 255], [0, 0, 255], [0, 0, 255]
-                ]),
-                FrameType::Off,
-                FrameType::RawData(vec![
-                    [255, 0, 0], [255, 0, 0], [0, 0, 255], [0, 0, 255],
-                    [255, 0, 0], [255, 0, 0], [0, 0, 255], [0, 0, 255]
-                ]),
-                FrameType::Off,
-                FrameType::RawData(vec![
-                    [255, 0, 0], [0, 0, 255], [255, 0, 0], [0, 0, 255],
-                    [255, 0, 0], [0, 0, 255], [255, 0, 0], [0, 0, 255]
-                ]),
-                FrameType::Off,
-            ]
-        );
+    #[test]
+    fn debug_binary_index_test() {
+        snapshot_effect!(DebugBinaryIndex);
     }
 }

@@ -7,8 +7,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, 0.0, 1.0),
-          k: 1.7960396,
+          normal: Vec3(0.0, 1.0, 0.0),
+          k: 0.0,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -23,8 +23,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.0049999794, 0.99998754),
-          k: 1.7961721,
+          normal: Vec3(0.0, 0.99995, 0.009999833),
+          k: 0.052443486,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -39,8 +39,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.009999834, 0.9999501),
-          k: 1.7963881,
+          normal: Vec3(0.0, 0.99979997, 0.019998666),
+          k: 0.0359184,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -55,8 +55,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.014999439, 0.99988765),
-          k: 1.7966427,
+          normal: Vec3(0.0, 0.99955004, 0.029995501),
+          k: -0.049563266,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -71,8 +71,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.01999867, 0.9998002),
-          k: 1.79692,
+          normal: Vec3(0.0, 0.99920017, 0.039989334),
+          k: 0.071822435,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -87,8 +87,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.0249974, 0.99968773),
-          k: 1.7972103,
+          normal: Vec3(0.0, 0.9987502, 0.049979165),
+          k: 0.26211256,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -103,8 +103,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.029995507, 0.9995503),
-          k: 1.7975079,
+          normal: Vec3(0.0, 0.99820054, 0.059964),
+          k: 0.10769773,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -119,8 +119,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.034992862, 0.99938786),
-          k: 1.7978077,
+          normal: Vec3(0.0, 0.99755096, 0.06994284),
+          k: -0.115570515,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -135,8 +135,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.039989345, 0.99920046),
-          k: 1.7981062,
+          normal: Vec3(0.0, 0.99680173, 0.07991468),
+          k: 0.14352995,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -151,8 +151,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.04498483, 0.99898803),
-          k: 1.7984006,
+          normal: Vec3(0.0, 0.9959527, 0.089878544),
+          k: 0.4713623,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -167,8 +167,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.049979188, 0.9987506),
-          k: 1.7986884,
+          normal: Vec3(0.0, 0.9950042, 0.0998334),
+          k: 0.17930476,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -183,8 +183,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.0549723, 0.99848825),
-          k: 1.7989676,
+          normal: Vec3(0.0, 0.9939561, 0.10977829),
+          k: -0.1813929,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -199,8 +199,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.059964035, 0.99820095),
-          k: 1.7992363,
+          normal: Vec3(0.0, 0.9928086, 0.11971219),
+          k: 0.21500786,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -215,8 +215,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.06495427, 0.9978887),
-          k: 1.7994931,
+          normal: Vec3(0.0, 0.99156195, 0.12963413),
+          k: 0.6798579,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -231,8 +231,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.069942884, 0.99755144),
-          k: 1.7997363,
+          normal: Vec3(0.0, 0.9902161, 0.1395431),
+          k: 0.25062495,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -247,8 +247,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.07492975, 0.99718934),
-          k: 1.7999649,
+          normal: Vec3(0.0, 0.9887711, 0.14943811),
+          k: -0.24692506,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -263,8 +263,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.07991475, 0.9968023),
-          k: 1.8001776,
+          normal: Vec3(0.0, 0.9872274, 0.15931821),
+          k: 0.28614184,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -279,8 +279,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.08489774, 0.9963903),
-          k: 1.8003734,
+          normal: Vec3(0.0, 0.9855848, 0.16918235),
+          k: 0.88726604,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -295,8 +295,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.08987861, 0.9959534),
-          k: 1.8005515,
+          normal: Vec3(0.0, 0.9838437, 0.17902958),
+          k: 0.32154426,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -311,8 +311,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.09485724, 0.99549156),
-          k: 1.8007109,
+          normal: Vec3(0.0, 0.9820043, 0.18885891),
+          k: -0.31206226,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -327,8 +327,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.09983349, 0.9950049),
-          k: 1.8008506,
+          normal: Vec3(0.0, 0.9800666, 0.19866936),
+          k: 0.35681808,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -343,8 +343,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.10480725, 0.9944933),
-          k: 1.80097,
+          normal: Vec3(0.0, 0.978031, 0.20845993),
+          k: 1.0932548,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -359,8 +359,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.10977839, 0.99395686),
-          k: 1.8010683,
+          normal: Vec3(0.0, 0.97589743, 0.21822965),
+          k: 0.39194915,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -375,8 +375,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.11474678, 0.99339557),
-          k: 1.801145,
+          normal: Vec3(0.0, 0.9736664, 0.22797756),
+          k: -0.37670022,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -391,8 +391,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.11971231, 0.9928094),
-          k: 1.8011991,
+          normal: Vec3(0.0, 0.971338, 0.23770267),
+          k: 0.42692345,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -407,8 +407,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.12467484, 0.9921985),
-          k: 1.8012303,
+          normal: Vec3(0.0, 0.9689124, 0.247404),
+          k: 1.2974945,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -423,8 +423,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.12963426, 0.99156284),
-          k: 1.8012381,
+          normal: Vec3(0.0, 0.96639, 0.25708058),
+          k: 0.46172696,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -439,8 +439,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.13459045, 0.99090236),
-          k: 1.8012215,
+          normal: Vec3(0.0, 0.9637709, 0.26673144),
+          k: -0.44073546,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -455,8 +455,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.13954325, 0.9902171),
-          k: 1.8011804,
+          normal: Vec3(0.0, 0.96105546, 0.27635565),
+          k: 0.49634576,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -471,8 +471,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.14449257, 0.989507),
-          k: 1.8011138,
+          normal: Vec3(0.0, 0.95824385, 0.2859522),
+          k: 1.4996581,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -487,8 +487,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.14943828, 0.9887722),
-          k: 1.8010216,
+          normal: Vec3(0.0, 0.95533645, 0.2955202),
+          k: 0.530766,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -503,8 +503,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.15438026, 0.9880127),
-          k: 1.8009031,
+          normal: Vec3(0.0, 0.95233357, 0.3050586),
+          k: -0.5040656,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -519,8 +519,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.15931839, 0.9872285),
-          k: 1.8007582,
+          normal: Vec3(0.0, 0.9492354, 0.31456652),
+          k: 0.564974,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -535,8 +535,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.16425253, 0.9864196),
-          k: 1.8005861,
+          normal: Vec3(0.0, 0.94604236, 0.324043),
+          k: 1.6994228,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -551,8 +551,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.16918257, 0.9855861),
-          k: 1.8003865,
+          normal: Vec3(0.0, 0.94275475, 0.33348703),
+          k: 0.598956,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -567,8 +567,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.17410837, 0.9847279),
-          k: 1.800159,
+          normal: Vec3(0.0, 0.9393728, 0.34289774),
+          k: -0.56658936,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -583,8 +583,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.1790298, 0.9838451),
-          k: 1.799903,
+          normal: Vec3(0.0, 0.9358968, 0.35227415),
+          k: 0.6326984,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -599,8 +599,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.18394677, 0.9829377),
-          k: 1.7996184,
+          normal: Vec3(0.0, 0.9323274, 0.36161536),
+          k: 1.8964688,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -615,8 +615,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.18885915, 0.9820057),
-          k: 1.7993046,
+          normal: Vec3(0.0, 0.9286646, 0.3709204),
+          k: 0.66618776,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -631,8 +631,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.1937668, 0.9810492),
-          k: 1.7989613,
+          normal: Vec3(0.0, 0.9249091, 0.38018835),
+          k: -0.62820673,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -647,8 +647,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.19866961, 0.98006815),
-          k: 1.798588,
+          normal: Vec3(0.0, 0.92106104, 0.38941824),
+          k: 0.6994107,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -663,8 +663,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.20356746, 0.97906256),
-          k: 1.7981846,
+          normal: Vec3(0.0, 0.9171209, 0.39860922),
+          k: 2.0904806,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -679,8 +679,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.20846021, 0.9780325),
-          k: 1.7977506,
+          normal: Vec3(0.0, 0.913089, 0.40776032),
+          k: 0.73235375,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -695,8 +695,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.21334776, 0.97697806),
-          k: 1.7972857,
+          normal: Vec3(0.0, 0.90896577, 0.41687068),
+          k: -0.68881905,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -711,8 +711,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.21822998, 0.97589916),
-          k: 1.7967895,
+          normal: Vec3(0.0, 0.9047518, 0.42593932),
+          k: 0.765004,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -727,8 +727,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.22310674, 0.9747959),
-          k: 1.7962618,
+          normal: Vec3(0.0, 0.9004472, 0.4349654),
+          k: 2.2811484,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -743,8 +743,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.22797792, 0.9736682),
-          k: 1.7957021,
+          normal: Vec3(0.0, 0.8960526, 0.44394797),
+          k: 0.79734826,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -759,8 +759,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.2328434, 0.97251624),
-          k: 1.7951102,
+          normal: Vec3(0.0, 0.8915684, 0.45288613),
+          k: -0.7483294,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -775,8 +775,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.23770306, 0.97133994),
-          k: 1.7944858,
+          normal: Vec3(0.0, 0.88699496, 0.461779),
+          k: 0.8293735,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -791,8 +791,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.24255677, 0.9701393),
-          k: 1.7938284,
+          normal: Vec3(0.0, 0.882333, 0.47062573),
+          k: 2.4681666,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -807,8 +807,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.24740441, 0.96891445),
-          k: 1.793138,
+          normal: Vec3(0.0, 0.8775826, 0.47942534),
+          k: 0.861067,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -823,8 +823,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.25224587, 0.9676653),
-          k: 1.792414,
+          normal: Vec3(0.0, 0.8727446, 0.4881771),
+          k: -0.80664265,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -839,8 +839,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.25708106, 0.96639204),
-          k: 1.7916563,
+          normal: Vec3(0.0, 0.8678193, 0.49688),
+          k: 0.89241624,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -855,8 +855,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.2619098, 0.9650946),
-          k: 1.7908646,
+          normal: Vec3(0.0, 0.8628072, 0.50553316),
+          k: 2.6512365,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -871,8 +871,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.266732, 0.9637731),
-          k: 1.7900385,
+          normal: Vec3(0.0, 0.8577088, 0.5141358),
+          k: 0.9234083,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -887,8 +887,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.27154756, 0.96242744),
-          k: 1.7891779,
+          normal: Vec3(0.0, 0.85252464, 0.5226871),
+          k: -0.86366546,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -903,8 +903,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.27635628, 0.9610577),
-          k: 1.7882824,
+          normal: Vec3(0.0, 0.84725523, 0.531186),
+          k: 0.95403117,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -919,8 +919,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.2811581, 0.959664),
-          k: 1.7873518,
+          normal: Vec3(0.0, 0.84190106, 0.53963184),
+          k: 2.8300648,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -935,8 +935,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.28595287, 0.95824623),
-          k: 1.7863857,
+          normal: Vec3(0.0, 0.83646274, 0.5480237),
+          k: 0.98427236,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -951,8 +951,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.2907405, 0.9568046),
-          k: 1.7853839,
+          normal: Vec3(0.0, 0.83094084, 0.5563608),
+          k: -0.9193064,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -967,8 +967,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.29552084, 0.95533895),
-          k: 1.7843462,
+          normal: Vec3(0.0, 0.82533574, 0.5646422),
+          k: 1.0141199,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -983,8 +983,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.30029383, 0.95384943),
-          k: 1.7832723,
+          normal: Vec3(0.0, 0.81964815, 0.5728672),
+          k: 3.0043657,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -999,8 +999,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.3050593, 0.95233613),
-          k: 1.782162,
+          normal: Vec3(0.0, 0.81387866, 0.58103496),
+          k: 1.0435619,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1015,8 +1015,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.30981717, 0.950799),
-          k: 1.7810148,
+          normal: Vec3(0.0, 0.80802774, 0.5891445),
+          k: -0.9734769,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1031,8 +1031,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.31456727, 0.94923806),
-          k: 1.7798308,
+          normal: Vec3(0.0, 0.8020959, 0.59719515),
+          k: 1.0725863,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1047,8 +1047,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.31930953, 0.9476534),
-          k: 1.7786095,
+          normal: Vec3(0.0, 0.79608405, 0.60518616),
+          k: 3.1738603,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1063,8 +1063,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.3240438, 0.94604504),
-          k: 1.7773508,
+          normal: Vec3(0.0, 0.7899925, 0.6131166),
+          k: 1.1011819,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1079,8 +1079,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.32876998, 0.944413),
-          k: 1.7760543,
+          normal: Vec3(0.0, 0.78382194, 0.6209857),
+          k: -1.0260898,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1095,8 +1095,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.33348796, 0.9427574),
-          k: 1.7747198,
+          normal: Vec3(0.0, 0.777573, 0.62879276),
+          k: 1.1293368,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1111,8 +1111,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.3381976, 0.94107825),
-          k: 1.7733474,
+          normal: Vec3(0.0, 0.7712462, 0.6365369),
+          k: 3.338277,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1127,8 +1127,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.34289876, 0.9393755),
-          k: 1.7719363,
+          normal: Vec3(0.0, 0.7648424, 0.6442174),
+          k: 1.15704,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1143,8 +1143,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.34759134, 0.93764937),
-          k: 1.7704868,
+          normal: Vec3(0.0, 0.7583622, 0.6518335),
+          k: -1.0770614,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1159,8 +1159,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.35227525, 0.93589973),
-          k: 1.7689981,
+          normal: Vec3(0.0, 0.75180596, 0.65938437),
+          k: 1.1842806,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1175,8 +1175,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.35695034, 0.9341267),
-          k: 1.7674705,
+          normal: Vec3(0.0, 0.74517465, 0.66686934),
+          k: 3.4973538,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1191,8 +1191,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.36161652, 0.9323303),
-          k: 1.7659036,
+          normal: Vec3(0.0, 0.73846877, 0.67428756),
+          k: 1.2110473,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1207,8 +1207,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.36627364, 0.93051064),
-          k: 1.7642971,
+          normal: Vec3(0.0, 0.7316892, 0.6816385),
+          k: -1.1263099,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1223,8 +1223,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.3709216, 0.9286677),
-          k: 1.762651,
+          normal: Vec3(0.0, 0.7248364, 0.68892115),
+          k: 1.2373298,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1239,8 +1239,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.3755603, 0.92680156),
-          k: 1.7609646,
+          normal: Vec3(0.0, 0.717911, 0.6961349),
+          k: 3.6508353,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1255,8 +1255,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.38018963, 0.9249122),
-          k: 1.7592381,
+          normal: Vec3(0.0, 0.71091384, 0.7032791),
+          k: 1.2631172,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1271,8 +1271,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.38480943, 0.9229998),
-          k: 1.7574712,
+          normal: Vec3(0.0, 0.7038456, 0.71035296),
+          k: -1.1737564,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1287,8 +1287,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.38941962, 0.92106426),
-          k: 1.7556636,
+          normal: Vec3(0.0, 0.69670707, 0.7173558),
+          k: 1.2883996,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1303,8 +1303,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.39402005, 0.91910565),
-          k: 1.753815,
+          normal: Vec3(0.0, 0.6894988, 0.72428685),
+          k: 3.7984762,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1319,8 +1319,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.39861065, 0.9171241),
-          k: 1.7519256,
+          normal: Vec3(0.0, 0.6822216, 0.7311455),
+          k: 1.3131664,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1335,8 +1335,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.40319127, 0.9151196),
-          k: 1.7499946,
+          normal: Vec3(0.0, 0.67487615, 0.7379311),
+          k: -1.2193253,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1351,8 +1351,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.4077618, 0.91309226),
-          k: 1.7480224,
+          normal: Vec3(0.0, 0.6674632, 0.7446428),
+          k: 1.3374081,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1367,8 +1367,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.4123222, 0.9110421),
-          k: 1.7460084,
+          normal: Vec3(0.0, 0.65998346, 0.75128007),
+          k: 3.9400403,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1383,8 +1383,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.41687226, 0.90896916),
-          k: 1.7439525,
+          normal: Vec3(0.0, 0.6524379, 0.75784224),
+          k: 1.3611149,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1399,8 +1399,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.4214119, 0.90687346),
-          k: 1.7418545,
+          normal: Vec3(0.0, 0.6448269, 0.7643286),
+          k: -1.2629434,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1415,8 +1415,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.425941, 0.9047551),
-          k: 1.7397143,
+          normal: Vec3(0.0, 0.6371516, 0.77073854),
+          k: 1.3842771,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1431,8 +1431,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.43045944, 0.9026142),
-          k: 1.7375315,
+          normal: Vec3(0.0, 0.6294124, 0.77707136),
+          k: 4.075301,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1447,8 +1447,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.43496713, 0.90045065),
-          k: 1.7353061,
+          normal: Vec3(0.0, 0.62161046, 0.78332657),
+          k: 1.4068857,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1463,8 +1463,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.43946394, 0.8982646),
-          k: 1.7330378,
+          normal: Vec3(0.0, 0.61374617, 0.7895034),
+          k: -1.3045411,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1479,8 +1479,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.44394976, 0.89605606),
-          k: 1.7307264,
+          normal: Vec3(0.0, 0.60582054, 0.79560125),
+          k: 1.4289315,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1495,8 +1495,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.4484245, 0.8938252),
-          k: 1.7283717,
+          normal: Vec3(0.0, 0.59783447, 0.80161965),
+          k: 4.2040434,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1511,8 +1511,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.452888, 0.89157194),
-          k: 1.7259737,
+          normal: Vec3(0.0, 0.58978856, 0.80755776),
+          k: 1.450406,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1527,8 +1527,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.4573402, 0.8892964),
-          k: 1.723532,
+          normal: Vec3(0.0, 0.5816835, 0.81341517),
+          k: -1.344052,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1543,8 +1543,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.461781, 0.88699865),
-          k: 1.7210464,
+          normal: Vec3(0.0, 0.57352054, 0.8191912),
+          k: 1.4713,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1559,8 +1559,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.46621022, 0.8846787),
-          k: 1.718517,
+          normal: Vec3(0.0, 0.56530005, 0.8248853),
+          k: 4.3260584,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1575,8 +1575,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.47062778, 0.8823367),
-          k: 1.7159432,
+          normal: Vec3(0.0, 0.557023, 0.83049697),
+          k: 1.4916056,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),
@@ -1591,24 +1591,8 @@ expression: driver.data
     objects: [
       FrameObject(
         object: SplitPlane(
-          normal: Vec3(0.0, -0.47503358, 0.8799726),
-          k: 1.7133251,
-          blend: 0.05,
-          positive_side_colour: (244, 29, 9),
-          negative_side_colour: (26, 234, 23),
-        ),
-        colour: (0, 0, 0),
-        fadeoff: 0.0,
-      ),
-    ],
-    blend: false,
-  )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: SplitPlane(
-          normal: Vec3(0.0, -0.4794275, 0.8775864),
-          k: 1.7106624,
+          normal: Vec3(0.0, 0.54869044, 0.83602566),
+          k: -1.3814125,
           blend: 0.05,
           positive_side_colour: (244, 29, 9),
           negative_side_colour: (26, 234, 23),

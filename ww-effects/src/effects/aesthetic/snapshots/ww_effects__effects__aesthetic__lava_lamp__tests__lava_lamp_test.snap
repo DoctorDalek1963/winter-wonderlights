@@ -4503,49 +4503,4 @@ expression: driver.data
     ],
     blend: true,
   )),
-  Frame3D(Frame3D(
-    objects: [
-      FrameObject(
-        object: Sphere(
-          center: Vec3(-0.46292886, -0.21219026, 1.1084763),
-          radius: 1.7954521,
-        ),
-        colour: (249, 74, 255),
-        fadeoff: 0.3,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(-0.24415413, 0.09406997, 2.9446847),
-          radius: 0.56070596,
-        ),
-        colour: (251, 72, 255),
-        fadeoff: 0.3,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(-0.032013375, -0.4580142, 0.86256677),
-          radius: 0.2508355,
-        ),
-        colour: (255, 81, 255),
-        fadeoff: 0.3,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(0.042471793, 0.37741697, 3.1697726),
-          radius: 1.9941769,
-        ),
-        colour: (250, 76, 255),
-        fadeoff: 0.3,
-      ),
-      FrameObject(
-        object: Sphere(
-          center: Vec3(0.3122394, -0.037141066, 0.5099913),
-          radius: 1.0007807,
-        ),
-        colour: (223, 89, 255),
-        fadeoff: 0.3,
-      ),
-    ],
-    blend: true,
-  )),
 ]

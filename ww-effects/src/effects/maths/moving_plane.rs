@@ -72,92 +72,107 @@ mod effect {
     /// Move a plane through the tree at a random angle with a random colour.
     #[derive(Clone, Debug, PartialEq, BaseEffect)]
     pub struct MovingPlane {
-        /// The config for this effect.
-        config: MovingPlaneConfig,
+        /// The colour of this plane.
+        colour: RGBArray,
 
-        /// The RNG generator to use for randomness.
+        /// The direction that this plane is travelling in.
+        normal_vector: Vec3,
+
+        /// The position of the center of the plane.
+        position: Vec3,
+
+        /// Are we in the start phase?
         ///
-        /// This is seeded with a known value for testing purposes.
-        rng: StdRng,
+        /// This value starts by being true. Once we generate a frame where the plane lights up at
+        /// least one light, this is set to false. Once it's false, we start checking if the frame
+        /// has no lights lit up, and if that's true, we stop.
+        in_start_phase: bool,
+    }
+
+    fn generate_frame(
+        point: Vec3,
+        colour: RGBArray,
+        normal: Vec3,
+        config: &MovingPlaneConfig,
+    ) -> Frame3D {
+        Frame3D::new(
+            vec![FrameObject {
+                object: Object::Plane {
+                    normal,
+                    k: normal.dot(point),
+                    threshold: config.thickness,
+                },
+                colour,
+                fadeoff: config.fadeoff,
+            }],
+            false,
+        )
     }
 
     impl Effect for MovingPlane {
         fn from_config(config: MovingPlaneConfig) -> Self {
+            // TODO: Add this to user-accessible config?
+            /// The proportion of the length of the normal vector that we move the center point
+            /// back by until it's outside of the tree.
+            const MOVE_PROPORTION: f32 = 0.1;
+
+            let mut rng = rng!();
+            let colour = rng.gen();
+            let normal_vector = random_vector(&mut rng);
+
+            //// Start in the middle and reverse with normal vector until outside bounding box
+            let mut position: Vec3 = COORDS.center().into();
+            while COORDS.distance_from_bounding_box(position.into()) <= 0. {
+                position -= normal_vector * MOVE_PROPORTION;
+            }
+
+            let mut frame = generate_frame(position, colour, normal_vector, &config);
+
+            // While there are any non-black lights, keep moving the point out
+            while let Some(data) = frame.compute_raw_data().raw_data()
+                && data.iter().any(|colour| *colour != [0; 3])
+            {
+                position -= normal_vector * MOVE_PROPORTION;
+                frame = generate_frame(position, colour, normal_vector, &config);
+            }
+            position += normal_vector * MOVE_PROPORTION;
+
             Self {
-                config,
-                rng: rng!(),
+                colour,
+                normal_vector,
+                position,
+                in_start_phase: true,
             }
         }
 
-        async fn run(mut self, driver: &mut dyn Driver) {
-            let colour: RGBArray = self.rng.gen();
-            let normal: Vec3 = random_vector(&mut self.rng);
+        fn next_frame(&mut self, config: &MovingPlaneConfig) -> Option<(FrameType, Duration)> {
+            let mut frame = generate_frame(self.position, self.colour, self.normal_vector, config);
 
-            let threshold = self.config.thickness;
-            let fadeoff = self.config.fadeoff;
+            frame.compute_raw_data();
+            let all_lights_are_off = frame
+                .raw_data()
+                .expect_or_log("We've already called compute_raw_data()")
+                .iter()
+                .all(|colour| colour == &[0; 3]);
 
-            let get_frame = |point| {
-                Frame3D::new(
-                    vec![FrameObject {
-                        object: Object::Plane {
-                            normal,
-                            k: normal.dot(point),
-                            threshold,
-                        },
-                        colour,
-                        fadeoff,
-                    }],
-                    false,
-                )
-            };
+            // We're going to sleep for 20ms every loop, which gives 50 fps. This means we
+            // want to move 1/50th of the units per second
+            self.position += (config.units_per_second / 50.) * self.normal_vector;
 
-            let (mut point, mut frame): (Vec3, Frame3D) = {
-                /// The proportion of the length of the normal vector that we move the center point
-                /// back by until it's outside of the tree.
-                const MOVE_PROPORTION: f32 = 0.1;
-
-                // Start in the middle and reverse with normal vector until outside bounding box
-                let mut p: Vec3 = COORDS.center().into();
-                while COORDS.distance_from_bounding_box(p.into()) <= 0. {
-                    p -= normal * MOVE_PROPORTION;
-                }
-
-                let mut frame = get_frame(p);
-
-                // While there are any non-black lights, keep moving the point out
-                while let Some(data) = frame.compute_raw_data().raw_data()
-                    && data.iter().any(|colour| *colour != [0; 3])
-                {
-                    p -= normal * MOVE_PROPORTION;
-                    frame = get_frame(p);
-                }
-                p += normal * MOVE_PROPORTION;
-
-                (p, frame)
-            };
-
-            /// Display a single frame, update the mutable variables for the next frame, then sleep.
-            macro_rules! do_frame {
-                () => {
-                    driver.display_frame(FrameType::Frame3D(frame));
-
-                    // We're going to sleep for 20ms every loop, which gives 50 fps. This means we
-                    // want to move 1/50th of the units per second
-                    point += (self.config.units_per_second / 50.) * normal;
-                    frame = get_frame(point);
-                    sleep!(Duration::from_millis(20));
-                };
+            if self.in_start_phase && !all_lights_are_off {
+                self.in_start_phase = false;
             }
 
-            // Do one frame first to light up some of the lights
-            do_frame!();
-
-            // While not all lights are black, keep moving
-            while let Some(data) = frame.compute_raw_data().raw_data()
-                && !data.iter().all(|colour| *colour == [0; 3])
-            {
-                do_frame!();
+            if !self.in_start_phase && all_lights_are_off {
+                return None;
             }
+
+            Some((FrameType::Frame3D(frame), Duration::from_millis(20)))
+        }
+
+        #[cfg(any(test, feature = "bench"))]
+        fn loops_to_test() -> Option<NonZeroU16> {
+            None
         }
     }
 }
@@ -165,15 +180,10 @@ mod effect {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{traits::Effect, TestDriver};
+    use crate::snapshot_effect;
 
-    #[tokio::test]
-    async fn moving_plane_test() {
-        let mut driver = TestDriver::new(10);
-        MovingPlane::default().run(&mut driver).await;
-
-        // The plane moves through the whole tree, and that results in thousands of individual
-        // frames, which is far too many to inline here
-        insta::assert_ron_snapshot!(driver.data);
+    #[test]
+    fn moving_plane_test() {
+        snapshot_effect!(MovingPlane);
     }
 }
