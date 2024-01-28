@@ -12,7 +12,6 @@ use tracing_unwrap::ResultExt;
 use virtual_tree_shared::Message;
 use ww_driver_trait::Driver;
 use ww_frame::FrameType;
-use ww_gift_coords::COORDS;
 
 /// The path of the runner binary.
 const RUNNER_PATH: &str = env!("CARGO_BIN_FILE_VIRTUAL_TREE_RUNNER");
@@ -76,9 +75,5 @@ impl Driver for VirtualTreeDriver {
                     .expect_or_log("Serializing a Message should not fail"),
             )
             .expect_or_log("Failed to write to the socket");
-    }
-
-    fn get_lights_count(&self) -> usize {
-        COORDS.lights_num()
     }
 }

@@ -114,15 +114,10 @@ impl Driver for Ws2811Driver {
 
     fn display_frame(&mut self, frame: FrameType) {
         let colours = match frame {
-            FrameType::Off => vec![[0; 3]; self.get_lights_count()],
+            FrameType::Off => vec![[0; 3]; lights_num()],
             FrameType::RawData(data) => data,
             FrameType::Frame3D(frame) => frame.to_raw_data(),
         };
         self.display_colours(&colours);
-    }
-
-    #[inline]
-    fn get_lights_count(&self) -> usize {
-        lights_num()
     }
 }
