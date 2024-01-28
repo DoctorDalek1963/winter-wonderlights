@@ -47,7 +47,10 @@ mod config {
                 .changed();
 
             config_changed |= ui
-                .add(egui::Slider::new(&mut self.variation, 1..=255).text("Colour variation"))
+                .add(
+                    egui::Slider::new(&mut self.variation, 1..=255)
+                        .text("Colour variation (requires restart)"),
+                )
                 .changed();
 
             ui.add_space(UI_SPACING);

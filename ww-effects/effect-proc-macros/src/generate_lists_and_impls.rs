@@ -348,11 +348,14 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
             ) -> Option<(::ww_frame::FrameType, ::std::time::Duration)> {
                 match (self, config) {
                     #( #effect_dispatch_list_next_frame ),*,
-                    (effect, config) => panic!(
-                        "Cannot get the next frame for effect {} with config for {}",
-                        effect.effect_name(),
-                        config.effect_name()
-                    ),
+                    (effect, config) => {
+                        ::tracing::warn!(
+                            "Cannot get the next frame for effect {} with config for {}, so terminating effect",
+                            effect.effect_name(),
+                            config.effect_name()
+                        );
+                        None
+                    }
                 }
             }
 

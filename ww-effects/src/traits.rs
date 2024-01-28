@@ -106,11 +106,15 @@
 
 use egui::{Context, Ui};
 use serde::{Deserialize, Serialize};
-use std::{fs, time::Duration};
-use ww_frame::FrameType;
+use std::fs;
 
 #[cfg(feature = "config-trait")]
 use tracing_unwrap::ResultExt;
+
+#[cfg(feature = "effect-trait")]
+use std::time::Duration;
+#[cfg(feature = "effect-trait")]
+use ww_frame::FrameType;
 
 /// Save the given effect config to its appropriate config file.
 #[cfg(feature = "config-trait")]
