@@ -252,8 +252,9 @@ pub trait Effect: BaseEffect {
     /// How many loops should we run in test or benchmark builds?
     ///
     /// If this function returns `Some(number)`, then the test or benchmark will only call
-    /// [`next_frame`] that many times. If this function returns `None`, then the test or benchmark
-    /// will continue to call [`next_frame`] until it returns `None`.
+    /// [`next_frame`](Effect::next_frame) that many times. If this function returns `None`, then
+    /// the test or benchmark will continue to call [`next_frame`](Effect::next_frame) until it
+    /// returns `None`.
     #[cfg(any(test, feature = "bench"))]
     fn loops_to_test() -> Option<std::num::NonZeroU16>;
 }
