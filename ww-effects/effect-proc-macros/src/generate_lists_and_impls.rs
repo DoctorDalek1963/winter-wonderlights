@@ -210,6 +210,15 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
         })
         .collect();
 
+    let effect_name_list_from_file: Vec<_> = effect_names
+        .iter()
+        .map(|ident| {
+            quote! {
+                EffectNameList:: #ident => EffectDispatchList:: #ident (#ident ::from_file())
+            }
+        })
+        .collect();
+
     let effect_name_list_default_dispatch: Vec<_> = effect_names
         .iter()
         .map(|ident| {
@@ -320,6 +329,13 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
             pub fn config_from_file(&self) -> EffectConfigDispatchList {
                 match self {
                     #( #effect_name_list_configs_from_file ),*
+                }
+            }
+
+            #[cfg(feature = "effect-impls")]
+            pub fn from_file(&self) -> EffectDispatchList {
+                match self {
+                    #( #effect_name_list_from_file ),*
                 }
             }
 
