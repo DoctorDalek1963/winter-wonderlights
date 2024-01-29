@@ -16,20 +16,6 @@
 #[cfg(doc)]
 use crate::traits::{Effect, EffectConfig};
 
-/// Asynchronously sleep for the specified duration and await it when running normally.
-///
-/// The sleep call gets completely removed for test and bench builds.
-#[cfg(feature = "effect-impls")]
-macro_rules! sleep {
-    ( $dur:expr ) => {
-        #[cfg(not(any(test, feature = "bench")))]
-        ::tokio::time::sleep($dur).await
-    };
-}
-
-#[cfg(feature = "effect-impls")]
-pub(crate) use sleep;
-
 /// Create a `rand::rngs::StdRng` from entropy in a normal build, or seeded from 12345 in a test or
 /// bench build.
 #[cfg(feature = "effect-impls")]
@@ -101,7 +87,7 @@ pub(crate) mod prelude {
     )]
     pub mod effect_prelude {
         pub(crate) use crate::{
-            effects::{rng, sleep},
+            effects::rng,
             traits::{BaseEffect, Effect},
         };
         pub use effect_proc_macros::{end_loop_in_test_or_bench, BaseEffect};
@@ -112,6 +98,9 @@ pub(crate) mod prelude {
         pub use tracing_unwrap::{OptionExt, ResultExt};
         pub use ww_driver_trait::Driver;
         pub use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object};
+
+        #[cfg(any(test, feature = "bench"))]
+        pub use std::num::NonZeroU16;
     }
 
     #[cfg(feature = "effect-impls")]

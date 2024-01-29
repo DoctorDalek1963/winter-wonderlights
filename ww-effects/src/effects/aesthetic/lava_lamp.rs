@@ -47,7 +47,10 @@ mod config {
                 .changed();
 
             config_changed |= ui
-                .add(egui::Slider::new(&mut self.variation, 1..=255).text("Colour variation"))
+                .add(
+                    egui::Slider::new(&mut self.variation, 1..=255)
+                        .text("Colour variation (requires restart)"),
+                )
                 .changed();
 
             ui.add_space(UI_SPACING);
@@ -94,7 +97,7 @@ mod effect {
         }
 
         /// Create a frame object from the sphere.
-        fn into_frame_object(self, base_colour: RGBArray, fadeoff: f32) -> FrameObject {
+        fn get_frame_object(&self, base_colour: RGBArray, fadeoff: f32) -> FrameObject {
             FrameObject {
                 object: Object::Sphere {
                     center: self.centre,
@@ -109,80 +112,71 @@ mod effect {
     /// Display a lava lamp-like effect on the tree.
     #[derive(Clone, Debug, PartialEq, BaseEffect)]
     pub struct LavaLamp {
-        /// The config for this effect.
-        config: LavaLampConfig,
-
-        /// The RNG generator to use for randomness.
-        ///
-        /// This is seeded with a known value for testing purposes.
+        /// The RNG used to move the spheres randomly.
         rng: StdRng,
+
+        /// The spheres themselves.
+        spheres: Vec<Sphere>,
     }
 
     impl Effect for LavaLamp {
         fn from_config(config: LavaLampConfig) -> Self {
-            Self {
-                config,
-                rng: rng!(),
-            }
-        }
+            let mut rng = rng!();
 
-        #[allow(
-            clippy::semicolon_if_nothing_returned,
-            reason = "this is a bodge for #[end_loop_in_test_or_bench]"
-        )]
-        async fn run(mut self, driver: &mut dyn Driver) {
-            // Spawn some spheres (number in config?) and gradually change their sizes and colours over
-            // time while moving them all up and down at random speeds
-
-            let mut spheres: Vec<Sphere> = vec![];
-            for _ in 0..5 {
-                spheres.push(Sphere {
+            let spheres = (0..5)
+                .map(|_| Sphere {
                     centre: Vec3 {
-                        x: self.rng.gen_range(-1.0..1.0),
-                        y: self.rng.gen_range(-1.0..1.0),
-                        z: self.rng.gen_range(0.0..COORDS.max_z()),
+                        x: rng.gen_range(-1.0..1.0),
+                        y: rng.gen_range(-1.0..1.0),
+                        z: rng.gen_range(0.0..COORDS.max_z()),
                     },
-                    radius: self.rng.gen_range(0.25..2.0),
+                    radius: rng.gen_range(0.25..2.0),
                     colour_offset: {
-                        let range = -(self.config.variation as i32)..(self.config.variation as i32);
+                        let range = -(config.variation as i32)..(config.variation as i32);
                         IVec3 {
-                            x: self.rng.gen_range(range.clone()),
-                            y: self.rng.gen_range(range.clone()),
-                            z: self.rng.gen_range(range),
+                            x: rng.gen_range(range.clone()),
+                            y: rng.gen_range(range.clone()),
+                            z: rng.gen_range(range),
                         }
                     },
-                    movement_direction: random_vector(&mut self.rng),
-                });
-            }
+                    movement_direction: random_vector(&mut rng),
+                })
+                .collect();
             trace!(?spheres);
 
-            #[end_loop_in_test_or_bench]
-            loop {
-                let sphere_frame_objects = spheres
-                    .iter()
-                    .map(|&sphere| {
-                        sphere.into_frame_object(self.config.base_colour, self.config.fadeoff)
-                    })
-                    .collect();
+            Self { rng, spheres }
+        }
 
-                driver.display_frame(FrameType::Frame3D(Frame3D::new(sphere_frame_objects, true)));
+        fn next_frame(&mut self, config: &LavaLampConfig) -> Option<(FrameType, Duration)> {
+            let sphere_frame_objects = self
+                .spheres
+                .iter()
+                .map(|&sphere| sphere.get_frame_object(config.base_colour, config.fadeoff))
+                .collect();
 
-                for sphere in &mut spheres {
-                    sphere.centre += 0.05 * sphere.movement_direction;
-                    sphere.movement_direction = (sphere.movement_direction
-                        + 0.01 * random_vector(&mut self.rng))
-                    .normalize();
+            let frame = FrameType::Frame3D(Frame3D::new(sphere_frame_objects, true));
 
-                    while !COORDS
-                        .is_within_bounding_box((sphere.centre + sphere.movement_direction).into())
-                    {
-                        sphere.movement_direction =
-                            (sphere.movement_direction + random_vector(&mut self.rng)).normalize();
-                    }
+            for sphere in &mut self.spheres {
+                sphere.centre += 0.05 * sphere.movement_direction;
+                sphere.movement_direction =
+                    (sphere.movement_direction + 0.01 * random_vector(&mut self.rng)).normalize();
+
+                while !COORDS
+                    .is_within_bounding_box((sphere.centre + sphere.movement_direction).into())
+                {
+                    // We're not multiplying the random vector by 0.01 here because if we did, then
+                    // this loop would take ages to bring the spheres back into the bounding box
+                    sphere.movement_direction =
+                        (sphere.movement_direction + random_vector(&mut self.rng)).normalize();
                 }
-
-                sleep!(Duration::from_millis(100));
             }
+
+            Some((frame, Duration::from_millis(100)))
+        }
+
+        #[cfg(any(test, feature = "bench"))]
+        fn loops_to_test() -> Option<NonZeroU16> {
+            NonZeroU16::new(100)
         }
     }
 }
@@ -190,13 +184,10 @@ mod effect {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{traits::Effect, TestDriver};
+    use crate::snapshot_effect;
 
-    #[tokio::test]
-    async fn lava_lamp_test() {
-        let mut driver = TestDriver::new(10);
-        LavaLamp::default().run(&mut driver).await;
-
-        insta::assert_ron_snapshot!(driver.data);
+    #[test]
+    fn lava_lamp_test() {
+        snapshot_effect!(LavaLamp);
     }
 }

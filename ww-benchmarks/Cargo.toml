@@ -15,6 +15,7 @@ tokio.workspace = true
 ww-driver-trait.workspace = true
 ww-effects = { workspace = true, features = ["bench", "effect-impls"] }
 ww-frame.workspace = true
+ww-gift-coords.workspace = true
 
 [[bench]]
 name = "effects"

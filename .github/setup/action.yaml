@@ -32,6 +32,7 @@ runs:
         echo CARGO_TERM_COLOR=always >> $GITHUB_ENV
         echo CARGO_INCREMENTAL=0 >> $GITHUB_ENV
         echo RUST_BACKTRACE=full >> $GITHUB_ENV
+        echo RUSTFLAGS=-Dwarnings >> $GITHUB_ENV
 
         rustc --version --verbose
       shell: bash

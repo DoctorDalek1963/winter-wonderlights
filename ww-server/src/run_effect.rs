@@ -7,7 +7,6 @@ use tokio::sync::{broadcast, oneshot};
 use tracing::{info, instrument, trace, warn};
 use tracing_unwrap::ResultExt;
 use ww_driver_trait::Driver;
-use ww_effects::EffectDispatchList;
 use ww_frame::FrameType;
 
 lazy_static! {
@@ -49,7 +48,7 @@ pub fn run_effect(client_state: WrappedClientState, kill_thread: oneshot::Receiv
         ($name:ident => $body:expr) => {{
             let $name = client_state
                 .read()
-                .expect_or_log("Should be able to write to client state");
+                .expect_or_log("Should be able to read from client state");
             let rv = $body;
             drop($name);
             rv
@@ -85,12 +84,31 @@ pub fn run_effect(client_state: WrappedClientState, kill_thread: oneshot::Receiv
                     // client requests an effect change
                     let effect_name = read_state!(state => state.effect_name);
 
-                    if let Some(effect) = effect_name {
-                        let effect: EffectDispatchList = effect.into();
+                    if let Some(effect_name) = effect_name {
+                        let mut effect = effect_name.from_file();
 
-                        effect.run(&mut driver).await;
+                        loop {
+                            // This block is needed to let clippy know that we drop the state
+                            // before awaiting the sleep
+                            let (frame, duration) = {
+                                let state = client_state
+                                    .read()
+                                    .expect_or_log("Should be able to read from client state");
+                                let Some(config) = &state.effect_config else {
+                                    drop(state);
+                                    break;
+                                };
+                                let Some((frame, duration)) = effect.next_frame(config) else {
+                                    break;
+                                };
+                                (frame, duration)
+                            };
+
+                            driver.display_frame(frame);
+                            tokio::time::sleep(duration).await;
+                        }
+
                         driver.display_frame(FrameType::Off);
-
                         // Pause before looping the effect
                         // TODO: Allow custom pause time
                         tokio::time::sleep(Duration::from_millis(500)).await;

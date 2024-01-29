@@ -35,12 +35,4 @@ pub trait Driver {
 
     /// Display the given frame using this driver.
     fn display_frame(&mut self, frame: FrameType);
-
-    /// Return the number of lights on the chain.
-    fn get_lights_count(&self) -> usize;
-
-    /// Clear the display by rendering [`FrameType::Off`].
-    fn clear(&mut self) {
-        self.display_frame(FrameType::Off);
-    }
 }

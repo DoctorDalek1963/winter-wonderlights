@@ -21,18 +21,6 @@ pub fn derive_base_effect(input: TokenStream) -> TokenStream {
             fn effect_name() -> &'static str {
                 stringify!(#struct_name)
             }
-
-            fn save_to_file(&self) {
-                self.config.save_to_file(&<Self as crate::traits::Effect>::config_filename());
-            }
-
-            fn from_file() -> Self {
-                Self::from_config(
-                    Self::Config::from_file(
-                        &<Self as crate::traits::Effect>::config_filename()
-                    )
-                )
-            }
         }
 
         impl ::std::default::Default for #struct_name {

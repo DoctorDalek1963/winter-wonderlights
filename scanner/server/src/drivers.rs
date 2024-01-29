@@ -75,9 +75,4 @@ impl Driver for DriverWrapper {
     fn display_frame(&mut self, frame: FrameType) {
         self.0.display_frame(frame);
     }
-
-    #[inline]
-    fn get_lights_count(&self) -> usize {
-        self.0.get_lights_count()
-    }
 }

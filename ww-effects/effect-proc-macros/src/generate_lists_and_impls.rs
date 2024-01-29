@@ -114,7 +114,7 @@ fn create_name_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStr
     quote! {
         /// This enum has a variant for each effect, but only the names. If the `effect-impls` feature is
         /// enabled, then you can call certain methods on this enum to get things like the like the
-        /// [`run`](Effect::run) method.
+        /// [`next_frame`](Effect::next_frame) method.
         ///
         /// If an effect is not accessible via this enum, then it should not be used.
         ///
@@ -210,6 +210,25 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
         })
         .collect();
 
+    let effect_name_list_config_names: Vec<_> = effect_names
+        .iter()
+        .map(|ident| {
+            let config = format_ident!("{ident}Config");
+            quote! {
+                EffectNameList:: #ident => EffectConfigNameList:: #config
+            }
+        })
+        .collect();
+
+    let effect_name_list_from_file: Vec<_> = effect_names
+        .iter()
+        .map(|ident| {
+            quote! {
+                EffectNameList:: #ident => EffectDispatchList:: #ident (#ident ::from_file())
+            }
+        })
+        .collect();
+
     let effect_name_list_default_dispatch: Vec<_> = effect_names
         .iter()
         .map(|ident| {
@@ -229,20 +248,15 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
         })
         .collect();
 
-    let effect_dispatch_list_run: Vec<_> = effect_names
+    let effect_dispatch_list_next_frame: Vec<_> = effect_names
         .iter()
         .map(|ident| {
+            let config_ident = format_ident!("{ident}Config");
             quote! {
-                EffectDispatchList:: #ident (effect) => effect.run(driver).await
-            }
-        })
-        .collect();
-
-    let effect_dispatch_list_save_to_file: Vec<_> = effect_names
-        .iter()
-        .map(|ident| {
-            quote! {
-                EffectDispatchList:: #ident (effect) => effect.save_to_file()
+                (
+                    EffectDispatchList:: #ident (effect),
+                    EffectConfigDispatchList:: #config_ident (config)
+                ) => effect.next_frame(config)
             }
         })
         .collect();
@@ -253,6 +267,15 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
             let config_ident = format_ident!("{ident}Config");
             quote! {
                 EffectDispatchList:: #ident (_) => EffectConfigDispatchList:: #config_ident (#ident ::config_from_file())
+            }
+        })
+        .collect();
+
+    let effect_dispatch_list_loops_to_test: Vec<_> = effect_names
+        .iter()
+        .map(|ident| {
+            quote! {
+                EffectDispatchList:: #ident (_) => #ident ::loops_to_test()
             }
         })
         .collect();
@@ -278,6 +301,16 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
             let config = format_ident!("{ident}Config");
             quote! {
                 EffectConfigNameList:: #config => #string
+            }
+        })
+        .collect();
+
+    let config_name_list_default_dispatch: Vec<_> = effect_names
+        .iter()
+        .map(|ident| {
+            let config = format_ident!("{ident}Config");
+            quote!{
+                EffectConfigNameList:: #config => EffectConfigDispatchList:: #config ( #config ::default())
             }
         })
         .collect();
@@ -320,11 +353,26 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
                 }
             }
 
+            /// Get the name of the associated config.
+            pub fn config_name(&self) -> EffectConfigNameList {
+                match self {
+                    #( #effect_name_list_config_names ),*
+                }
+            }
+
             /// Get the config for this effect, loaded from its file.
             #[cfg(feature = "config-impls")]
             pub fn config_from_file(&self) -> EffectConfigDispatchList {
                 match self {
                     #( #effect_name_list_configs_from_file ),*
+                }
+            }
+
+            /// Load this effect from the config given in its file.
+            #[cfg(feature = "effect-impls")]
+            pub fn from_file(&self) -> EffectDispatchList {
+                match self {
+                    #( #effect_name_list_from_file ),*
                 }
             }
 
@@ -346,17 +394,21 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
                 }
             }
 
-            /// Run the effect. See [`Effect::run`].
-            pub async fn run(self, driver: &mut dyn ::ww_driver_trait::Driver) {
-                match self {
-                    #( #effect_dispatch_list_run ),*
-                }
-            }
-
-            /// Save this effect to its file.
-            pub fn save_to_file(&self) {
-                match self {
-                    #( #effect_dispatch_list_save_to_file ),*
+            /// Get the next frame for this effect. See [`Effect::next_frame`].
+            pub fn next_frame(
+                &mut self,
+                config: &EffectConfigDispatchList,
+            ) -> Option<(::ww_frame::FrameType, ::std::time::Duration)> {
+                match (self, config) {
+                    #( #effect_dispatch_list_next_frame ),*,
+                    (effect, config) => {
+                        ::tracing::warn!(
+                            "Cannot get the next frame for effect {} with config for {}, so terminating effect",
+                            effect.effect_name(),
+                            config.effect_name()
+                        );
+                        None
+                    }
                 }
             }
 
@@ -364,6 +416,14 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
             pub fn config_from_file(&self) -> EffectConfigDispatchList {
                 match self {
                     #( #effect_dispatch_list_configs_from_file ),*
+                }
+            }
+
+            /// Get the number of loops to test in a benchmark.
+            #[cfg(feature = "bench")]
+            pub fn loops_to_test(&self) -> Option<::std::num::NonZeroU16> {
+                match self {
+                    #( #effect_dispatch_list_loops_to_test ),*
                 }
             }
         }
@@ -381,6 +441,14 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
             pub fn effect_name(&self) -> &'static str {
                 match self {
                     #( #config_name_list_effect_names ),*
+                }
+            }
+
+            /// Get the default [`EffectConfigDispatchList`] for this effect name.
+            #[cfg(feature = "config-impls")]
+            pub fn default_dispatch(&self) -> EffectConfigDispatchList {
+                match self {
+                    #( #config_name_list_default_dispatch ),*
                 }
             }
         }
