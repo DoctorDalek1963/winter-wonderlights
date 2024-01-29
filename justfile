@@ -8,7 +8,7 @@ _default:
 
 # run the benchmarks
 bench filter='':
-	cd {{justfile_directory()}}/ww-benchmarks && cargo bench {{filter}}
+	cd {{justfile_directory()}}/ww-benchmarks && COORDS_FILENAME=2020-matt-parker.gift cargo bench {{filter}}
 
 # build the docs and optionally open them
 doc-build open='':
