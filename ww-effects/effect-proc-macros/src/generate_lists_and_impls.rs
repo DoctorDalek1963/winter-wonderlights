@@ -210,6 +210,16 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
         })
         .collect();
 
+    let effect_name_list_config_names: Vec<_> = effect_names
+        .iter()
+        .map(|ident| {
+            let config = format_ident!("{ident}Config");
+            quote! {
+                EffectNameList:: #ident => EffectConfigNameList:: #config
+            }
+        })
+        .collect();
+
     let effect_name_list_from_file: Vec<_> = effect_names
         .iter()
         .map(|ident| {
@@ -261,6 +271,15 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
         })
         .collect();
 
+    let effect_dispatch_list_loops_to_test: Vec<_> = effect_names
+        .iter()
+        .map(|ident| {
+            quote! {
+                EffectDispatchList:: #ident (_) => #ident ::loops_to_test()
+            }
+        })
+        .collect();
+
     let config_name_list_configs_from_file: Vec<_> = config_names
         .iter()
         .map(|ident| {
@@ -282,6 +301,16 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
             let config = format_ident!("{ident}Config");
             quote! {
                 EffectConfigNameList:: #config => #string
+            }
+        })
+        .collect();
+
+    let config_name_list_default_dispatch: Vec<_> = effect_names
+        .iter()
+        .map(|ident| {
+            let config = format_ident!("{ident}Config");
+            quote!{
+                EffectConfigNameList:: #config => EffectConfigDispatchList:: #config ( #config ::default())
             }
         })
         .collect();
@@ -321,6 +350,13 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
             pub fn effect_name(&self) -> &'static str {
                 match self {
                     #( #effect_name_list_effect_names ),*
+                }
+            }
+
+            /// Get the name of the associated config.
+            pub fn config_name(&self) -> EffectConfigNameList {
+                match self {
+                    #( #effect_name_list_config_names ),*
                 }
             }
 
@@ -382,6 +418,14 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
                     #( #effect_dispatch_list_configs_from_file ),*
                 }
             }
+
+            /// Get the number of loops to test in a benchmark.
+            #[cfg(feature = "bench")]
+            pub fn loops_to_test(&self) -> Option<::std::num::NonZeroU16> {
+                match self {
+                    #( #effect_dispatch_list_loops_to_test ),*
+                }
+            }
         }
 
         impl EffectConfigNameList {
@@ -397,6 +441,14 @@ fn impl_lists(effect_names: &[Ident], config_names: &[Ident]) -> TokenStream {
             pub fn effect_name(&self) -> &'static str {
                 match self {
                     #( #config_name_list_effect_names ),*
+                }
+            }
+
+            /// Get the default [`EffectConfigDispatchList`] for this effect name.
+            #[cfg(feature = "config-impls")]
+            pub fn default_dispatch(&self) -> EffectConfigDispatchList {
+                match self {
+                    #( #config_name_list_default_dispatch ),*
                 }
             }
         }

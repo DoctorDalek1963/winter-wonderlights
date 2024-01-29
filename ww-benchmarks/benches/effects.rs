@@ -1,16 +1,10 @@
 use criterion::{criterion_group, criterion_main, Criterion};
+use std::hint::black_box;
 use strum::IntoEnumIterator;
 use ww_driver_trait::Driver;
 use ww_effects::EffectNameList;
 use ww_frame::{FrameType, RGBArray};
-
-const LIGHTS_NUM: usize = 500;
-
-static mut SIMPLE_DRIVER: SimpleDriver = SimpleDriver {};
-
-static mut CONVERT_FRAME_DRIVER: ConvertFrameDriver = ConvertFrameDriver {
-    current_frame: vec![],
-};
+use ww_gift_coords::COORDS;
 
 struct SimpleDriver;
 
@@ -19,10 +13,9 @@ impl Driver for SimpleDriver {
         Self
     }
 
-    fn display_frame(&mut self, _frame: FrameType) {}
-
-    fn get_lights_count(&self) -> usize {
-        LIGHTS_NUM
+    fn display_frame(&mut self, frame: FrameType) {
+        // Do nothing, but don't optimise this away
+        black_box(frame);
     }
 }
 
@@ -33,7 +26,7 @@ struct ConvertFrameDriver {
 impl Driver for ConvertFrameDriver {
     unsafe fn init() -> Self {
         Self {
-            current_frame: Vec::with_capacity(LIGHTS_NUM),
+            current_frame: Vec::with_capacity(COORDS.lights_num()),
         }
     }
 
@@ -44,30 +37,59 @@ impl Driver for ConvertFrameDriver {
             FrameType::Frame3D(frame) => self.current_frame = frame.to_raw_data(),
         };
     }
-
-    fn get_lights_count(&self) -> usize {
-        LIGHTS_NUM
-    }
 }
 
 fn debug_effects(c: &mut Criterion) {
-    let runtime = tokio::runtime::Builder::new_current_thread()
-        .enable_time()
-        .build()
-        .expect("Should be able to build tokio runtime");
-
     for name in EffectNameList::iter() {
         c.bench_function(&format!("(SimpleDriver) {}", name.effect_name()), |b| {
-            let effect = name.default_dispatch();
-            b.to_async(&runtime)
-                .iter(|| effect.clone().run(unsafe { &mut SIMPLE_DRIVER }));
+            let mut effect = name.default_dispatch();
+            let config = name.config_name().default_dispatch();
+            let mut driver = unsafe { SimpleDriver::init() };
+
+            b.iter(|| {
+                if let Some(number) = effect.loops_to_test() {
+                    for i in 0..u16::from(number) {
+                        if let Some((frame, _duration)) = effect.next_frame(&config) {
+                            driver.display_frame(frame);
+                        } else {
+                            panic!(
+                                "Effect {} said it would loop {number} times but terminated after only {i} loops",
+                                effect.effect_name()
+                            );
+                        }
+                    }
+                } else {
+                    while let Some((frame, _duration)) = effect.next_frame(&config) {
+                        driver.display_frame(frame);
+                    }
+                }
+            });
         });
         c.bench_function(
             &format!("(ConvertFrameDriver) {}", name.effect_name()),
             |b| {
-                let effect = name.default_dispatch();
-                b.to_async(&runtime)
-                    .iter(|| effect.clone().run(unsafe { &mut CONVERT_FRAME_DRIVER }));
+                let mut effect = name.default_dispatch();
+                let config = name.config_name().default_dispatch();
+                let mut driver = unsafe { ConvertFrameDriver::init() };
+
+                b.iter(|| {
+                    if let Some(number) = effect.loops_to_test() {
+                        for i in 0..u16::from(number) {
+                            if let Some((frame, _duration)) = effect.next_frame(&config) {
+                                driver.display_frame(frame);
+                            } else {
+                                panic!(
+                                    "Effect {} said it would loop {number} times but terminated after only {i} loops",
+                                    effect.effect_name()
+                                );
+                            }
+                        }
+                    } else {
+                        while let Some((frame, _duration)) = effect.next_frame(&config) {
+                            driver.display_frame(frame);
+                        }
+                    }
+                });
             },
         );
     }
