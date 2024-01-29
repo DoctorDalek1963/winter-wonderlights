@@ -42,15 +42,11 @@ mod config {
         /// coordinate space, so a distance of 1 is the radius of the base of the tree.
         ///
         /// This value has no effect when the vertical oscillation period is 0.
-        pub rotation_axis_height_center_offset: f32,
+        pub rotation_axis_initial_height_offset: f32,
 
-        /// The number of seconds taken for a full vertical oscillation of the rotation axis.
-        ///
-        /// A period of 0 represents a plane which doesn't move at all.
-        ///
-        /// A negative period should just make it oscillate in reverse, since we're using sin, but
-        /// that behaviour should not be relied on.
-        pub rotation_axis_vertical_oscillation_period: f32,
+        /// The vertical movement speed of the rotation axis, measured in GIFT coordinate units
+        /// per second.
+        pub rotation_axis_vertical_oscillation_speed: f32,
     }
 
     impl Default for SplitPlaneConfig {
@@ -61,8 +57,8 @@ mod config {
                 colour_blend: 0.05,
                 rotation_speed: 0.5,
                 rotation_axis_z_rotation_degrees: 0.,
-                rotation_axis_height_center_offset: 0.,
-                rotation_axis_vertical_oscillation_period: 30.,
+                rotation_axis_initial_height_offset: 0.,
+                rotation_axis_vertical_oscillation_speed: 0.5,
             }
         }
     }
@@ -101,21 +97,18 @@ mod config {
 
             config_changed |= ui
                 .add(
-                    egui::Slider::new(&mut self.rotation_axis_height_center_offset, -2.0..=2.0)
+                    egui::Slider::new(&mut self.rotation_axis_initial_height_offset, -2.0..=2.0)
                         .clamp_to_range(false)
-                        .text("Rotation axis height center offset"),
+                        .text("Rotation axis initial height offset"),
                 )
                 .changed();
 
             config_changed |= ui
                 .add(
-                    egui::Slider::new(
-                        &mut self.rotation_axis_vertical_oscillation_period,
-                        0.0..=60.,
-                    )
-                    .suffix("s")
-                    .clamp_to_range(false)
-                    .text("Rotation axis vertical oscillation period"),
+                    egui::Slider::new(&mut self.rotation_axis_vertical_oscillation_speed, 0.0..=2.)
+                        .suffix("units/s")
+                        .clamp_to_range(false)
+                        .text("Rotation axis vertical oscillation speed"),
                 )
                 .changed();
 
@@ -140,8 +133,8 @@ mod effect {
     /// Spin a split plane around a point in the center of the tree.
     #[derive(Clone, Debug, PartialEq, BaseEffect)]
     pub struct SplitPlane {
-        /// The center of the plane.
-        position: Vec3,
+        /// The height of the center of the plane.
+        height: f32,
 
         /// The current angle of the rotation. Must be between 0 and [`std::f32::consts::TAU`].
         angle: f32,
@@ -156,11 +149,7 @@ mod effect {
     impl Effect for SplitPlane {
         fn from_config(config: SplitPlaneConfig) -> Self {
             Self {
-                position: Vec3::new(
-                    0.,
-                    0.,
-                    COORDS.max_z() / 2. + config.rotation_axis_height_center_offset,
-                ),
+                height: COORDS.max_z() / 2. + config.rotation_axis_initial_height_offset,
                 angle: 0.,
                 going_up: true,
             }
@@ -176,7 +165,7 @@ mod effect {
                 vec![FrameObject {
                     object: Object::SplitPlane {
                         normal,
-                        k: normal.dot(self.position),
+                        k: normal.dot(Vec3::new(0., 0., self.height)),
                         blend: config.colour_blend,
                         positive_side_colour: config.side_a_colour,
                         negative_side_colour: config.side_b_colour,
@@ -187,31 +176,24 @@ mod effect {
                 false,
             ));
 
-            // Update position
-            if config.rotation_axis_vertical_oscillation_period == 0. {
-                self.position = Vec3::new(
-                    0.,
-                    0.,
-                    COORDS.max_z() / 2. + config.rotation_axis_height_center_offset,
-                );
-            } else {
-                // TODO: Use sin to smooth out the oscillations
-                let delta = config.rotation_axis_vertical_oscillation_period / 50.
-                    * COORDS.max_z()
-                    * 0.8
-                    * 2.
-                    * Vec3::Z;
+            // Update height
+            let delta = config.rotation_axis_vertical_oscillation_speed / 50.;
 
-                if self.going_up {
-                    self.position += delta;
-                    if self.position.z > COORDS.max_z() * 0.9 {
-                        self.going_up = false;
-                    }
-                } else {
-                    self.position -= delta;
-                    if self.position.z < COORDS.max_z() * 0.1 {
-                        self.going_up = true;
-                    }
+            if self.going_up {
+                self.height += delta;
+                let limit = COORDS.max_z() * 0.9;
+
+                if self.height > limit {
+                    self.height = limit;
+                    self.going_up = false;
+                }
+            } else {
+                self.height -= delta;
+                let limit = COORDS.max_z() * 0.1;
+
+                if self.height < limit {
+                    self.height = limit;
+                    self.going_up = true;
                 }
             }
 
