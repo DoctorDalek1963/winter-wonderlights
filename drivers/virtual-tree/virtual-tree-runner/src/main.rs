@@ -72,7 +72,7 @@ fn listen_to_socket(socket_path: &str) {
 
         match message {
             Message::UpdateFrame(frame, max_brightness) => {
-                *CURRENT_FRAME.write().unwrap_or_log() = (frame, max_brightness)
+                *CURRENT_FRAME.write().unwrap_or_log() = (frame, max_brightness);
             }
             Message::Shutdown => process::exit(0),
         };
@@ -126,12 +126,11 @@ fn update_lights(
         return;
     };
     let (frame, max_brightness) = rw_lock.clone();
-    let frame = frame.clone();
     trace!(?frame, ?max_brightness);
 
     let brightness_factor = max_brightness as f32 / 100.;
     debug_assert!(
-        brightness_factor >= 0. && brightness_factor <= 1.,
+        (0.0..=1.0).contains(&brightness_factor),
         "brightness_factor must be between 0. and 1."
     );
 

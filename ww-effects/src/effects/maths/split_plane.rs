@@ -141,7 +141,7 @@ mod effect {
 
         /// Are we currently going up or down?
         ///
-        /// This has no effect if [`SplitPlaneConfig::rotation_axis_vertical_oscillation_period`]
+        /// This has no effect if [`SplitPlaneConfig::rotation_axis_vertical_oscillation_speed`]
         /// is 0.
         going_up: bool,
     }

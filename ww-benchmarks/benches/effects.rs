@@ -13,7 +13,7 @@ impl Driver for SimpleDriver {
         Self
     }
 
-    fn display_frame(&mut self, frame: FrameType) {
+    fn display_frame(&mut self, frame: FrameType, _max_brightness: u8) {
         // Do nothing, but don't optimise this away
         black_box(frame);
     }
@@ -30,7 +30,7 @@ impl Driver for ConvertFrameDriver {
         }
     }
 
-    fn display_frame(&mut self, frame: FrameType) {
+    fn display_frame(&mut self, frame: FrameType, _max_brightness: u8) {
         match frame {
             FrameType::Off => self.current_frame.fill([0; 3]),
             FrameType::RawData(data) => self.current_frame = data,
@@ -50,7 +50,7 @@ fn debug_effects(c: &mut Criterion) {
                 if let Some(number) = effect.loops_to_test() {
                     for i in 0..u16::from(number) {
                         if let Some((frame, _duration)) = effect.next_frame(&config) {
-                            driver.display_frame(frame);
+                            driver.display_frame(frame, 100);
                         } else {
                             panic!(
                                 "Effect {} said it would loop {number} times but terminated after only {i} loops",
@@ -60,7 +60,7 @@ fn debug_effects(c: &mut Criterion) {
                     }
                 } else {
                     while let Some((frame, _duration)) = effect.next_frame(&config) {
-                        driver.display_frame(frame);
+                        driver.display_frame(frame, 100);
                     }
                 }
             });
@@ -76,7 +76,7 @@ fn debug_effects(c: &mut Criterion) {
                     if let Some(number) = effect.loops_to_test() {
                         for i in 0..u16::from(number) {
                             if let Some((frame, _duration)) = effect.next_frame(&config) {
-                                driver.display_frame(frame);
+                                driver.display_frame(frame, 100);
                             } else {
                                 panic!(
                                     "Effect {} said it would loop {number} times but terminated after only {i} loops",
@@ -86,7 +86,7 @@ fn debug_effects(c: &mut Criterion) {
                         }
                     } else {
                         while let Some((frame, _duration)) = effect.next_frame(&config) {
-                            driver.display_frame(frame);
+                            driver.display_frame(frame, 100);
                         }
                     }
                 });

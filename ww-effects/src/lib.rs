@@ -86,7 +86,7 @@ cfg_if::cfg_if! {
                 Self::new()
             }
 
-            fn display_frame(&mut self, frame: FrameType) {
+            fn display_frame(&mut self, frame: FrameType, _max_brightness: u8) {
                 self.data.push(frame);
             }
         }

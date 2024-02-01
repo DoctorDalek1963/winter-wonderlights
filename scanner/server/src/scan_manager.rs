@@ -177,7 +177,10 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                                 );
 
                             state = ScanManagerState::WaitingToScan;
-                            driver.display_frame(FrameType::RawData(vec![[255; 3]; lights_num()]));
+                            driver.display_frame(
+                                FrameType::RawData(vec![[255; 3]; lights_num()]),
+                                100,
+                            );
                         }
                         ScanManagerState::ReadyToTakePhoto => {
                             let light_idx = CURRENT_IDX.fetch_add(1, Ordering::Relaxed);
@@ -195,10 +198,10 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                                     "Inserted alignment into finished_sides"
                                 );
                                 state = ScanManagerState::WaitingToScan;
-                                driver.display_frame(FrameType::RawData(vec![
-                                    [255; 3];
-                                    lights_num()
-                                ]));
+                                driver.display_frame(
+                                    FrameType::RawData(vec![[255; 3]; lights_num()]),
+                                    0,
+                                );
 
                                 CONTROLLER_SEND
                                     .send(
@@ -221,7 +224,7 @@ pub fn run_scan_manager(kill_rx: oneshot::Receiver<()>) {
                             info!(?light_idx, "Ready to take photo");
 
                             driver_raw_data[light_idx as usize] = [255; 3];
-                            driver.display_frame(FrameType::RawData(driver_raw_data.clone()));
+                            driver.display_frame(FrameType::RawData(driver_raw_data.clone()), 0);
                             driver_raw_data[light_idx as usize] = [0; 3];
 
                             sleep(Duration::from_millis(pause_time as u64)).await;
