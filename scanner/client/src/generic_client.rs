@@ -167,11 +167,8 @@ where
         mut reconnect_rx: async_broadcast::Receiver<()>,
     ) {
         loop {
-            let (mut ws_sender, ws_receiver) = ewebsock::connect(
-                std::env::var("SCANNER_SERVER_URL")
-                    .expect_or_log("SCANNER_SERVER_URL must be defined"),
-            )
-            .expect_or_log("Should be able to use WebSockets");
+            let (mut ws_sender, ws_receiver) = ewebsock::connect(env!("SCANNER_SERVER_URL"))
+                .expect_or_log("Should be able to use WebSockets");
 
             match ws_receiver_tx.send(ws_receiver).await {
                 Ok(()) => (),
