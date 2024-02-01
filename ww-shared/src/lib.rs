@@ -68,6 +68,9 @@ pub enum ClientToServerMsg {
     /// Change the pause time. See [`ClientState::pause_time_ms`].
     ChangePauseTime(u64),
 
+    /// Change the maximum brightness. See [`ClientState::max_brightness`].
+    ChangeMaxBrightness(u8),
+
     /// Restart the current effect.
     RestartCurrentEffect,
 }
@@ -83,6 +86,9 @@ pub struct ClientState {
 
     /// The number of milliseconds to pause before looping the current effect.
     pub pause_time_ms: u64,
+
+    /// The maximum brightness of the lightness, given as an integer in `0..=100`.
+    pub max_brightness: u8,
 }
 
 impl ClientState {
@@ -128,6 +134,7 @@ impl Default for ClientState {
             effect_name: None,
             effect_config: None,
             pause_time_ms: 500,
+            max_brightness: 100,
         }
     }
 }

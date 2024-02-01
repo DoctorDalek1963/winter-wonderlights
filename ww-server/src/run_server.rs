@@ -173,6 +173,15 @@ async fn handle_connection(
                 });
                 send_update_client_state();
             }
+            ClientToServerMsg::ChangeMaxBrightness(new_max_brightness) => {
+                info!(?new_max_brightness, "Client requesting new max brightness");
+
+                write_state!(state => {
+                    state.max_brightness = new_max_brightness;
+                    trace!(?state, "After updating client state max brightness");
+                });
+                send_update_client_state();
+            }
             ClientToServerMsg::RestartCurrentEffect => {
                 info!("Client requesting restart current effect");
 

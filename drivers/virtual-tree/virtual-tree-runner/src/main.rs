@@ -27,7 +27,7 @@ use ww_frame::{FrameType, RGBArray};
 use ww_gift_coords::COORDS;
 
 /// A global `RwLock` to record what the most recently sent frame is.
-static CURRENT_FRAME: RwLock<FrameType> = RwLock::new(FrameType::Off);
+static CURRENT_FRAME: RwLock<(FrameType, u8)> = RwLock::new((FrameType::Off, 100));
 
 /// Start the runner, taking a path to a local socket as the first command line argument.
 fn main() {
@@ -71,7 +71,9 @@ fn listen_to_socket(socket_path: &str) {
         trace!(?message, "Deserialized message");
 
         match message {
-            Message::UpdateFrame(frame) => *CURRENT_FRAME.write().unwrap_or_log() = frame,
+            Message::UpdateFrame(frame, max_brightness) => {
+                *CURRENT_FRAME.write().unwrap_or_log() = (frame, max_brightness)
+            }
             Message::Shutdown => process::exit(0),
         };
     }
@@ -120,11 +122,18 @@ fn update_lights(
     parent_query: Query<(&Handle<StandardMaterial>, &LightIndex, &Children)>,
     mut child_query: Query<&mut PointLight>,
 ) {
-    let Ok(frame) = CURRENT_FRAME.try_read() else {
+    let Ok(rw_lock) = CURRENT_FRAME.try_read() else {
         return;
     };
+    let (frame, max_brightness) = rw_lock.clone();
     let frame = frame.clone();
-    trace!(?frame);
+    trace!(?frame, ?max_brightness);
+
+    let brightness_factor = max_brightness as f32 / 100.;
+    debug_assert!(
+        brightness_factor >= 0. && brightness_factor <= 1.,
+        "brightness_factor must be between 0. and 1."
+    );
 
     let mut render_raw_data = |vec: Vec<RGBArray>| {
         for (handle, idx, children) in parent_query.iter() {
@@ -133,7 +142,8 @@ fn update_lights(
             trace!(?idx, "Before, color = {:?}", mat.emissive);
 
             let [r, g, b] = vec[idx.0];
-            let new_colour = Color::rgb_u8(r, g, b).as_rgba_linear();
+            let [hue, saturation, lightness, alpha] = Color::rgb_u8(r, g, b).as_hsla_f32();
+            let new_colour = Color::hsla(hue, saturation, lightness * brightness_factor, alpha);
 
             mat.emissive = new_colour;
             trace!(?idx, "After, color = {:?}", mat.emissive);

@@ -49,7 +49,7 @@ impl Drop for DriverWrapper {
         if std::thread::panicking() {
             error!("Thread is panicking. Unable to blank out tree");
         } else {
-            self.display_frame(FrameType::Off);
+            self.display_frame(FrameType::Off, 0);
         }
     }
 }
@@ -72,7 +72,7 @@ impl Driver for DriverWrapper {
     }
 
     #[inline]
-    fn display_frame(&mut self, frame: FrameType) {
-        self.0.display_frame(frame);
+    fn display_frame(&mut self, frame: FrameType, max_brightness: u8) {
+        self.0.display_frame(frame, max_brightness);
     }
 }

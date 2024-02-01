@@ -362,6 +362,15 @@ impl App {
                 )
                 .changed();
 
+            let max_brightness = ui
+                .add(
+                    egui::Slider::new(&mut state.max_brightness, 0..=100)
+                        .clamp_to_range(true)
+                        .text("Maximum brightness")
+                        .suffix("%"),
+                )
+                .changed();
+
             ui.add_space(20.0);
 
             let restart_effect = ui.button("Restart current effect").clicked();
@@ -375,8 +384,11 @@ impl App {
                 None
             };
 
-            // TODO: Collapse these cases into a single `self.async_runtime.spawn_pinned()`
-            // call to reduce overhead
+            // We could condense these into a single call to `self.async_runtime.spawn_pinned()`,
+            // but we're only ever going to call it once in a single frame anyway since we can't
+            // change two things at once. To condese these calls, we'd probably want to allocate a
+            // Vec to store the messages to send, which is far less efficient.
+
             if let Some(name) = new_effect_selected {
                 trace!("New effect selected, sending message");
 
@@ -404,6 +416,24 @@ impl App {
                             .send(ClientToServerMsg::ChangePauseTime(pause_time))
                             .await
                             .expect_or_log("Unable to send ChangePauseTime message down channel");
+                    }
+                });
+            }
+
+            if max_brightness {
+                trace!("Max brightness changed, sending message");
+
+                self.async_runtime.spawn_pinned({
+                    let message_tx = self.message_tx.clone();
+                    let max_brightness = state.max_brightness;
+
+                    move || async move {
+                        message_tx
+                            .send(ClientToServerMsg::ChangeMaxBrightness(max_brightness))
+                            .await
+                            .expect_or_log(
+                                "Unable to send ChangeMaxBrightness message down channel",
+                            );
                     }
                 });
             }

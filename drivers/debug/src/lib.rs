@@ -13,7 +13,7 @@ impl Driver for DebugDriver {
     }
 
     #[instrument(skip_all)]
-    fn display_frame(&mut self, frame: FrameType) {
-        info!(?frame);
+    fn display_frame(&mut self, frame: FrameType, max_brightness: u8) {
+        info!(?frame, ?max_brightness);
     }
 }

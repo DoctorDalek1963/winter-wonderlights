@@ -34,5 +34,8 @@ pub trait Driver {
         Self: Sized;
 
     /// Display the given frame using this driver.
-    fn display_frame(&mut self, frame: FrameType);
+    ///
+    /// The `max_brightness` argument must be an integer in `0..=100`. This value acts as a
+    /// percentage.
+    fn display_frame(&mut self, frame: FrameType, max_brightness: u8);
 }

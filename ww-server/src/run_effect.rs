@@ -104,11 +104,11 @@ pub fn run_effect(client_state: WrappedClientState, kill_thread: oneshot::Receiv
                                 (frame, duration)
                             };
 
-                            driver.display_frame(frame);
+                            driver.display_frame(frame, read_state!(state => state.max_brightness));
                             tokio::time::sleep(duration).await;
                         }
 
-                        driver.display_frame(FrameType::Off);
+                        driver.display_frame(FrameType::Off, read_state!(state => state.max_brightness));
 
                         // Pause before looping the effect
                         let pause_time_ms = read_state!(state => state.pause_time_ms);
@@ -120,7 +120,7 @@ pub fn run_effect(client_state: WrappedClientState, kill_thread: oneshot::Receiv
                             read_state!(state => state.effect_name.map_or("None", |x| x.effect_name()))
                         );
                     } else {
-                        driver.display_frame(FrameType::Off);
+                        driver.display_frame(FrameType::Off, read_state!(state => state.max_brightness));
 
                         // Don't send `FrameType::Off` constantly. `select!` takes control
                         // while we're awaiting anyway, so responding to a message will be fast

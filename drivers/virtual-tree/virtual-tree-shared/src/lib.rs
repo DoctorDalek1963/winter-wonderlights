@@ -9,7 +9,7 @@ use ww_frame::FrameType;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Message {
     /// Update the current frame.
-    UpdateFrame(FrameType),
+    UpdateFrame(FrameType, u8),
 
     /// Shut down the runner.
     Shutdown,

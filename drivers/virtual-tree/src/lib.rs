@@ -66,12 +66,12 @@ impl Driver for VirtualTreeDriver {
     }
 
     #[instrument(skip_all)]
-    fn display_frame(&mut self, frame: FrameType) {
+    fn display_frame(&mut self, frame: FrameType, max_brightness: u8) {
         trace!(?frame, "Writing frame to socket");
 
         self.stream
             .write(
-                &bincode::serialize(&Message::UpdateFrame(frame))
+                &bincode::serialize(&Message::UpdateFrame(frame, max_brightness))
                     .expect_or_log("Serializing a Message should not fail"),
             )
             .expect_or_log("Failed to write to the socket");
