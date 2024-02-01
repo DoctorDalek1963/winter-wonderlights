@@ -72,10 +72,11 @@ pub struct Ws2811Driver {
 impl Ws2811Driver {
     /// Display the given RGB colours on the lights.
     #[instrument(skip_all)]
-    fn display_raw_colours(&mut self, colours: impl Iterator<Item = [u8; 3]>) {
+    fn display_colours(&mut self, colours: &[[u8; 3]], brightness: u8) {
+        self.controller.set_brightness(0, brightness);
         let leds = self.controller.leds_mut(0);
 
-        for (idx, &[r, g, b]) in colours.enumerate() {
+        for (idx, &[r, g, b]) in colours.iter().enumerate() {
             if let Some(colour) = leds.get_mut(idx) {
                 *colour = [b, g, r, 0];
             } else {
@@ -119,18 +120,6 @@ impl Driver for Ws2811Driver {
             FrameType::Frame3D(frame) => frame.to_raw_data(),
         };
 
-        let brightness_factor = max_brightness as f32 / 100.;
-        debug_assert!(
-            brightness_factor >= 0. && brightness_factor <= 1.,
-            "brightness_factor must be between 0. and 1."
-        );
-
-        self.display_raw_colours(colours.into_iter().map(|[r, g, b]| {
-            [
-                (r as f32 * brightness_factor).round() as u8,
-                (g as f32 * brightness_factor).round() as u8,
-                (b as f32 * brightness_factor).round() as u8,
-            ]
-        }));
+        self.display_colours(&colours, (max_brightness as f32 * 2.55).round() as u8);
     }
 }
