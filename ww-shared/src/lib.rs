@@ -65,6 +65,9 @@ pub enum ClientToServerMsg {
     /// Ask the server to change the effect.
     ChangeEffect(Option<EffectNameList>),
 
+    /// Change the pause time. See [`ClientState::pause_time_ms`].
+    ChangePauseTime(u64),
+
     /// Restart the current effect.
     RestartCurrentEffect,
 }
@@ -77,6 +80,9 @@ pub struct ClientState {
 
     /// The config of the current effect.
     pub effect_config: Option<EffectConfigDispatchList>,
+
+    /// The number of milliseconds to pause before looping the current effect.
+    pub pause_time_ms: u64,
 }
 
 impl ClientState {
@@ -121,6 +127,7 @@ impl Default for ClientState {
         Self {
             effect_name: None,
             effect_config: None,
+            pause_time_ms: 500,
         }
     }
 }

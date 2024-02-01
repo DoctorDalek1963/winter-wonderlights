@@ -109,9 +109,10 @@ pub fn run_effect(client_state: WrappedClientState, kill_thread: oneshot::Receiv
                         }
 
                         driver.display_frame(FrameType::Off);
+
                         // Pause before looping the effect
-                        // TODO: Allow custom pause time
-                        tokio::time::sleep(Duration::from_millis(500)).await;
+                        let pause_time_ms = read_state!(state => state.pause_time_ms);
+                        tokio::time::sleep(Duration::from_millis(pause_time_ms)).await;
 
                         client_state.save_config();
                         info!(

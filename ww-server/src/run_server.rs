@@ -164,6 +164,15 @@ async fn handle_connection(
 
                 send_update_client_state();
             }
+            ClientToServerMsg::ChangePauseTime(new_time) => {
+                info!(?new_time, "Client requesting new pause time");
+
+                write_state!(state => {
+                    state.pause_time_ms = new_time;
+                    trace!(?state, "After updating client state pause time");
+                });
+                send_update_client_state();
+            }
             ClientToServerMsg::RestartCurrentEffect => {
                 info!("Client requesting restart current effect");
 

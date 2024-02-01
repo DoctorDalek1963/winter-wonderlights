@@ -353,6 +353,17 @@ impl App {
                 .inner
                 .flatten();
 
+            let pause_time = ui
+                .add(
+                    egui::Slider::new(&mut state.pause_time_ms, 0..=3000)
+                        .clamp_to_range(false)
+                        .text("Time to pause before looping effect")
+                        .suffix("ms"),
+                )
+                .changed();
+
+            ui.add_space(20.0);
+
             let restart_effect = ui.button("Restart current effect").clicked();
 
             let effect_config_changed = if let Some(config) = &mut state.effect_config {
@@ -377,6 +388,22 @@ impl App {
                             .send(ClientToServerMsg::ChangeEffect(name))
                             .await
                             .expect_or_log("Unable to send ChangeEffect message down channel");
+                    }
+                });
+            }
+
+            if pause_time {
+                trace!("Pause time changed, sending message");
+
+                self.async_runtime.spawn_pinned({
+                    let message_tx = self.message_tx.clone();
+                    let pause_time = state.pause_time_ms;
+
+                    move || async move {
+                        message_tx
+                            .send(ClientToServerMsg::ChangePauseTime(pause_time))
+                            .await
+                            .expect_or_log("Unable to send ChangePauseTime message down channel");
                     }
                 });
             }
