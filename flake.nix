@@ -129,23 +129,24 @@
             inherit (craneLib.crateNameFromCargoToml {inherit src;}) version;
           };
       in rec {
-        devShells.default = pkgs.mkShell {
-          nativeBuildInputs =
-            [
-              (buildRustToolchain (toolchain:
-                toolchain.default.override {
-                  extensions = ["rust-analyzer" "rust-src" "rust-std"];
-                }))
-              pkgs.cargo-nextest
-              pkgs.just
-            ]
-            ++ commonArgsBuildInputs
-            ++ commonArgsNativeBuildInputs
-            ++ graphicalBuildInputs;
-          shellHook = ''
-            ${config.pre-commit.installationScript}
-          '';
-        };
+        devShells.default = pkgs.mkShell ({
+            nativeBuildInputs =
+              [
+                (buildRustToolchain (toolchain:
+                  toolchain.default.override {
+                    extensions = ["rust-analyzer" "rust-src" "rust-std"];
+                  }))
+                pkgs.cargo-nextest
+                pkgs.just
+              ]
+              ++ commonArgsBuildInputs
+              ++ commonArgsNativeBuildInputs
+              ++ graphicalBuildInputs;
+            shellHook = ''
+              ${config.pre-commit.installationScript}
+            '';
+          }
+          // env);
 
         # See https://flake.parts/options/pre-commit-hooks-nix and
         # https://github.com/cachix/git-hooks.nix/blob/master/modules/hooks.nix
