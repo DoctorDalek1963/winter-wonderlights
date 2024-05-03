@@ -172,7 +172,7 @@
         };
 
         checks = {
-          inherit (packages) bench doc;
+          inherit (packages) bench doc server-debug server-raspi-ws2811 server-virtual-tree;
 
           clippy = craneLib.cargoClippy (commonArgs
             // {
@@ -375,6 +375,40 @@
                 buildPhaseCargoCommand = "cd ww-benchmarks && cargo bench ${args} | tee output.txt && cd ..";
                 postInstall = "cp ww-benchmarks/output.txt $out/output.txt";
               });
+
+          # Make a package with overridable environment variables
+          mkEnvPkg = binaryName: crateArgs:
+            pkgs.lib.makeOverridable (overridableEnv @ {
+              DATA_DIR,
+              COORDS_FILENAME,
+              SERVER_SSL_CERT_PATH,
+              SERVER_SSL_KEY_PATH,
+              PORT,
+              LIGHTS_NUM,
+              SERVER_URL,
+              SCANNER_PORT,
+              SCANNER_SERVER_URL,
+            }:
+              craneLib.buildPackage (individualCrateArgs
+                // crateArgs
+                // overridableEnv # Also inject the new env vars into the build
+                // {
+                  nativeBuildInputs = commonArgs.nativeBuildInputs ++ [pkgs.makeWrapper];
+                  postInstall = ''
+                    wrapProgram "$out/bin/${binaryName}" \
+                      --set DATA_DIR "${DATA_DIR}" \
+                      --set COORDS_FILENAME "${COORDS_FILENAME}" \
+                      --set SERVER_SSL_CERT_PATH "${SERVER_SSL_CERT_PATH}" \
+                      --set SERVER_SSL_KEY_PATH "${SERVER_SSL_KEY_PATH}" \
+                      --set PORT "${PORT}" \
+                      --set LIGHTS_NUM "${LIGHTS_NUM}" \
+                      --set SERVER_URL "${SERVER_URL}" \
+                      --set SCANNER_PORT "${SCANNER_PORT}" \
+                      --set SCANNER_SERVER_URL "${SCANNER_SERVER_URL}"
+                  '';
+                  meta.mainProgram = binaryName;
+                }))
+            (env // {DATA_DIR = "/home/dyson/repos/winter-wonderlights/data";});
         in {
           bench = benchPkg "";
           bench-ci = benchPkg "-- --output-format bencher";
@@ -391,6 +425,22 @@
               ];
               RUSTDOCFLAGS = "--deny warnings";
             });
+
+          server-debug = mkEnvPkg "ww-server" {
+            pname = "ww-server-debug";
+            cargoExtraArgs = "--package=ww-server --no-default-features --features driver-debug";
+          };
+
+          server-raspi-ws2811 = mkEnvPkg "ww-server" {
+            pname = "ww-server-raspi-ws2811";
+            cargoExtraArgs = "--package=ww-server --no-default-features --features driver-raspi-ws2811";
+          };
+
+          # TODO: I think it's failing to spawn the other process and/or do IPC
+          server-virtual-tree = mkEnvPkg "ww-server" {
+            pname = "ww-server-virtual-tree";
+            cargoExtraArgs = "--package=ww-server --no-default-features --features driver-virtual-tree";
+          };
         };
       };
     };
