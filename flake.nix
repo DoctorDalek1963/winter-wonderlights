@@ -332,13 +332,18 @@
             });
         };
 
-        packages = {
-          bench = craneLib.mkCargoDerivation (commonArgs
-            // {
-              inherit cargoArtifacts;
-              pnameSuffix = "-bench";
-              buildPhaseCargoCommand = "cargo bench --features bench";
-            });
+        packages = let
+          benchPkg = args:
+            craneLib.mkCargoDerivation (commonArgs
+              // {
+                inherit cargoArtifacts;
+                pnameSuffix = "-bench";
+                buildPhaseCargoCommand = "cd ww-benchmarks && cargo bench ${args} | tee output.txt && cd ..";
+                postInstall = "cp ww-benchmarks/output.txt $out/output.txt";
+              });
+        in {
+          bench = benchPkg "";
+          bench-ci = benchPkg "-- --output-format bencher";
 
           doc = craneLib.cargoDoc (commonArgs
             // {
