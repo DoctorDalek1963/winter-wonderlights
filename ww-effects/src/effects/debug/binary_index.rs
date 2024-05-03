@@ -83,7 +83,7 @@ mod effect {
         /// The list of patterns to display, *in reverse order*.
         ///
         /// Each [`BitVec`] says whether each light should be on or off this frame, and the [`Vec`]
-        /// contains the BitVecs in reverse order, so [`Vec::pop`] should give the next frame in
+        /// contains the [`BitVec`]s in reverse order, so [`Vec::pop`] should give the next frame in
         /// the sequence.
         patterns: Vec<BitVec>,
 

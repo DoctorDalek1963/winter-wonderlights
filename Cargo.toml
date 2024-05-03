@@ -16,10 +16,12 @@ members = [
 	"ww-frame",
 	"ww-gift-coords",
 	"ww-server",
-	"ww-shared"
+	"ww-shared",
 ]
 
 [workspace.package]
+name = "winter-wonderlights"
+version = "0.1.0-dev"
 authors = ["Dyson Dyson <dyson.dyson@icloud.com>"]
 edition = "2021"
 publish = false
