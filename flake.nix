@@ -356,6 +356,14 @@
               ]);
               nativeBuildInputs = commonArgs.nativeBuildInputs ++ [pkgs.cargo-insta];
             });
+
+          deny-with-virtual-tree =
+            craneLib.cargoDeny (commonArgs
+              // {cargoDenyExtraArgs = ''--features "ww-server/driver-virtual-tree"'';});
+
+          deny-with-raspi-ws2811 =
+            craneLib.cargoDeny (commonArgs
+              // {cargoDenyExtraArgs = ''--features "ww-server/driver-raspi-ws2811 ww-scanner-server/driver-raspi-ws2811 gift-coord-editor/driver-raspi-ws2811"'';});
         };
 
         packages = let
