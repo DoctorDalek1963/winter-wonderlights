@@ -1,6 +1,6 @@
 [package]
 name = "ww-shared-server-tls"
-version = "0.1.0-dev"
+version.workspace = true
 description = "A tiny library containing TLS stuff for servers."
 authors.workspace = true
 edition.workspace = true

@@ -1,6 +1,6 @@
 [package]
 name = "effect-proc-macros"
-version = "0.1.0-dev"
+version.workspace = true
 description = "A set of proc-macros for the `ww_effects` crate of Winter WonderLights."
 authors.workspace = true
 edition.workspace = true

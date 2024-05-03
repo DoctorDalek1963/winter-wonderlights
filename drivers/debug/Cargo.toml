@@ -1,6 +1,6 @@
 [package]
 name = "debug"
-version = "0.1.0-dev"
+version.workspace = true
 description = "The Winter WonderLights debug driver used for testing purposes."
 authors.workspace = true
 edition.workspace = true

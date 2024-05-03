@@ -1,6 +1,6 @@
 [package]
 name = "virtual-tree"
-version = "0.1.0-dev"
+version.workspace = true
 description = "The virtual tree driver for Winter WonderLights."
 authors.workspace = true
 edition.workspace = true
