@@ -85,17 +85,39 @@
           wayland
         ];
 
-        commonArgs = {
-          inherit src;
-          strictDeps = true;
-          doCheck = false;
+        env = rec {
+          # Server
+          DATA_DIR = "/home/dyson/repos/winter-wonderlights/data";
+          COORDS_FILENAME = "2020-matt-parker.gift";
 
-          # We set these here because we need to compile fonts and system
-          # library stuff for cargoArtifacts, which gets built before any
-          # of the packages
-          nativeBuildInputs = commonArgsNativeBuildInputs;
-          buildInputs = commonArgsBuildInputs;
+          SERVER_SSL_CERT_PATH = "/dev/null";
+          SERVER_SSL_KEY_PATH = "/dev/null";
+
+          PORT = "23120";
+          LIGHTS_NUM = "250";
+
+          # Client
+          SERVER_URL = "ws://localhost:${PORT}";
+
+          # Scanner server
+          SCANNER_PORT = "23121";
+
+          # Scanner clients
+          SCANNER_SERVER_URL = "ws://localhost:${SCANNER_PORT}";
         };
+
+        commonArgs =
+          {
+            inherit src;
+            strictDeps = true;
+            doCheck = false;
+
+            # We set these here because we need to compile system library stuff
+            # for cargoArtifacts, which gets built before any of the packages
+            nativeBuildInputs = commonArgsNativeBuildInputs;
+            buildInputs = commonArgsBuildInputs;
+          }
+          // env;
 
         cargoArtifacts = craneLib.buildDepsOnly commonArgs;
 
@@ -177,7 +199,13 @@
           doc = craneLib.cargoDoc (commonArgs
             // {
               inherit cargoArtifacts;
-              cargoDocExtraArgs = "--no-deps --document-private-items --workspace";
+              cargoDocExtraArgs = pkgs.lib.concatStringsSep " " [
+                "--no-deps"
+                "--document-private-items"
+                "--workspace"
+                "--features"
+                (pkgs.lib.concatStringsSep "," ["gift-coord-editor/_driver"])
+              ];
               RUSTDOCFLAGS = "--deny warnings";
             });
         };
