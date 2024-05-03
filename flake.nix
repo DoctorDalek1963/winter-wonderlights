@@ -53,6 +53,7 @@
           filter = path: type:
             (pkgs.lib.hasSuffix "\.html" path)
             || (pkgs.lib.hasSuffix "\.txt" path)
+            || (pkgs.lib.hasSuffix "\.snap" path)
             || (craneLib.filterCargoSources path type);
         };
 
@@ -136,6 +137,7 @@
                   toolchain.default.override {
                     extensions = ["rust-analyzer" "rust-src" "rust-std"];
                   }))
+                pkgs.cargo-insta
                 pkgs.cargo-nextest
                 pkgs.just
               ]
@@ -330,6 +332,29 @@
               inherit cargoArtifacts;
               partitions = 1;
               partitionType = "count";
+            });
+
+          insta-test = craneLib.mkCargoDerivation (commonArgs
+            // {
+              inherit cargoArtifacts;
+              pnameSuffix = "-insta";
+              buildPhaseCargoCommand = pkgs.lib.concatStringsSep "\n" (map (args @ {crate, ...}: let
+                flags =
+                  if args ? "features"
+                  then "--no-default-features --features ${args.features}"
+                  else "--all-features";
+              in
+                # bash
+                ''
+                  cd ${crate}
+                  cargo insta test --unreferenced reject ${flags}
+                  cd ..
+                '') [
+                # We only need to run insta on crates with snapshot tests
+                {crate = "ww-effects";}
+                {crate = "ww-frame";}
+              ]);
+              nativeBuildInputs = commonArgs.nativeBuildInputs ++ [pkgs.cargo-insta];
             });
         };
 
