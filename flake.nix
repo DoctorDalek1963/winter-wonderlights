@@ -130,7 +130,7 @@
             inherit (craneLib.crateNameFromCargoToml {inherit src;}) version;
           };
       in rec {
-        devShells.default = pkgs.mkShell ({
+        devShells.default = pkgs.mkShell (rec {
             nativeBuildInputs =
               [
                 (buildRustToolchain (toolchain:
@@ -146,6 +146,7 @@
               ++ graphicalBuildInputs;
             shellHook = ''
               ${config.pre-commit.installationScript}
+              export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath nativeBuildInputs}"
             '';
           }
           // env);
@@ -377,7 +378,7 @@
               });
 
           # Make a package with overridable environment variables
-          mkEnvPkg = binaryName: crateArgs:
+          mkEnvPkg = binaryName: crateArgs: extraWrapArgs:
             pkgs.lib.makeOverridable (overridableEnv @ {
               DATA_DIR,
               COORDS_FILENAME,
@@ -394,17 +395,21 @@
                 // overridableEnv # Also inject the new env vars into the build
                 // {
                   nativeBuildInputs = commonArgs.nativeBuildInputs ++ [pkgs.makeWrapper];
-                  postInstall = ''
-                    wrapProgram "$out/bin/${binaryName}" \
-                      --set DATA_DIR "${DATA_DIR}" \
-                      --set COORDS_FILENAME "${COORDS_FILENAME}" \
-                      --set SERVER_SSL_CERT_PATH "${SERVER_SSL_CERT_PATH}" \
-                      --set SERVER_SSL_KEY_PATH "${SERVER_SSL_KEY_PATH}" \
-                      --set PORT "${PORT}" \
-                      --set LIGHTS_NUM "${LIGHTS_NUM}" \
-                      --set SERVER_URL "${SERVER_URL}" \
-                      --set SCANNER_PORT "${SCANNER_PORT}" \
-                      --set SCANNER_SERVER_URL "${SCANNER_SERVER_URL}"
+                  postInstall = let
+                    wrapProgramArgs = pkgs.lib.concatStringsSep " " ([
+                        ''--set DATA_DIR "${DATA_DIR}"''
+                        ''--set COORDS_FILENAME "${COORDS_FILENAME}"''
+                        ''--set SERVER_SSL_CERT_PATH "${SERVER_SSL_CERT_PATH}"''
+                        ''--set SERVER_SSL_KEY_PATH "${SERVER_SSL_KEY_PATH}"''
+                        ''--set PORT "${PORT}"''
+                        ''--set LIGHTS_NUM "${LIGHTS_NUM}"''
+                        ''--set SERVER_URL "${SERVER_URL}"''
+                        ''--set SCANNER_PORT "${SCANNER_PORT}"''
+                        ''--set SCANNER_SERVER_URL "${SCANNER_SERVER_URL}"''
+                      ]
+                      ++ extraWrapArgs);
+                  in ''
+                    wrapProgram "$out/bin/${binaryName}" ${wrapProgramArgs}
                   '';
                   meta.mainProgram = binaryName;
                 }))
@@ -429,18 +434,26 @@
           server-debug = mkEnvPkg "ww-server" {
             pname = "ww-server-debug";
             cargoExtraArgs = "--package=ww-server --no-default-features --features driver-debug";
-          };
+          } [];
 
           server-raspi-ws2811 = mkEnvPkg "ww-server" {
             pname = "ww-server-raspi-ws2811";
             cargoExtraArgs = "--package=ww-server --no-default-features --features driver-raspi-ws2811";
-          };
+          } [];
 
           # TODO: I think it's failing to spawn the other process and/or do IPC
           server-virtual-tree = mkEnvPkg "ww-server" {
             pname = "ww-server-virtual-tree";
             cargoExtraArgs = "--package=ww-server --no-default-features --features driver-virtual-tree";
-          };
+          } [];
+
+          client-native =
+            mkEnvPkg "ww-client" {
+              pname = "ww-client-native";
+              cargoExtraArgs = "--package=ww-client";
+            } [
+              ''--prefix LD_LIBRARY_PATH "${pkgs.lib.makeLibraryPath graphicalBuildInputs}"''
+            ];
         };
       };
     };
