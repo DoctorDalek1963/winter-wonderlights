@@ -368,6 +368,15 @@
         };
 
         packages = let
+          rustToolchainWasm = buildRustToolchain (toolchain:
+            toolchain.default.override {
+              targets = ["wasm32-unknown-unknown"];
+            });
+
+          craneLibTrunk =
+            ((inputs.crane.mkLib pkgs).overrideToolchain rustToolchainWasm)
+            .overrideScope (_: _: {inherit wasm-bindgen-cli;});
+
           benchPkg = args:
             craneLib.mkCargoDerivation (commonArgs
               // {
@@ -455,10 +464,44 @@
               ''--prefix LD_LIBRARY_PATH "${pkgs.lib.makeLibraryPath graphicalBuildInputs}"''
             ];
 
+          client-web = pkgs.lib.makeOverridable (overridableEnv:
+            craneLibTrunk.buildTrunkPackage (individualCrateArgs
+              // overridableEnv # Also inject the new env vars into the build
+              // {
+                pname = "ww-client-web";
+                cargoExtraArgs = "--package=ww-client";
+
+                trunkIndexPath = "ww-client/index.html";
+                CARGO_BUILD_TARGET = "wasm32-unknown-unknown";
+                inherit wasm-bindgen-cli;
+              }))
+          env;
+
           scanner-server-raspi-ws2811 = mkEnvPkg "ww-scanner-server" {
             pname = "ww-server-raspi-ws2811";
             cargoExtraArgs = "--package=ww-scanner-server --no-default-features --features driver-raspi-ws2811";
           } [];
+
+          scanner-client-native =
+            mkEnvPkg "ww-scanner-client" {
+              pname = "ww-scanner-client-native";
+              cargoExtraArgs = "--package=ww-scanner-client";
+            } [
+              ''--prefix LD_LIBRARY_PATH "${pkgs.lib.makeLibraryPath graphicalBuildInputs}"''
+            ];
+
+          scanner-client-web = pkgs.lib.makeOverridable (overridableEnv:
+            craneLibTrunk.buildTrunkPackage (individualCrateArgs
+              // overridableEnv # Also inject the new env vars into the build
+              // {
+                pname = "ww-scanner-client-web";
+                cargoExtraArgs = "--package=ww-scanner-client";
+
+                trunkIndexPath = "scanner/client/index.html";
+                CARGO_BUILD_TARGET = "wasm32-unknown-unknown";
+                inherit wasm-bindgen-cli;
+              }))
+          env;
         };
       };
     };
