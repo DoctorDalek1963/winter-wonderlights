@@ -450,7 +450,10 @@
             cargoExtraArgs = "--package=ww-server --no-default-features --features driver-raspi-ws2811";
           } [];
 
-          # TODO: I think it's failing to spawn the other process and/or do IPC
+          # TODO: It's failing to spawn the other process because
+          # CARGO_BIN_FILE_VIRTUAL_TREE_RUNNER is set to
+          # /build/source/target/release/..., so this needs to be patched
+          # manually with wrapProgram
           server-virtual-tree = mkEnvPkg "ww-server" {
             pname = "ww-server-virtual-tree";
             cargoExtraArgs = "--package=ww-server --no-default-features --features driver-virtual-tree";
