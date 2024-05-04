@@ -454,6 +454,11 @@
             } [
               ''--prefix LD_LIBRARY_PATH "${pkgs.lib.makeLibraryPath graphicalBuildInputs}"''
             ];
+
+          scanner-server-raspi-ws2811 = mkEnvPkg "ww-scanner-server" {
+            pname = "ww-server-raspi-ws2811";
+            cargoExtraArgs = "--package=ww-scanner-server --no-default-features --features driver-raspi-ws2811";
+          } [];
         };
       };
     };
