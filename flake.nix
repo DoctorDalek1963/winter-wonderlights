@@ -79,6 +79,9 @@
         graphicalBuildInputs = with pkgs; [
           libGL
           libxkbcommon
+          mesa
+          vulkan-loader
+          vulkan-validation-layers
           xorg.libX11
           xorg.libxcb
           xorg.libXcursor
@@ -107,6 +110,8 @@
           # Scanner clients
           SCANNER_SERVER_URL = "ws://localhost:${SCANNER_PORT}";
         };
+
+        localDevEnv = env // {DATA_DIR = "/home/dyson/repos/winter-wonderlights/data";};
 
         commonArgs =
           {
@@ -148,8 +153,10 @@
               ${config.pre-commit.installationScript}
               export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath nativeBuildInputs}"
             '';
+            # This eliminates a warning in the virtual tree about vulkan validation layers
+            VK_LAYER_PATH = "${pkgs.vulkan-validation-layers}/share/vulkan/explicit_layer.d";
           }
-          // env);
+          // localDevEnv);
 
         # See https://flake.parts/options/pre-commit-hooks-nix and
         # https://github.com/cachix/git-hooks.nix/blob/master/modules/hooks.nix
@@ -422,7 +429,7 @@
                   '';
                   meta.mainProgram = binaryName;
                 }))
-            (env // {DATA_DIR = "/home/dyson/repos/winter-wonderlights/data";});
+            localDevEnv;
         in {
           bench = benchPkg "";
           bench-ci = benchPkg "-- --output-format bencher";
@@ -450,14 +457,22 @@
             cargoExtraArgs = "--package=ww-server --no-default-features --features driver-raspi-ws2811";
           } [];
 
-          # TODO: It's failing to spawn the other process because
-          # CARGO_BIN_FILE_VIRTUAL_TREE_RUNNER is set to
-          # /build/source/target/release/..., so this needs to be patched
-          # manually with wrapProgram
-          server-virtual-tree = mkEnvPkg "ww-server" {
-            pname = "ww-server-virtual-tree";
-            cargoExtraArgs = "--package=ww-server --no-default-features --features driver-virtual-tree";
-          } [];
+          # Overriding this one is a little complicated but the virtual tree
+          # should only be used for development, so a local DATA_DIR isn't a
+          # big issue
+          server-virtual-tree =
+            pkgs.lib.makeOverridable
+            (virtual-tree-runner:
+              mkEnvPkg "ww-server" {
+                pname = "ww-server-virtual-tree";
+                cargoExtraArgs = "--package=ww-server --no-default-features --features driver-virtual-tree";
+              } [
+                ''--set CARGO_BIN_FILE_VIRTUAL_TREE_RUNNER "${virtual-tree-runner}/bin/virtual-tree-runner"''
+              ])
+            (mkEnvPkg "virtual-tree-runner" {
+                pname = "virtual-tree-runner";
+                cargoExtraArgs = "--package=virtual-tree-runner";
+              } []);
 
           client-native =
             mkEnvPkg "ww-client" {

@@ -13,8 +13,15 @@ use virtual_tree_shared::Message;
 use ww_driver_trait::Driver;
 use ww_frame::FrameType;
 
-/// The path of the runner binary.
-const RUNNER_PATH: &str = env!("CARGO_BIN_FILE_VIRTUAL_TREE_RUNNER");
+/// Get the path of the runner binary.
+///
+/// We try to read [`RUNNER_PATH_ENV_VAR`] at runtime if it's available (since Nix needs to
+/// overwrite this path), but we default to the compile-time version if it's not available at
+/// runtime.
+fn get_runner_path() -> String {
+    std::env::var("CARGO_BIN_FILE_VIRTUAL_TREE_RUNNER")
+        .unwrap_or(env!("CARGO_BIN_FILE_VIRTUAL_TREE_RUNNER").to_owned())
+}
 
 /// A driver that uses IPC to communicate with Bevy to render a virtual tree.
 pub struct VirtualTreeDriver {
@@ -25,7 +32,9 @@ pub struct VirtualTreeDriver {
 impl Driver for VirtualTreeDriver {
     #[instrument]
     unsafe fn init() -> Self {
-        debug!(?RUNNER_PATH);
+        let runner_path = get_runner_path();
+
+        debug!(?runner_path);
 
         let socket_path = match NameTypeSupport::query() {
             NameTypeSupport::OnlyPaths => {
@@ -43,20 +52,20 @@ impl Driver for VirtualTreeDriver {
             Ok(x) => x,
             Err(e) => {
                 if e.kind() == io::ErrorKind::AddrInUse {
-                    panic!("Expected for path {RUNNER_PATH:?} to be usable as the socket");
+                    panic!("Expected for path {runner_path:?} to be usable as the socket");
                 } else {
                     error!(?e, "Unknown error");
                     panic!(
-                        "Unexpected error trying to bind socket to {RUNNER_PATH:?} error: {e:?}"
+                        "Unexpected error trying to bind socket to {runner_path:?} error: {e:?}"
                     );
                 }
             }
         };
 
-        Command::new(RUNNER_PATH)
+        Command::new(&runner_path)
             .arg(socket_path)
             .spawn()
-            .expect_or_log(&format!("Unable to start runner at path {RUNNER_PATH}"));
+            .expect_or_log(&format!("Unable to start runner at path {runner_path}"));
 
         let stream = socket_listener
             .accept()
