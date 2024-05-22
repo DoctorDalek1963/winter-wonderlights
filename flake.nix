@@ -650,7 +650,7 @@
           scanner-client-web = pkgs.lib.makeOverridable (overridableEnv:
             craneLibTrunk.buildTrunkPackage (
               (individualCrateArgs (buildSrc {
-                crates = ["scanner/shared"];
+                crates = ["scanner/client" "scanner/shared"];
                 extraSuffices = [".html"];
               }))
               // overridableEnv # Also inject the new env vars into the build
