@@ -20,7 +20,11 @@
     };
   };
 
-  outputs = inputs @ {flake-parts, ...}:
+  outputs = inputs @ {
+    self,
+    flake-parts,
+    ...
+  }:
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
         inputs.pre-commit-hooks.flakeModule
@@ -55,6 +59,8 @@
             then a ++ b
             else if (builtins.isAttrs a && builtins.isAttrs b)
             then merge a b
+            else if (builtins.isString a && builtins.isString b)
+            then "${a} ${b}"
             else b;
           aWithB = builtins.listToAttrs (map (x: {
             name = x;
@@ -75,7 +81,47 @@
         rustToolchain = buildRustToolchain (toolchain: toolchain.default);
 
         craneLib = (inputs.crane.mkLib pkgs).overrideToolchain rustToolchain;
-        src = pkgs.lib.cleanSourceWith {
+
+        buildSrc = {
+          # The crates which should be included in the source. Each element
+          # must be a path segment and doesn't have to be a crate name.
+          # "drivers" would include everything in the drivers directory, for
+          # example.
+          crates, # listOf nonEmptyStr
+          # Should we include the data directory?
+          includeData ? false, # bool
+          # List the suffix of any extra filetypes you want to include.
+          extraSuffices ? [], # listOf nonEmptyStr
+        }: let
+          inherit (pkgs) lib;
+        in
+          pkgs.lib.cleanSourceWith {
+            src = self;
+            filter = orig_path: type: let
+              path = toString orig_path;
+              base = baseNameOf path;
+              parentDir = baseNameOf (dirOf path);
+
+              matchesSuffix = lib.any (suffix: lib.hasSuffix suffix base) extraSuffices;
+              isInCrate = lib.any (crateName: lib.hasInfix crateName path) crates;
+              dataCheck = includeData && lib.hasInfix parentDir "data/";
+            in
+              (type == "directory")
+              || isInCrate
+              || dataCheck
+              || matchesSuffix
+              || (base == "Cargo.toml")
+              || (base == "Cargo.lock")
+              # The workspace references every crate and cargo needs to know
+              # they exist and are properly configured, so we need a main.rs or
+              # lib.rs even for crates that we don't use
+              || (parentDir == "src" && (base == "main.rs" || base == "lib.rs"))
+              # The ww-benchmarks crate needs to see its benching code
+              || (parentDir == "benches" && lib.hasSuffix ".rs" base)
+              || (parentDir == ".cargo" && base == "config.toml");
+          };
+
+        fullSrc = pkgs.lib.cleanSourceWith {
           src = ./.;
           filter = path: type:
             (pkgs.lib.hasSuffix "\.html" path)
@@ -140,7 +186,7 @@
 
         localDevEnv = env // {DATA_DIR = "/home/dyson/repos/winter-wonderlights/data";};
 
-        commonArgs =
+        commonArgs = src:
           {
             inherit src;
             strictDeps = true;
@@ -153,12 +199,12 @@
           }
           // env;
 
-        cargoArtifacts = craneLib.buildDepsOnly commonArgs;
+        cargoArtifacts = src: craneLib.buildDepsOnly (commonArgs src);
 
-        individualCrateArgs =
-          commonArgs
+        individualCrateArgs = src:
+          (commonArgs src)
           // {
-            inherit cargoArtifacts;
+            cargoArtifacts = cargoArtifacts fullSrc;
             inherit (craneLib.crateNameFromCargoToml {inherit src;}) version;
           };
       in rec {
@@ -209,9 +255,9 @@
         checks =
           packages # Make sure all the packages build successfully
           // {
-            clippy = craneLib.cargoClippy (commonArgs
+            clippy = craneLib.cargoClippy ((commonArgs fullSrc)
               // {
-                inherit cargoArtifacts;
+                cargoArtifacts = cargoArtifacts fullSrc;
                 cargoClippyExtraArgs = pkgs.lib.concatStringsSep " " [
                   "--no-deps"
                   "--"
@@ -359,19 +405,19 @@
               });
 
             fmt = craneLib.cargoFmt {
-              inherit src;
+              src = fullSrc;
             };
 
-            nextest = craneLib.cargoNextest (commonArgs
+            nextest = craneLib.cargoNextest ((commonArgs fullSrc)
               // {
-                inherit cargoArtifacts;
+                cargoArtifacts = cargoArtifacts fullSrc;
                 partitions = 1;
                 partitionType = "count";
               });
 
-            insta-test = craneLib.mkCargoDerivation (commonArgs
+            insta-test = craneLib.mkCargoDerivation ((commonArgs fullSrc)
               // {
-                inherit cargoArtifacts;
+                cargoArtifacts = cargoArtifacts fullSrc;
                 pnameSuffix = "-insta";
                 buildPhaseCargoCommand = pkgs.lib.concatStringsSep "\n" (map (args @ {crate, ...}: let
                   flags =
@@ -389,15 +435,15 @@
                   {crate = "ww-effects";}
                   {crate = "ww-frame";}
                 ]);
-                nativeBuildInputs = commonArgs.nativeBuildInputs ++ [pkgs.cargo-insta];
+                nativeBuildInputs = (commonArgs fullSrc).nativeBuildInputs ++ [pkgs.cargo-insta];
               });
 
             deny-with-virtual-tree =
-              craneLib.cargoDeny (commonArgs
+              craneLib.cargoDeny ((commonArgs fullSrc)
                 // {cargoDenyExtraArgs = ''--features "ww-server/driver-virtual-tree"'';});
 
             deny-with-raspi-ws2811 =
-              craneLib.cargoDeny (commonArgs
+              craneLib.cargoDeny ((commonArgs fullSrc)
                 // {cargoDenyExtraArgs = ''--features "ww-server/driver-raspi-ws2811 ww-scanner-server/driver-raspi-ws2811 gift-coord-editor/driver-raspi-ws2811"'';});
           };
 
@@ -412,16 +458,16 @@
             .overrideScope (_: _: {inherit (pkgs) wasm-bindgen-cli;});
 
           benchPkg = args:
-            craneLib.mkCargoDerivation (commonArgs
+            craneLib.mkCargoDerivation ((commonArgs fullSrc)
               // {
-                inherit cargoArtifacts;
+                cargoArtifacts = cargoArtifacts fullSrc;
                 pnameSuffix = "-bench";
                 buildPhaseCargoCommand = "cd ww-benchmarks && cargo bench ${args} | tee output.txt && cd ..";
                 postInstall = "cp ww-benchmarks/output.txt $out/output.txt";
               });
 
           # Make a package with overridable environment variables
-          mkEnvPkg = binaryName: crateArgs: extraWrapArgs:
+          mkEnvPkg = binaryName: src: crateArgs: extraWrapArgs:
             pkgs.lib.makeOverridable (overridableEnv @ {
               DATA_DIR,
               COORDS_FILENAME,
@@ -433,7 +479,7 @@
               SCANNER_PORT,
               SCANNER_SERVER_URL,
             }:
-              craneLib.buildPackage (merge (individualCrateArgs
+              craneLib.buildPackage (merge ((individualCrateArgs src)
                   // overridableEnv # Also inject the new env vars into the build
                   // {
                     nativeBuildInputs = (commonArgs fullSrc).nativeBuildInputs ++ [pkgs.makeWrapper];
@@ -464,9 +510,9 @@
           bench = benchPkg "";
           bench-ci = benchPkg "-- --output-format bencher";
 
-          doc = craneLib.cargoDoc (commonArgs
+          doc = craneLib.cargoDoc ((commonArgs fullSrc)
             // {
-              inherit cargoArtifacts;
+              cargoArtifacts = cargoArtifacts fullSrc;
               cargoDocExtraArgs = pkgs.lib.concatStringsSep " " [
                 "--no-deps"
                 "--document-private-items"
@@ -477,15 +523,39 @@
               RUSTDOCFLAGS = "--deny warnings";
             });
 
-          server-debug = mkEnvPkg "ww-server" {
-            pname = "ww-server-debug";
-            cargoExtraArgs = "--package=ww-server --no-default-features --features driver-debug";
-          } [];
+          server-debug =
+            mkEnvPkg "ww-server" (buildSrc {
+              includeData = true;
+              crates = [
+                "drivers/debug"
+                "ww-driver-trait"
+                "ww-effects"
+                "ww-frame"
+                "ww-server"
+                "ww-shared"
+                "ww-shared-server-tls"
+              ];
+            }) {
+              pname = "ww-server-debug";
+              cargoExtraArgs = "--package=ww-server --no-default-features --features driver-debug";
+            } [];
 
-          server-raspi-ws2811 = mkEnvPkg "ww-server" {
-            pname = "ww-server-raspi-ws2811";
-            cargoExtraArgs = "--package=ww-server --no-default-features --features driver-raspi-ws2811";
-          } [];
+          server-raspi-ws2811 =
+            mkEnvPkg "ww-server" (buildSrc {
+              includeData = true;
+              crates = [
+                "drivers/raspi-ws2811"
+                "ww-driver-trait"
+                "ww-effects"
+                "ww-frame"
+                "ww-server"
+                "ww-shared"
+                "ww-shared-server-tls"
+              ];
+            }) {
+              pname = "ww-server-raspi-ws2811";
+              cargoExtraArgs = "--package=ww-server --no-default-features --features driver-raspi-ws2811";
+            } [];
 
           # Overriding this one is a little complicated but the virtual tree
           # should only be used for development, so a local DATA_DIR isn't a
@@ -493,19 +563,39 @@
           server-virtual-tree =
             pkgs.lib.makeOverridable
             (virtual-tree-runner:
-              mkEnvPkg "ww-server" {
+              mkEnvPkg "ww-server" (buildSrc {
+                includeData = true;
+                crates = [
+                  "drivers/virtual-tree"
+                  "ww-driver-trait"
+                  "ww-effects"
+                  "ww-frame"
+                  "ww-server"
+                  "ww-shared"
+                  "ww-shared-server-tls"
+                ];
+              }) {
                 pname = "ww-server-virtual-tree";
                 cargoExtraArgs = "--package=ww-server --no-default-features --features driver-virtual-tree";
               } [
                 ''--set CARGO_BIN_FILE_VIRTUAL_TREE_RUNNER "${virtual-tree-runner}/bin/virtual-tree-runner"''
               ])
-            (mkEnvPkg "virtual-tree-runner" {
+            (mkEnvPkg "virtual-tree-runner" (buildSrc {
+                crates = [
+                  "virtual-tree"
+                  "ww-effects"
+                  "ww-frame"
+                  "ww-gift-coords"
+                ];
+              }) {
                 pname = "virtual-tree-runner";
                 cargoExtraArgs = "--package=virtual-tree-runner";
               } []);
 
           client-native =
-            mkEnvPkg "ww-client" {
+            mkEnvPkg "ww-client" (buildSrc {
+              crates = ["ww-client" "ww-effects" "ww-shared"];
+            }) {
               pname = "ww-client-native";
               cargoExtraArgs = "--package=ww-client";
             } [
@@ -513,7 +603,11 @@
             ];
 
           client-web = pkgs.lib.makeOverridable (overridableEnv:
-            craneLibTrunk.buildTrunkPackage (individualCrateArgs
+            craneLibTrunk.buildTrunkPackage (
+              (individualCrateArgs (buildSrc {
+                crates = ["ww-client" "ww-effects" "ww-shared"];
+                extraSuffices = [".html"];
+              }))
               // overridableEnv # Also inject the new env vars into the build
               // {
                 pname = "ww-client-web";
@@ -522,16 +616,31 @@
                 trunkIndexPath = "ww-client/index.html";
                 CARGO_BUILD_TARGET = "wasm32-unknown-unknown";
                 inherit (pkgs) wasm-bindgen-cli;
-              }))
+              }
+            ))
           env;
 
-          scanner-server-raspi-ws2811 = mkEnvPkg "ww-scanner-server" {
-            pname = "ww-server-raspi-ws2811";
-            cargoExtraArgs = "--package=ww-scanner-server --no-default-features --features driver-raspi-ws2811";
-          } [];
+          scanner-server-raspi-ws2811 =
+            mkEnvPkg "ww-scanner-server" (buildSrc {
+              includeData = true;
+              crates = [
+                "drivers/raspi-ws2811"
+                "scanner/server"
+                "scanner/shared"
+                "ww-driver-trait"
+                "ww-frame"
+                "ww-gift-coords"
+                "ww-shared-server-tls"
+              ];
+            }) {
+              pname = "ww-server-raspi-ws2811";
+              cargoExtraArgs = "--package=ww-scanner-server --no-default-features --features driver-raspi-ws2811";
+            } [];
 
           scanner-client-native =
-            mkEnvPkg "ww-scanner-client" {
+            mkEnvPkg "ww-scanner-client" (buildSrc {
+              crates = ["scanner/client" "scanner/shared"];
+            }) {
               pname = "ww-scanner-client-native";
               cargoExtraArgs = "--package=ww-scanner-client";
             } [
@@ -539,7 +648,11 @@
             ];
 
           scanner-client-web = pkgs.lib.makeOverridable (overridableEnv:
-            craneLibTrunk.buildTrunkPackage (individualCrateArgs
+            craneLibTrunk.buildTrunkPackage (
+              (individualCrateArgs (buildSrc {
+                crates = ["scanner/shared"];
+                extraSuffices = [".html"];
+              }))
               // overridableEnv # Also inject the new env vars into the build
               // {
                 pname = "ww-scanner-client-web";
@@ -548,7 +661,8 @@
                 trunkIndexPath = "scanner/client/index.html";
                 CARGO_BUILD_TARGET = "wasm32-unknown-unknown";
                 inherit (pkgs) wasm-bindgen-cli;
-              }))
+              }
+            ))
           env;
         };
       };
