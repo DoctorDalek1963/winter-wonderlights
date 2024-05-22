@@ -39,6 +39,7 @@ impl EditorDriver {
 
         let mut v = vec![[0; 3]; total_lights];
         v[idx] = [255; 3];
-        self.inner.display_frame(ww_frame::FrameType::RawData(v));
+        self.inner
+            .display_frame(ww_frame::FrameType::RawData(v), 255);
     }
 }

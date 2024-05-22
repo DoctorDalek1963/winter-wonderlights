@@ -620,6 +620,20 @@
             ))
           env;
 
+          gift-coord-editor-raspi-ws2811 =
+            mkEnvPkg "gift-coord-editor" (buildSrc {
+              crates = [
+                "drivers/raspi-ws2811"
+                "gift-coord-editor"
+                "ww-driver-trait"
+                "ww-frame"
+                "ww-gift-coords"
+              ];
+            }) {
+              pname = "gift-coord-editor";
+              cargoExtraArgs = "--package=gift-coord-editor --features driver-raspi-ws2811";
+            } [];
+
           scanner-server-raspi-ws2811 =
             mkEnvPkg "ww-scanner-server" (buildSrc {
               includeData = true;
