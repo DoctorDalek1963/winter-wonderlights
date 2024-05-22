@@ -46,6 +46,29 @@
           ];
         };
 
+        # Merge two attribute sets deeply by joining lists and recursively
+        # merging sets. If a value is neither a list nor a set, the value given
+        # in the second set overwrites the one in the first.
+        merge = setA: setB: let
+          mergeSingle = a: b:
+            if (builtins.isList a && builtins.isList b)
+            then a ++ b
+            else if (builtins.isAttrs a && builtins.isAttrs b)
+            then merge a b
+            else b;
+          aWithB = builtins.listToAttrs (map (x: {
+            name = x;
+            value =
+              if setB ? ${x}
+              then (mergeSingle setA.${x} setB.${x})
+              else setA.${x};
+          }) (builtins.attrNames setA));
+          unmergedB = builtins.listToAttrs (map (x: {
+            name = x;
+            value = setB.${x};
+          }) (builtins.filter (x: !(aWithB ? ${x})) (builtins.attrNames setB)));
+        in
+          aWithB // unmergedB;
 
         buildRustToolchain = pkgs.rust-bin.selectLatestNightlyWith;
 
@@ -410,29 +433,32 @@
               SCANNER_PORT,
               SCANNER_SERVER_URL,
             }:
-              craneLib.buildPackage (individualCrateArgs
-                // crateArgs
-                // overridableEnv # Also inject the new env vars into the build
-                // {
-                  nativeBuildInputs = commonArgs.nativeBuildInputs ++ [pkgs.makeWrapper];
-                  postInstall = let
-                    wrapProgramArgs = pkgs.lib.concatStringsSep " " ([
-                        ''--set DATA_DIR "${DATA_DIR}"''
-                        ''--set COORDS_FILENAME "${COORDS_FILENAME}"''
-                        ''--set SERVER_SSL_CERT_PATH "${SERVER_SSL_CERT_PATH}"''
-                        ''--set SERVER_SSL_KEY_PATH "${SERVER_SSL_KEY_PATH}"''
-                        ''--set PORT "${PORT}"''
-                        ''--set LIGHTS_NUM "${LIGHTS_NUM}"''
-                        ''--set SERVER_URL "${SERVER_URL}"''
-                        ''--set SCANNER_PORT "${SCANNER_PORT}"''
-                        ''--set SCANNER_SERVER_URL "${SCANNER_SERVER_URL}"''
-                      ]
-                      ++ extraWrapArgs);
-                  in ''
-                    wrapProgram "$out/bin/${binaryName}" ${wrapProgramArgs}
-                  '';
-                  meta.mainProgram = binaryName;
-                }))
+              craneLib.buildPackage (merge (individualCrateArgs
+                  // overridableEnv # Also inject the new env vars into the build
+                  // {
+                    nativeBuildInputs = (commonArgs fullSrc).nativeBuildInputs ++ [pkgs.makeWrapper];
+                    postInstall = let
+                      wrapProgramArgs = pkgs.lib.concatStringsSep " " ([
+                          ''--set DATA_DIR "${DATA_DIR}"''
+                          ''--set COORDS_FILENAME "${COORDS_FILENAME}"''
+                          ''--set SERVER_SSL_CERT_PATH "${SERVER_SSL_CERT_PATH}"''
+                          ''--set SERVER_SSL_KEY_PATH "${SERVER_SSL_KEY_PATH}"''
+                          ''--set PORT "${PORT}"''
+                          ''--set LIGHTS_NUM "${LIGHTS_NUM}"''
+                          ''--set SERVER_URL "${SERVER_URL}"''
+                          ''--set SCANNER_PORT "${SCANNER_PORT}"''
+                          ''--set SCANNER_SERVER_URL "${SCANNER_SERVER_URL}"''
+                        ]
+                        ++ extraWrapArgs);
+                    in ''
+                      wrapProgram "$out/bin/${binaryName}" ${wrapProgramArgs}
+                    '';
+                    meta.mainProgram = binaryName;
+                  })
+                # Merge with crateArgs, extending lists where applicable. This
+                # allows us to easily add extra things to buildInputs, for
+                # example
+                crateArgs))
             localDevEnv;
         in {
           bench = benchPkg "";
