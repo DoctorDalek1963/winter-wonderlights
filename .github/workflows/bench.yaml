@@ -15,15 +15,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: true
-
       - uses: nixbuild/nix-quick-install-action@v27
+
+      - uses: cachix/cachix-action@v14
+        with:
+          name: doctordalek1963
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
 
       - run: nix build .#bench-ci
 
       - name: Store benchmark result
-        uses: benchmark-action/github-action-benchmark@v1.20
+        uses: benchmark-action/github-action-benchmark@v1.20.3
         with:
           name: Benchmark
           tool: 'cargo'
