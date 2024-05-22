@@ -1,6 +1,6 @@
 [package]
 name = "gift-coord-editor"
-version = "0.1.0-dev"
+version.workspace = true
 description = "A simple CLI GIFT coordinate editor."
 authors.workspace = true
 edition.workspace = true

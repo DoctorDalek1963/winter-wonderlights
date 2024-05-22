@@ -1,6 +1,6 @@
 [package]
 name = "ww-scanner-server"
-version = "0.1.0-dev"
+version.workspace = true
 description = "The server for the scanner part of Winter WonderLights."
 authors.workspace = true
 edition.workspace = true
@@ -14,7 +14,15 @@ cfg-if.workspace = true
 color-eyre.workspace = true
 futures-util = "0.3.28"
 lazy_static.workspace = true
-tokio = { workspace = true, features = ["macros", "process", "rt", "rt-multi-thread", "signal", "sync", "time"] }
+tokio = { workspace = true, features = [
+	"macros",
+	"process",
+	"rt",
+	"rt-multi-thread",
+	"signal",
+	"sync",
+	"time",
+] }
 tokio-rustls.workspace = true
 tokio-stream = { version = "0.1.14", features = ["sync"] }
 tokio-tungstenite = ">=0.20.1"

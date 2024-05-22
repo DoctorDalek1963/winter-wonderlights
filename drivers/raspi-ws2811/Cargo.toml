@@ -1,6 +1,6 @@
 [package]
 name = "raspi-ws2811"
-version = "0.1.0-dev"
+version.workspace = true
 description = "The Winter WonderLights driver for the WS2811 RGB LEDs for the Raspberry Pi."
 authors.workspace = true
 edition.workspace = true
@@ -9,7 +9,7 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
-rs_ws281x = { git = "https://github.com/DoctorDalek1963/rpi-ws281x-rust.git", version = "0.5.0" }
+rs_ws281x = { git = "https://github.com/DoctorDalek1963/rpi-ws281x-rust.git", version = "0.5.1" }
 tracing.workspace = true
 tracing-unwrap.workspace = true
 ww-driver-trait.workspace = true

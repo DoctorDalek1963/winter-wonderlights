@@ -1,6 +1,6 @@
 [package]
 name = "ww-effects"
-version = "0.1.0-dev"
+version.workspace = true
 description = "The effects for Winter WonderLights."
 rust-version = "1.75.0"
 authors.workspace = true
@@ -43,7 +43,19 @@ bench = []
 config-trait = ["dep:egui", "dep:ron", "dep:tracing-unwrap"]
 config-impls = ["config-trait", "dep:heck", "serde/derive"]
 effect-trait = ["config-trait", "dep:heck", "dep:ww-driver-trait"]
-effect-impls = ["effect-trait", "config-impls", "dep:bitvec", "dep:glam", "dep:ordered-float", "dep:pathfinding", "dep:rand", "dep:tokio", "dep:tracing", "dep:ww-frame", "dep:ww-gift-coords"]
+effect-impls = [
+	"effect-trait",
+	"config-impls",
+	"dep:bitvec",
+	"dep:glam",
+	"dep:ordered-float",
+	"dep:pathfinding",
+	"dep:rand",
+	"dep:tokio",
+	"dep:tracing",
+	"dep:ww-frame",
+	"dep:ww-gift-coords",
+]
 
 [dev-dependencies]
 insta.workspace = true

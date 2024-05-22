@@ -14,20 +14,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
-      - uses: ./.github/setup
+      - uses: nixbuild/nix-quick-install-action@v27
 
-      - run: just bench '-- --output-format bencher' | tee output.txt
+      - run: nix build .#bench-ci
 
       - name: Store benchmark result
-        uses: benchmark-action/github-action-benchmark@v1
+        uses: benchmark-action/github-action-benchmark@v1.20
         with:
           name: Benchmark
           tool: 'cargo'
-          output-file-path: output.txt
+          output-file-path: result/output.txt
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
           # Show alert with commit comment on detecting possible performance regression

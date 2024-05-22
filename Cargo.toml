@@ -16,15 +16,20 @@ members = [
 	"ww-frame",
 	"ww-gift-coords",
 	"ww-server",
-	"ww-shared"
+	"ww-shared",
 ]
 
 [workspace.package]
+version = "0.1.0-dev"
 authors = ["Dyson Dyson <dyson.dyson@icloud.com>"]
 edition = "2021"
 publish = false
 repository = "https://github.com/DoctorDalek1963/winter-wonderlights"
 license = "GPL-3.0"
+
+# Crane is used to build everything with Nix
+[workspace.metadata.crane]
+name = "winter-wonderlights"
 
 [workspace.dependencies]
 bincode = "1.3.3"
@@ -34,7 +39,7 @@ eframe = { version = "0.24.1", features = ["persistence"] }
 egui = "0.24.1"
 glam = { version = "0.24.0", features = ["rand"] }
 interprocess = "1.2.1"
-lazy_static =  "1.4.0"
+lazy_static = "1.4.0"
 rand = "0.8.5"
 ron = "0.8.0"
 serde = "1.0.163"

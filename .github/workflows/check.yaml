@@ -1,0 +1,23 @@
+name: Check the Nix flake
+
+on: push
+
+jobs:
+  check-flake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: nixbuild/nix-quick-install-action@v27
+
+      - uses: cachix/cachix-action@v14
+        with:
+          name: doctordalek1963
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+
+      - name: Setup the DATA_DIR
+        run: |
+          mkdir -p /home/runner/winter-wonderlights-data
+          nix run nixpkgs#sd -- 'DATA_DIR = "/home/dyson/repos/winter-wonderlights/data";' 'DATA_DIR = "/home/runner/winter-wonderlights-data";' flake.nix
+
+      - name: Check the flake
+        run: nix flake check --print-build-logs --keep-going

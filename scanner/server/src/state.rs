@@ -96,6 +96,7 @@ impl AsyncWrite for ConnectionSocket {
 #[derive(Debug)]
 pub struct Connection {
     /// The address of the client.
+    #[allow(dead_code, reason = "The addr is only used for logging")]
     pub addr: SocketAddr,
 
     /// The stream of messages coming from the client.
