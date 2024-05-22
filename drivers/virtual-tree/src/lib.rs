@@ -15,9 +15,9 @@ use ww_frame::FrameType;
 
 /// Get the path of the runner binary.
 ///
-/// We try to read [`RUNNER_PATH_ENV_VAR`] at runtime if it's available (since Nix needs to
-/// overwrite this path), but we default to the compile-time version if it's not available at
-/// runtime.
+/// We try to read the `CARGO_BIN_FILE_VIRTUAL_TREE_RUNNER` environment variable at runtime if it's
+/// available (since Nix needs to overwrite this path), but we default to the compile-time version
+/// if it's not available at runtime.
 fn get_runner_path() -> String {
     std::env::var("CARGO_BIN_FILE_VIRTUAL_TREE_RUNNER")
         .unwrap_or(env!("CARGO_BIN_FILE_VIRTUAL_TREE_RUNNER").to_owned())
