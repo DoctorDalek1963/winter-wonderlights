@@ -223,6 +223,7 @@ async fn handle_connection(
 pub async fn run_server(
     client_state: WrappedClientState,
     kill_run_effect_thread: oneshot::Receiver<()>,
+    require_tls: bool,
 ) -> Result<()> {
     let port = std::env::var("PORT").expect_or_log("PORT must be defined");
     info!(port, "Initialising server");
@@ -233,14 +234,22 @@ pub async fn run_server(
             Some(acceptor)
         }
         Err(error) => {
-            warn!(
-                ?error,
-                concat!(
-                    "Unable to create TLS acceptor, so using unencrypted connection.\n",
-                    "If you get this warning in production, make sure to get SSL set up properly and check the README."
-                )
-            );
-            None
+            if require_tls {
+                error!(
+                    ?error,
+                    "Unable to create TLS acceptor. --require-tls means we now exit."
+                );
+                return Err(error)?;
+            } else {
+                warn!(
+                    ?error,
+                    concat!(
+                        "Unable to create TLS acceptor, so using unencrypted connection.\n",
+                        "If you get this warning in production, make sure to get SSL set up properly and check the README."
+                    )
+                );
+                None
+            }
         }
     };
 

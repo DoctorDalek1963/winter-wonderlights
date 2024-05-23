@@ -89,6 +89,9 @@ async fn main() -> Result<()> {
         }
     });
 
+    // Use the --require-tls flag to exit if we can't load the TLS certificates
+    let require_tls = std::env::args_os().any(|arg| arg == "--require-tls");
+
     let ret_val = tokio::select! {
         biased;
 
@@ -99,7 +102,7 @@ async fn main() -> Result<()> {
                 .expect_or_log("Should be able to send () to run-effect thread to kill it");
             Ok(())
         }
-        ret = self::run_server::run_server(client_state.clone(), kill_run_effect_thread_rx) => {
+        ret = self::run_server::run_server(client_state.clone(), kill_run_effect_thread_rx, require_tls) => {
             ret
         }
     };
