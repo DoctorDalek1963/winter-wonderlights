@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1716403691847,
+  "lastUpdate": 1716490177321,
   "repoUrl": "https://github.com/DoctorDalek1963/winter-wonderlights",
   "entries": {
     "Benchmark": [
@@ -5207,6 +5207,102 @@ window.BENCHMARK_DATA = {
             "name": "(ConvertFrameDriver) AiSnake",
             "value": 2463,
             "range": "± 1704",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "committer": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "distinct": true,
+          "id": "a8e9965b4472f642411229256aa9fb3d8cc54f9f",
+          "message": "Add the --require-tls flag",
+          "timestamp": "2024-05-23T19:44:46+01:00",
+          "tree_id": "57132793db1f43d5f2cb158e3dacc5cbcb5b44ba",
+          "url": "https://github.com/DoctorDalek1963/winter-wonderlights/commit/a8e9965b4472f642411229256aa9fb3d8cc54f9f"
+        },
+        "date": 1716490176861,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "(SimpleDriver) DebugOneByOne",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugOneByOne",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) DebugBinaryIndex",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugBinaryIndex",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) MovingPlane",
+            "value": 1311,
+            "range": "± 268",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) MovingPlane",
+            "value": 1320,
+            "range": "± 274",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) SplitPlane",
+            "value": 6196,
+            "range": "± 31",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) SplitPlane",
+            "value": 331387,
+            "range": "± 1682",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) LavaLamp",
+            "value": 30535,
+            "range": "± 151",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) LavaLamp",
+            "value": 2522264,
+            "range": "± 27420",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) AiSnake",
+            "value": 2290,
+            "range": "± 652",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) AiSnake",
+            "value": 2439,
+            "range": "± 1717",
             "unit": "ns/iter"
           }
         ]
