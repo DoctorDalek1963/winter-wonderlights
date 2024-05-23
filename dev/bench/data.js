@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1716493439974,
+  "lastUpdate": 1716504431287,
   "repoUrl": "https://github.com/DoctorDalek1963/winter-wonderlights",
   "entries": {
     "Benchmark": [
@@ -5327,6 +5327,102 @@ window.BENCHMARK_DATA = {
           "url": "https://github.com/DoctorDalek1963/winter-wonderlights/commit/add322f59a615b5a689191330500171baa0d3207"
         },
         "date": 1716493439081,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "(SimpleDriver) DebugOneByOne",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugOneByOne",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) DebugBinaryIndex",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugBinaryIndex",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) MovingPlane",
+            "value": 1311,
+            "range": "± 268",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) MovingPlane",
+            "value": 1320,
+            "range": "± 274",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) SplitPlane",
+            "value": 6196,
+            "range": "± 31",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) SplitPlane",
+            "value": 331387,
+            "range": "± 1682",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) LavaLamp",
+            "value": 30535,
+            "range": "± 151",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) LavaLamp",
+            "value": 2522264,
+            "range": "± 27420",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) AiSnake",
+            "value": 2290,
+            "range": "± 652",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) AiSnake",
+            "value": 2439,
+            "range": "± 1717",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "committer": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "distinct": true,
+          "id": "4e9fcb31d6a063cf4d9ba53afd6133c7ade04083",
+          "message": "Use commonArgsNativeBuildInputs in mkEnvPkg",
+          "timestamp": "2024-05-23T23:45:42+01:00",
+          "tree_id": "7eee7e9f804c6d86552f1a19d36dfb566ec20042",
+          "url": "https://github.com/DoctorDalek1963/winter-wonderlights/commit/4e9fcb31d6a063cf4d9ba53afd6133c7ade04083"
+        },
+        "date": 1716504430742,
         "tool": "cargo",
         "benches": [
           {
