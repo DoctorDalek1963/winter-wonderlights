@@ -609,7 +609,7 @@
               pname = "ww-client-native";
               cargoExtraArgs = "--package=ww-client";
             } [
-              ''--prefix LD_LIBRARY_PATH "${pkgs.lib.makeLibraryPath graphicalBuildInputs}"''
+              ''--prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath graphicalBuildInputs}"''
             ];
 
           client-web = pkgs.lib.makeOverridable (overridableEnv:
@@ -668,7 +668,7 @@
               pname = "ww-scanner-client-native";
               cargoExtraArgs = "--package=ww-scanner-client";
             } [
-              ''--prefix LD_LIBRARY_PATH "${pkgs.lib.makeLibraryPath graphicalBuildInputs}"''
+              ''--prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath graphicalBuildInputs}"''
             ];
 
           scanner-client-web = pkgs.lib.makeOverridable (overridableEnv:
