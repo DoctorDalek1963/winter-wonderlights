@@ -484,7 +484,7 @@
               craneLib.buildPackage (merge ((individualCrateArgs src)
                   // overridableEnv # Also inject the new env vars into the build
                   // {
-                    nativeBuildInputs = (commonArgs fullSrc).nativeBuildInputs ++ [pkgs.makeWrapper];
+                    nativeBuildInputs = commonArgsNativeBuildInputs ++ [pkgs.makeWrapper];
                     postInstall = let
                       wrapProgramArgs = pkgs.lib.concatStringsSep " " ([
                           ''--set DATA_DIR "${DATA_DIR}"''
