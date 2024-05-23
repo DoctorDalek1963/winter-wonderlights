@@ -163,6 +163,8 @@
           wayland
         ];
 
+        gzipInputs = with pkgs; [gnutar gzip];
+
         env = rec {
           # Server
           DATA_DIR = ./data;
@@ -538,8 +540,10 @@
             }) {
               pname = "ww-server-debug";
               cargoExtraArgs = "--package=ww-server --no-default-features --features driver-debug";
-              buildInputs = [pkgs.gzip];
-            } [];
+              buildInputs = gzipInputs;
+            } [
+              ''--prefix PATH : "${pkgs.lib.makeBinPath gzipInputs}"''
+            ];
 
           server-raspi-ws2811 =
             mkEnvPkg "ww-server" (buildSrc {
@@ -556,8 +560,10 @@
             }) {
               pname = "ww-server-raspi-ws2811";
               cargoExtraArgs = "--package=ww-server --no-default-features --features driver-raspi-ws2811";
-              buildInputs = [pkgs.gzip];
-            } [];
+              buildInputs = gzipInputs;
+            } [
+              ''--prefix PATH : "${pkgs.lib.makeBinPath gzipInputs}"''
+            ];
 
           # Overriding this one is a little complicated but the virtual tree
           # should only be used for development, so a local DATA_DIR isn't a
@@ -579,8 +585,9 @@
               }) {
                 pname = "ww-server-virtual-tree";
                 cargoExtraArgs = "--package=ww-server --no-default-features --features driver-virtual-tree";
-                buildInputs = [pkgs.gzip];
+                buildInputs = gzipInputs;
               } [
+                ''--prefix PATH : "${pkgs.lib.makeBinPath gzipInputs}"''
                 ''--set CARGO_BIN_FILE_VIRTUAL_TREE_RUNNER "${virtual-tree-runner}/bin/virtual-tree-runner"''
               ])
             (mkEnvPkg "virtual-tree-runner" (buildSrc {
