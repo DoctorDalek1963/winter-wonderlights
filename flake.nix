@@ -538,6 +538,7 @@
             }) {
               pname = "ww-server-debug";
               cargoExtraArgs = "--package=ww-server --no-default-features --features driver-debug";
+              buildInputs = [pkgs.gzip];
             } [];
 
           server-raspi-ws2811 =
@@ -555,6 +556,7 @@
             }) {
               pname = "ww-server-raspi-ws2811";
               cargoExtraArgs = "--package=ww-server --no-default-features --features driver-raspi-ws2811";
+              buildInputs = [pkgs.gzip];
             } [];
 
           # Overriding this one is a little complicated but the virtual tree
@@ -577,6 +579,7 @@
               }) {
                 pname = "ww-server-virtual-tree";
                 cargoExtraArgs = "--package=ww-server --no-default-features --features driver-virtual-tree";
+                buildInputs = [pkgs.gzip];
               } [
                 ''--set CARGO_BIN_FILE_VIRTUAL_TREE_RUNNER "${virtual-tree-runner}/bin/virtual-tree-runner"''
               ])
