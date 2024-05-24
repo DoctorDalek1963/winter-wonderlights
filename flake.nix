@@ -600,7 +600,10 @@
               }) {
                 pname = "virtual-tree-runner";
                 cargoExtraArgs = "--package=virtual-tree-runner";
-              } []);
+                buildInputs = graphicalBuildInputs;
+              } [
+                ''--prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath graphicalBuildInputs}"''
+              ]);
 
           client-native =
             mkEnvPkg "ww-client" (buildSrc {
