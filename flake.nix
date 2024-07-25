@@ -219,6 +219,7 @@
                   }))
                 pkgs.cargo-insta
                 pkgs.cargo-nextest
+                pkgs.cargo-watch
                 pkgs.just
               ]
               ++ commonArgsBuildInputs
