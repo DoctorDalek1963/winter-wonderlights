@@ -1,6 +1,7 @@
 set dotenv-load
 
 export DATA_DIR := justfile_directory() + "/data"
+export RUST_BACKTRACE := "full"
 
 # list available recipes
 _default:
