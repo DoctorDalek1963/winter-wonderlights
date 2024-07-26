@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1721952566812,
+  "lastUpdate": 1722032913714,
   "repoUrl": "https://github.com/DoctorDalek1963/winter-wonderlights",
   "entries": {
     "Benchmark": [
@@ -5615,6 +5615,102 @@ window.BENCHMARK_DATA = {
           "url": "https://github.com/DoctorDalek1963/winter-wonderlights/commit/f2da19ecfd04fdf77992201461bab04f867c8c41"
         },
         "date": 1721952565903,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "(SimpleDriver) DebugOneByOne",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugOneByOne",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) DebugBinaryIndex",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) DebugBinaryIndex",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) MovingPlane",
+            "value": 1312,
+            "range": "± 272",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) MovingPlane",
+            "value": 1312,
+            "range": "± 271",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) SplitPlane",
+            "value": 6128,
+            "range": "± 88",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) SplitPlane",
+            "value": 330913,
+            "range": "± 1232",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) LavaLamp",
+            "value": 30599,
+            "range": "± 207",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) LavaLamp",
+            "value": 2540929,
+            "range": "± 12846",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(SimpleDriver) AiSnake",
+            "value": 2277,
+            "range": "± 647",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "(ConvertFrameDriver) AiSnake",
+            "value": 2465,
+            "range": "± 1729",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "committer": {
+            "email": "dyson.dyson@icloud.com",
+            "name": "DoctorDalek1963",
+            "username": "DoctorDalek1963"
+          },
+          "distinct": true,
+          "id": "835770ad77670dedfbf5dff773e9145acac5e647",
+          "message": "Add wasm32-unknown-unknown target to Rust toolchain in devShell",
+          "timestamp": "2024-07-26T23:10:43+01:00",
+          "tree_id": "a3ea7503a8575a42410d205ebfeadc80a5f55aef",
+          "url": "https://github.com/DoctorDalek1963/winter-wonderlights/commit/835770ad77670dedfbf5dff773e9145acac5e647"
+        },
+        "date": 1722032912806,
         "tool": "cargo",
         "benches": [
           {
