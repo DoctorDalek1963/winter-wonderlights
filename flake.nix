@@ -221,6 +221,8 @@
                 pkgs.cargo-insta
                 pkgs.cargo-nextest
                 pkgs.cargo-watch
+                pkgs.trunk
+                pkgs.wasm-bindgen-cli
                 pkgs.just
               ]
               ++ commonArgsBuildInputs
