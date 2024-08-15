@@ -38,7 +38,7 @@ color-eyre = "0.6.2"
 eframe = { version = "0.24.1", features = ["persistence"] }
 egui = "0.24.1"
 glam = { version = "0.24.0", features = ["rand"] }
-interprocess = "1.2.1"
+interprocess-docfix = "1.2.1"
 lazy_static = "1.4.0"
 rand = "0.8.5"
 ron = "0.8.0"

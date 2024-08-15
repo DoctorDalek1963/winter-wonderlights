@@ -16,7 +16,7 @@ bevy = { version = "0.9.1", default-features = false, features = [
 	"x11",
 ] }
 bincode.workspace = true
-interprocess.workspace = true
+interprocess-docfix.workspace = true
 lazy_static.workspace = true
 rand.workspace = true
 ron.workspace = true

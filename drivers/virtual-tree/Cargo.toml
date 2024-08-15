@@ -10,7 +10,7 @@ license.workspace = true
 
 [dependencies]
 bincode.workspace = true
-interprocess.workspace = true
+interprocess-docfix.workspace = true
 tracing.workspace = true
 tracing-unwrap.workspace = true
 virtual-tree-runner = { path = "./virtual-tree-runner", artifact = "bin" }

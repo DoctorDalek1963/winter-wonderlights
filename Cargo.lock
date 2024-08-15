@@ -3458,10 +3458,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "interprocess"
-version = "1.2.1"
+name = "interprocess-docfix"
+version = "1.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81f2533f3be42fffe3b5e63b71aeca416c1c3bc33e4e27be018521e76b1f38fb"
+checksum = "4b84ee245c606aeb0841649a9288e3eae8c61b853a8cd5c0e14450e96d53d28f"
 dependencies = [
  "blocking",
  "cfg-if 1.0.0",
@@ -5981,7 +5981,7 @@ name = "virtual-tree"
 version = "0.1.0-dev"
 dependencies = [
  "bincode",
- "interprocess",
+ "interprocess-docfix",
  "tracing",
  "tracing-unwrap",
  "virtual-tree-runner",
@@ -5997,7 +5997,7 @@ version = "0.1.0-dev"
 dependencies = [
  "bevy",
  "bincode",
- "interprocess",
+ "interprocess-docfix",
  "lazy_static",
  "rand",
  "ron 0.8.1",

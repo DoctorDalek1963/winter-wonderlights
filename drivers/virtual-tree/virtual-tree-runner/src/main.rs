@@ -11,7 +11,7 @@ mod bevy_setup;
 
 use self::bevy_setup::{add_tree_to_world, setup, LightIndex};
 use bevy::{log::LogPlugin, prelude::*, DefaultPlugins};
-use interprocess::local_socket::LocalSocketStream;
+use interprocess_docfix::local_socket::LocalSocketStream;
 use smooth_bevy_cameras::{controllers::orbit::OrbitCameraPlugin, LookTransformPlugin};
 use std::{
     env,

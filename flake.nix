@@ -527,6 +527,18 @@
               RUSTDOCFLAGS = "--deny warnings";
             });
 
+          doc-with-deps = craneLib.cargoDoc ((commonArgs fullSrc)
+            // {
+              cargoArtifacts = cargoArtifacts fullSrc;
+              cargoDocExtraArgs = pkgs.lib.concatStringsSep " " [
+                "--document-private-items"
+                "--workspace"
+                "--features"
+                (pkgs.lib.concatStringsSep "," ["gift-coord-editor/_driver"])
+              ];
+              RUSTDOCFLAGS = "--deny warnings";
+            });
+
           server-debug =
             mkEnvPkg "ww-server" (buildSrc {
               includeData = true;

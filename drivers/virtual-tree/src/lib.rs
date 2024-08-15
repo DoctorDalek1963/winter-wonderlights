@@ -2,7 +2,7 @@
 
 #![feature(lint_reasons)]
 
-use interprocess::local_socket::{LocalSocketListener, LocalSocketStream, NameTypeSupport};
+use interprocess_docfix::local_socket::{LocalSocketListener, LocalSocketStream, NameTypeSupport};
 use std::{
     io::{self, Write},
     process::Command,
