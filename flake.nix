@@ -2,7 +2,7 @@
   description = "A program to render 3D effects on a Christmas tree in real time";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
     flake-parts.url = "github:hercules-ci/flake-parts";
 
     pre-commit-hooks = {
