@@ -8,25 +8,33 @@ targets = [
 
 [advisories]
 yanked = "warn"
-ignore = [
-	# No part of this project will ever be run on Windows with a custom global
-	# allocator, so `atty` will never deref an unaligned pointer
-	"RUSTSEC-2021-0145",
-
-	# `shlex` v0.1.1 is only used by bindgen in the dev dependencies for nokhwa
-	# for the scanner client, so no end user could ever be affected by this
-	"RUSTSEC-2024-0006",
-]
+# ignore = [
+# 	# No part of this project will ever be run on Windows with a custom global
+# 	# allocator, so `atty` will never deref an unaligned pointer
+# 	"RUSTSEC-2021-0145",
+#
+# 	# `shlex` v0.1.1 is only used by bindgen in the dev dependencies for nokhwa
+# 	# for the scanner client, so no end user could ever be affected by this
+# 	"RUSTSEC-2024-0006",
+# ]
 
 [licenses]
-allow = ["MIT", "Apache-2.0", "GPL-3.0"]
-exceptions = [
-	{ allow = [
-		"LicenseRef-UFL-1.0",
-	], name = "epaint", version = ">=0.24" },
-	{ allow = [
-		"MPL-2.0",
-	], name = "webpki-roots", version = ">=0.22" },
+allow = [
+	"Apache-2.0",
+	"BSD-2-Clause",
+	"BSD-3-Clause",
+	"CC0-1.0",
+	"GPL-3.0",
+	"IJG",
+	"ISC",
+	"LicenseRef-UFL-1.0",
+	"MIT",
+	"MIT-0",
+	"MPL-2.0",
+	"OFL-1.1",
+	"OpenSSL",
+	"Unicode-3.0",
+	"Zlib",
 ]
 
 [[licenses.clarify]]
