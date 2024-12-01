@@ -215,13 +215,16 @@
                     extensions = ["rust-analyzer" "rust-src" "rust-std"];
                     targets = ["wasm32-unknown-unknown"];
                   }))
-                pkgs.cargo-insta
-                pkgs.cargo-nextest
-                pkgs.cargo-watch
-                pkgs.trunk
-                pkgs.wasm-bindgen-cli
-                pkgs.just
               ]
+              ++ (with pkgs; [
+                cargo-deny
+                cargo-insta
+                cargo-nextest
+                cargo-watch
+                trunk
+                wasm-bindgen-cli
+                just
+              ])
               ++ commonArgsBuildInputs
               ++ commonArgsNativeBuildInputs
               ++ graphicalBuildInputs;
