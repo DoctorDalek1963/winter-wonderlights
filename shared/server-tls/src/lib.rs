@@ -1,8 +1,6 @@
 //! This library just contains functions for TLS stuff that can be shared between the main server
 //! and the scanner server.
 
-#![feature(lint_reasons)]
-
 use std::{
     env,
     fs::File,

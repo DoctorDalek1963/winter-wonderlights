@@ -5,8 +5,6 @@
 //! is necessary because Bevy needs `winit`, which needs to be run on the main thread, so we use
 //! the main thread of a different application.
 
-#![feature(lint_reasons)]
-
 mod bevy_setup;
 
 use self::bevy_setup::{add_tree_to_world, setup, LightIndex};

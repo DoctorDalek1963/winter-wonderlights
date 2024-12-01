@@ -1,7 +1,5 @@
 //! This crate provides a shared [`Message`] type for the virtual tree driver and runner to use.
 
-#![feature(lint_reasons)]
-
 use serde::{Deserialize, Serialize};
 use ww_frame::FrameType;
 

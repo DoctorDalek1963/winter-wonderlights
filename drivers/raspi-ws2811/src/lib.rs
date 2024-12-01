@@ -4,8 +4,6 @@
 //! datasheet and <https://docs.rs/rs_ws281x/0.4.4/rs_ws281x> for the backend used to power this
 //! driver.
 
-#![feature(lint_reasons)]
-
 use rs_ws281x::{ChannelBuilder, Controller, ControllerBuilder, StripType};
 use std::env;
 use tracing::{debug, info, instrument};

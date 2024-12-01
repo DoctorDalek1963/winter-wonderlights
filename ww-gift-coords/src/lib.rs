@@ -10,8 +10,6 @@
 //! x and y values. This means th minimum z values is 0, and the maximum z value depends on the
 //! other coordinates.
 
-#![feature(lint_reasons)]
-
 use color_eyre::Result;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};

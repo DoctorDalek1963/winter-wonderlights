@@ -2,8 +2,6 @@
 //!
 //! It's structured like this to avoid dependency cycles.
 
-#![feature(lint_reasons)]
-
 use std::sync::OnceLock;
 use tracing_unwrap::ResultExt;
 use ww_frame::FrameType;

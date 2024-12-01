@@ -10,8 +10,6 @@
 //! where the first three bytes are from [`DECLARE_CLIENT_TYPE_MAGIC`] and the last byte is from
 //! [`ClientType`].
 
-#![feature(lint_reasons)]
-
 use serde::{Deserialize, Serialize};
 use strum::EnumIter;
 

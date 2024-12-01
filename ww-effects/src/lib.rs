@@ -3,7 +3,6 @@
 //! own effect.
 
 #![feature(let_chains)]
-#![feature(lint_reasons)]
 #![feature(proc_macro_hygiene)]
 #![feature(stmt_expr_attributes)]
 

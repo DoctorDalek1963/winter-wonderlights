@@ -1,7 +1,6 @@
 //! This crate provides functionality for specifiying and using 3D frames.
 
 #![feature(array_windows)]
-#![feature(lint_reasons)]
 
 use glam::Vec3;
 use rand::Rng;

@@ -1,7 +1,6 @@
 //! This crate implements a client interface for `Winter WonderLights`.
 
 #![feature(let_chains)]
-#![feature(lint_reasons)]
 #![allow(
     clippy::future_not_send,
     reason = "the client primarily runs on Wasm, so multithreading async tasks is not possible"

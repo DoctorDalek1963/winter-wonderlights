@@ -1,7 +1,5 @@
 //! This binary crate runs the server for `Winter WonderLights`.
 
-#![feature(lint_reasons)]
-
 mod drivers;
 mod gift;
 mod logging;
