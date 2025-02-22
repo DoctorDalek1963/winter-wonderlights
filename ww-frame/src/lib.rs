@@ -18,5 +18,5 @@ pub type RGBArray = [u8; 3];
 
 /// Generate a random `Vec3` with positive or negative elements, and normalize it.
 pub fn random_vector<R: Rng + ?Sized>(rng: &mut R) -> Vec3 {
-    (rng.gen::<Vec3>() - Vec3::new(0.5, 0.5, 0.5)).normalize()
+    (rng.random::<Vec3>() - Vec3::new(0.5, 0.5, 0.5)).normalize()
 }

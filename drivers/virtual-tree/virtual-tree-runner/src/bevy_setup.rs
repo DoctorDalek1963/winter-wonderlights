@@ -137,9 +137,9 @@ pub(super) fn add_tree_to_world(
 
         // We want a random number of branches equally spaced around the trunk. Giving them a
         // random starting offset makes them less predictable
-        let num_branches_proportion = 360 / rng.gen_range(10..=16);
+        let num_branches_proportion = 360 / rng.random_range(10..=16);
         for theta in (0..360)
-            .skip(rng.gen_range(0..=num_branches_proportion))
+            .skip(rng.random_range(0..=num_branches_proportion))
             .step_by(num_branches_proportion)
         {
             // Create a capsule shape connecting the core of the trunk to a point away from the
@@ -192,9 +192,9 @@ fn create_tree_branch(
     .into();
 
     let p_to_q = Vec3 {
-        x: px - qx + rng.gen_range(-0.1..=0.1),
-        y: py - qy + rng.gen_range(-0.1..=0.1),
-        z: pz - qz + rng.gen_range(-0.1..=0.1),
+        x: px - qx + rng.random_range(-0.1..=0.1),
+        y: py - qy + rng.random_range(-0.1..=0.1),
+        z: pz - qz + rng.random_range(-0.1..=0.1),
     };
     let transform = Transform::from_xyz(midpoint.0, midpoint.1, midpoint.2)
         .with_rotation(Quat::from_rotation_arc(Vec3::Y, p_to_q.normalize()));

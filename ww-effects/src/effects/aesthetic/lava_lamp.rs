@@ -126,17 +126,17 @@ mod effect {
             let spheres = (0..5)
                 .map(|_| Sphere {
                     centre: Vec3 {
-                        x: rng.gen_range(-1.0..1.0),
-                        y: rng.gen_range(-1.0..1.0),
-                        z: rng.gen_range(0.0..COORDS.max_z()),
+                        x: rng.random_range(-1.0..1.0),
+                        y: rng.random_range(-1.0..1.0),
+                        z: rng.random_range(0.0..COORDS.max_z()),
                     },
-                    radius: rng.gen_range(0.25..2.0),
+                    radius: rng.random_range(0.25..2.0),
                     colour_offset: {
                         let range = -(config.variation as i32)..(config.variation as i32);
                         IVec3 {
-                            x: rng.gen_range(range.clone()),
-                            y: rng.gen_range(range.clone()),
-                            z: rng.gen_range(range),
+                            x: rng.random_range(range.clone()),
+                            y: rng.random_range(range.clone()),
+                            z: rng.random_range(range),
                         }
                     },
                     movement_direction: random_vector(&mut rng),

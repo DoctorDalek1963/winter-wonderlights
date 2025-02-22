@@ -119,7 +119,7 @@ mod effect {
             const MOVE_PROPORTION: f32 = 0.1;
 
             let mut rng = rng!();
-            let colour = rng.gen();
+            let colour = rng.random();
             let normal_vector = random_vector(&mut rng);
 
             //// Start in the middle and reverse with normal vector until outside bounding box

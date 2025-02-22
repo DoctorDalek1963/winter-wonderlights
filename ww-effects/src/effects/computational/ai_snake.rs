@@ -359,7 +359,7 @@ mod effect {
 
         /// Get a random point from the lattice.
         fn random_point(&self, rng: &mut StdRng) -> Option<Coord> {
-            let idx = rng.gen_range(0..self.points.len());
+            let idx = rng.random_range(0..self.points.len());
             self.points.get(idx).copied()
         }
 
