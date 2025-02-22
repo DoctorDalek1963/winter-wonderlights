@@ -1,7 +1,7 @@
 //! This module handles things to setup bevy for the virtual tree.
 
 use bevy::{core_pipeline::bloom::BloomSettings, prelude::*};
-use rand::{Rng, thread_rng};
+use rand::Rng;
 use smooth_bevy_cameras::controllers::orbit::{OrbitCameraBundle, OrbitCameraController};
 use std::f32::consts::PI;
 use ww_gift_coords::COORDS;
@@ -125,7 +125,7 @@ pub(super) fn add_tree_to_world(
     let max_y: f32 = COORDS.max_z() - 0.3;
     let mut y = initial_y;
 
-    let mut rng = thread_rng();
+    let mut rng = rand::rng();
     let leaf_material = materials.add(StandardMaterial {
         base_color: Color::rgb_u8(12, 96, 29),
         perceptual_roughness: 0.85,

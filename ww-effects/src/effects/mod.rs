@@ -27,7 +27,7 @@ macro_rules! rng {
             if #[cfg(any(test, feature = "bench"))] {
                 StdRng::seed_from_u64(12345)
             } else {
-                StdRng::from_entropy()
+                StdRng::from_os_rng()
             }
         }
     }};
