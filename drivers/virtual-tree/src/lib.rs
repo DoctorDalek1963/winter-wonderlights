@@ -25,6 +25,9 @@ fn get_runner_path() -> String {
 pub struct VirtualTreeDriver {
     /// The IPC socket stream to write data to.
     stream: LocalSocketStream,
+
+    /// The handle to the child process that runs Bevy.
+    runner_handle: std::process::Child,
 }
 
 impl Driver for VirtualTreeDriver {
@@ -60,7 +63,7 @@ impl Driver for VirtualTreeDriver {
             }
         };
 
-        Command::new(&runner_path)
+        let runner_handle = Command::new(&runner_path)
             .arg(socket_path)
             .spawn()
             .expect_or_log(&format!("Unable to start runner at path {runner_path}"));
@@ -69,7 +72,10 @@ impl Driver for VirtualTreeDriver {
             .accept()
             .expect_or_log("The runner should successfully connect to the driver's socket");
 
-        Self { stream }
+        Self {
+            stream,
+            runner_handle,
+        }
     }
 
     #[instrument(skip_all)]
@@ -82,5 +88,12 @@ impl Driver for VirtualTreeDriver {
                     .expect_or_log("Serializing a Message should not fail"),
             )
             .expect_or_log("Failed to write to the socket");
+    }
+}
+
+impl Drop for VirtualTreeDriver {
+    fn drop(&mut self) {
+        let _ = self.runner_handle.kill();
+        let _ = self.runner_handle.wait();
     }
 }
