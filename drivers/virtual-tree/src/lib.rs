@@ -18,7 +18,7 @@ use ww_frame::FrameType;
 /// if it's not available at runtime.
 fn get_runner_path() -> String {
     std::env::var("CARGO_BIN_FILE_VIRTUAL_TREE_RUNNER")
-        .unwrap_or(env!("CARGO_BIN_FILE_VIRTUAL_TREE_RUNNER").to_owned())
+        .unwrap_or_else(|_| env!("CARGO_BIN_FILE_VIRTUAL_TREE_RUNNER").to_owned())
 }
 
 /// A driver that uses IPC to communicate with Bevy to render a virtual tree.

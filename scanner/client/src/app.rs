@@ -166,7 +166,7 @@ impl eframe::App for App {
         match app_state {
             AppState::WaitingForChoice => self.display_gui_waiting_for_choice(ctx),
             AppState::WaitingForConnection => Self::display_gui_waiting_for_connection(ctx),
-            AppState::Connected { .. } => self.display_gui_connected(ctx),
+            AppState::Connected => self.display_gui_connected(ctx),
             AppState::Rejected => Self::display_gui_rejected(ctx),
         };
 
