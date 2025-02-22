@@ -8,7 +8,7 @@ use rs_ws281x::{ChannelBuilder, Controller, ControllerBuilder, StripType};
 use std::env;
 use tracing::{debug, info, instrument};
 use tracing_unwrap::ResultExt;
-use ww_driver_trait::{lights_num, Driver};
+use ww_driver_trait::{Driver, lights_num};
 use ww_frame::FrameType;
 
 /// The frequency of the signal to the LEDs in Hz.

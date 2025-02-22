@@ -73,10 +73,12 @@ fn get_effect_names(input: TokenStream) -> Result<Vec<Ident>> {
 
                 last_elem_was_ident = false;
             }
-            _ => return Err(syn::Error::new(
-                Span::call_site(),
-                "`generate_lists_and_impls!()` takes a list of comma-separated effect identifiers",
-            )),
+            _ => {
+                return Err(syn::Error::new(
+                    Span::call_site(),
+                    "`generate_lists_and_impls!()` takes a list of comma-separated effect identifiers",
+                ));
+            }
         }
     }
 

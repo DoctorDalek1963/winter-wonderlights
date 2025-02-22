@@ -32,7 +32,7 @@ pub use self::list::EffectDispatchList;
 pub mod traits;
 
 #[cfg(feature = "config-trait")]
-pub use self::traits::{save_effect_config_to_file, EffectConfig};
+pub use self::traits::{EffectConfig, save_effect_config_to_file};
 
 #[cfg(feature = "effect-trait")]
 pub use self::traits::Effect;

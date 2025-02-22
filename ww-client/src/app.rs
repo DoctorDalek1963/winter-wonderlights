@@ -266,7 +266,9 @@ impl App {
                             server_version: server_version.clone(),
                         }
                     } else {
-                        warn!("Received UpdateClientState before EstablishConnection; establishing new connection");
+                        warn!(
+                            "Received UpdateClientState before EstablishConnection; establishing new connection"
+                        );
 
                         let message_tx = self.message_tx.clone();
                         self.async_runtime.spawn_pinned(|| async move {
@@ -313,7 +315,10 @@ impl App {
             server_version,
         } = &mut *self.state.write().unwrap_or_log()
         else {
-            panic!("App::display_gui_connected must only be called when state == AppState::Connected, not {:?}", self.state.read().unwrap_or_log());
+            panic!(
+                "App::display_gui_connected must only be called when state == AppState::Connected, not {:?}",
+                self.state.read().unwrap_or_log()
+            );
         };
 
         egui::CentralPanel::default().show(ctx, |ui| {
@@ -510,7 +515,10 @@ impl App {
             server_protocol_version,
         } = &*self.state.read().unwrap_or_log()
         else {
-            panic!("App::display_gui_protocol_mismatch must only be called when state == AppState::ProtocolMismatch, not {:?}", self.state.read());
+            panic!(
+                "App::display_gui_protocol_mismatch must only be called when state == AppState::ProtocolMismatch, not {:?}",
+                self.state.read()
+            );
         };
 
         egui::CentralPanel::default().show(ctx, |ui| {

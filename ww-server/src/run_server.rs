@@ -1,11 +1,11 @@
 //! This module handles running the actual server.
 
 use crate::{
-    run_effect::{ThreadMessage, SEND_MESSAGE_TO_RUN_EFFECT_THREAD},
     WrappedClientState,
+    run_effect::{SEND_MESSAGE_TO_RUN_EFFECT_THREAD, ThreadMessage},
 };
 use color_eyre::{Report, Result};
-use futures_util::{future, pin_mut, stream::TryStreamExt, StreamExt};
+use futures_util::{StreamExt, future, pin_mut, stream::TryStreamExt};
 use lazy_static::lazy_static;
 use std::{io, net::SocketAddr, thread, time::Duration};
 use tokio::{

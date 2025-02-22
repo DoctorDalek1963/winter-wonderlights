@@ -7,10 +7,10 @@
 
 mod bevy_setup;
 
-use self::bevy_setup::{add_tree_to_world, setup, LightIndex};
-use bevy::{log::LogPlugin, prelude::*, DefaultPlugins};
+use self::bevy_setup::{LightIndex, add_tree_to_world, setup};
+use bevy::{DefaultPlugins, log::LogPlugin, prelude::*};
 use interprocess_docfix::local_socket::LocalSocketStream;
-use smooth_bevy_cameras::{controllers::orbit::OrbitCameraPlugin, LookTransformPlugin};
+use smooth_bevy_cameras::{LookTransformPlugin, controllers::orbit::OrbitCameraPlugin};
 use std::{
     env,
     io::{self, Read},
@@ -18,7 +18,7 @@ use std::{
     sync::RwLock,
     thread,
 };
-use tracing::{debug, error, instrument, trace, warn, Level};
+use tracing::{Level, debug, error, instrument, trace, warn};
 use tracing_unwrap::{OptionExt, ResultExt};
 use virtual_tree_shared::Message;
 use ww_frame::{FrameType, RGBArray};

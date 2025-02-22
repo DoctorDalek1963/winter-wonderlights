@@ -2,17 +2,17 @@
 
 use crate::{app::AppState, generic_client::GenericClientWidget};
 use egui::{
-    load::{SizedTexture, TextureLoader},
     ColorImage, Context, ImageData, Response, TextureOptions, Ui,
+    load::{SizedTexture, TextureLoader},
 };
-use image::{imageops, GrayImage, Luma};
+use image::{GrayImage, Luma, imageops};
 use nokhwa::{
+    Camera,
     pixel_format::LumaFormat,
     utils::{
         ApiBackend, CameraIndex, KnownCameraControl, RequestedFormat, RequestedFormatType,
         Resolution,
     },
-    Camera,
 };
 use std::{
     fmt,

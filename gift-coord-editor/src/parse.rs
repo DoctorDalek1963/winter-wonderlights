@@ -2,11 +2,11 @@
 
 use crate::Command;
 use nom::{
+    IResult, Parser,
     branch::alt,
     bytes::complete::{tag, take_until1, take_while1},
     character::complete::{self, multispace0, multispace1},
     number::complete::float,
-    IResult, Parser,
 };
 use std::ops::RangeInclusive;
 use ww_gift_coords::PointF;

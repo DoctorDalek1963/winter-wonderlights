@@ -1,11 +1,11 @@
 //! This module handles running the actual server.
 
 use crate::{
-    scan_manager::{ScanManagerMsg, SEND_MESSAGE_TO_SCAN_MANAGER},
+    scan_manager::{SEND_MESSAGE_TO_SCAN_MANAGER, ScanManagerMsg},
     state::{Connection, ConnectionSocket, ScannerState},
 };
 use color_eyre::{Report, Result};
-use futures_util::{future, pin_mut, stream::TryStreamExt, SinkExt, StreamExt};
+use futures_util::{SinkExt, StreamExt, future, pin_mut, stream::TryStreamExt};
 use lazy_static::lazy_static;
 use std::{
     io,
@@ -23,8 +23,8 @@ use tokio_tungstenite::tungstenite;
 use tracing::{debug, error, info, instrument, warn};
 use tracing_unwrap::ResultExt;
 use ww_scanner_shared::{
-    CameraToServerMsg, ClientType, ControllerToServerMsg, GenericServerToClientMsg,
-    ServerToCameraMsg, ServerToControllerMsg, DECLARE_CLIENT_TYPE_MAGIC,
+    CameraToServerMsg, ClientType, ControllerToServerMsg, DECLARE_CLIENT_TYPE_MAGIC,
+    GenericServerToClientMsg, ServerToCameraMsg, ServerToControllerMsg,
 };
 
 lazy_static! {

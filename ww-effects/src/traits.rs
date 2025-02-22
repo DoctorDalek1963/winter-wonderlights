@@ -146,8 +146,8 @@ pub fn get_config_filename(effect_name: &str) -> String {
 pub(crate) mod private {
     #[cfg(doc)]
     use crate::{
-        traits::{BaseEffect, BaseEffectConfig, Effect, EffectConfig},
         EffectNameList,
+        traits::{BaseEffect, BaseEffectConfig, Effect, EffectConfig},
     };
 
     /// This trait restricts implementors of [`Effect`], [`BaseEffect`], [`BaseEffectConfig`], and

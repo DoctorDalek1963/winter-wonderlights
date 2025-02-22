@@ -3,7 +3,7 @@
 use proc_macro::TokenStream;
 use proc_macro2::{Ident as Ident2, Literal, TokenStream as TokenStream2};
 use quote::{format_ident, quote};
-use syn::{parse_macro_input, DeriveInput};
+use syn::{DeriveInput, parse_macro_input};
 
 /// Derive the `BaseEffect` trait.
 pub fn derive_base_effect(input: TokenStream) -> TokenStream {

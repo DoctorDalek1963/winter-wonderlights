@@ -15,7 +15,7 @@ use tokio::{
     net::TcpStream,
 };
 use tokio_rustls::server::TlsStream;
-use tokio_tungstenite::{tungstenite::Message as TungsteniteMessage, WebSocketStream};
+use tokio_tungstenite::{WebSocketStream, tungstenite::Message as TungsteniteMessage};
 use ww_scanner_shared::BasicCameraInfo;
 
 /// A socket for a connection.

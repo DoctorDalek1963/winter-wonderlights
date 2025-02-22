@@ -21,7 +21,7 @@ use crate::traits::{Effect, EffectConfig};
 #[cfg(feature = "effect-impls")]
 macro_rules! rng {
     () => {{
-        use ::rand::{rngs::StdRng, SeedableRng};
+        use ::rand::{SeedableRng, rngs::StdRng};
 
         cfg_if::cfg_if! {
             if #[cfg(any(test, feature = "bench"))] {
@@ -90,14 +90,14 @@ pub(crate) mod prelude {
             effects::rng,
             traits::{BaseEffect, Effect},
         };
-        pub use effect_proc_macros::{end_loop_in_test_or_bench, BaseEffect};
+        pub use effect_proc_macros::{BaseEffect, end_loop_in_test_or_bench};
         pub use glam::{Quat, Vec3};
-        pub use rand::{rngs::StdRng, Rng};
+        pub use rand::{Rng, rngs::StdRng};
         pub use std::time::Duration;
         pub use tracing::{debug, info, instrument, trace, warn};
         pub use tracing_unwrap::{OptionExt, ResultExt};
         pub use ww_driver_trait::Driver;
-        pub use ww_frame::{random_vector, Frame3D, FrameObject, FrameType, Object};
+        pub use ww_frame::{Frame3D, FrameObject, FrameType, Object, random_vector};
 
         #[cfg(any(test, feature = "bench"))]
         pub use std::num::NonZeroU16;

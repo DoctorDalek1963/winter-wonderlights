@@ -1,7 +1,7 @@
 //! This module handles setting up logging with `tracing`.
 
 use tracing_appender::{non_blocking, non_blocking::WorkerGuard, rolling};
-use tracing_subscriber::{filter::LevelFilter, fmt::Layer, prelude::*, EnvFilter};
+use tracing_subscriber::{EnvFilter, filter::LevelFilter, fmt::Layer, prelude::*};
 use tracing_unwrap::ResultExt;
 
 /// Initialise a subscriber for tracing to log to `stdout` and a file.

@@ -13,7 +13,7 @@ use std::{
 };
 use tracing::{debug, error, info, instrument};
 use tracing_unwrap::ResultExt;
-use ww_scanner_shared::{client_impl::ClientToServerMsg, GenericServerToClientMsg};
+use ww_scanner_shared::{GenericServerToClientMsg, client_impl::ClientToServerMsg};
 
 use crate::app::AppState;
 

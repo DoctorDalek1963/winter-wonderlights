@@ -19,7 +19,7 @@
 
 use proc_macro2::{Delimiter, Ident, TokenStream, TokenTree};
 use quote::quote;
-use syn::{spanned::Spanned, Error};
+use syn::{Error, spanned::Spanned};
 
 /// End a loop after 100 iterations in test or benchmark builds.
 pub fn end_loop_in_test_or_bench(input: TokenStream) -> TokenStream {
@@ -40,7 +40,7 @@ pub fn end_loop_in_test_or_bench(input: TokenStream) -> TokenStream {
                 }
                 _ => {
                     return Error::new(input_span, "No group after `loop` keyword")
-                        .to_compile_error()
+                        .to_compile_error();
                 }
             };
 

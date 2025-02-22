@@ -1,7 +1,7 @@
 //! This module handles things to setup bevy for the virtual tree.
 
 use bevy::{core_pipeline::bloom::BloomSettings, prelude::*};
-use rand::{thread_rng, Rng};
+use rand::{Rng, thread_rng};
 use smooth_bevy_cameras::controllers::orbit::{OrbitCameraBundle, OrbitCameraController};
 use std::f32::consts::PI;
 use ww_gift_coords::COORDS;

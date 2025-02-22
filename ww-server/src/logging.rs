@@ -1,7 +1,7 @@
 //! This module handles setting up logging with `tracing` and provides functions to zip up old log
 //! files. See [`zip_log_files_older_than_hours`] and [`zip_log_files_older_than_days`].
 
-use chrono::{naive::NaiveDate, Datelike, NaiveDateTime};
+use chrono::{Datelike, NaiveDateTime, naive::NaiveDate};
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
@@ -13,7 +13,7 @@ use std::{
 use tokio::process::Command;
 use tracing::{debug, error, instrument, trace};
 use tracing_appender::{non_blocking, non_blocking::WorkerGuard, rolling};
-use tracing_subscriber::{filter::LevelFilter, fmt::Layer, prelude::*, EnvFilter};
+use tracing_subscriber::{EnvFilter, filter::LevelFilter, fmt::Layer, prelude::*};
 use tracing_unwrap::ResultExt;
 
 /// A [`OnceLock`] to cache the logging directory.

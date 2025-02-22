@@ -108,7 +108,7 @@ mod effect {
     use ordered_float::NotNan;
     use rand::Rng;
     use std::{collections::VecDeque, fmt, iter};
-    use ww_gift_coords::{GIFTCoords, COORDS};
+    use ww_gift_coords::{COORDS, GIFTCoords};
 
     /// A coordinate in snake space.
     #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]

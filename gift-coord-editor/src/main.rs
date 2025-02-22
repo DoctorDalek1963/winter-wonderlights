@@ -9,10 +9,10 @@ mod driver;
 mod parse;
 
 use clap::Parser;
-use color_eyre::{eyre::Context, Result};
+use color_eyre::{Result, eyre::Context};
 use driver::EditorDriver;
 use parse::parse_command;
-use rustyline::{error::ReadlineError, DefaultEditor};
+use rustyline::{DefaultEditor, error::ReadlineError};
 use std::{fs, ops::RangeInclusive};
 use termion::{color, style};
 use ww_gift_coords::{GIFTCoords, PointF};

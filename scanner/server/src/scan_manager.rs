@@ -14,7 +14,7 @@ use tokio::{
 };
 use tracing::{debug, info, instrument, trace};
 use tracing_unwrap::ResultExt;
-use ww_driver_trait::{lights_num, Driver};
+use ww_driver_trait::{Driver, lights_num};
 use ww_frame::FrameType;
 use ww_scanner_shared::{
     CompassDirection, CompassDirectionFlags, GenericServerToClientMsg, ServerToCameraMsg,

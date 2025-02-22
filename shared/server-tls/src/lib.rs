@@ -10,8 +10,8 @@ use std::{
 };
 use thiserror::Error;
 use tokio_rustls::{
-    rustls::{self, Certificate, PrivateKey},
     TlsAcceptor,
+    rustls::{self, Certificate, PrivateKey},
 };
 
 /// Read the file at the given path and try to read it as a list of SSL certificates.
@@ -23,7 +23,7 @@ fn load_certs(path: &Path) -> io::Result<Vec<Certificate>> {
 
 /// Read the file at the given path and try to read it as a list of SSL private keys.
 fn load_keys(path: &Path) -> io::Result<Vec<PrivateKey>> {
-    use rustls_pemfile::{read_all, Item::*};
+    use rustls_pemfile::{Item::*, read_all};
 
     read_all(&mut BufReader::new(File::open(path)?))
         .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "Invalid keys"))
