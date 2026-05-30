@@ -5329,7 +5329,7 @@ dependencies = [
 [[package]]
 name = "rs_ws281x"
 version = "0.5.1"
-source = "git+https://github.com/DoctorDalek1963/rpi-ws281x-rust.git#919f57ef73fab748c26c39fe7a8e588fc62af1b4"
+source = "git+https://github.com/DoctorDalek1963/rpi-ws281x-rust#919f57ef73fab748c26c39fe7a8e588fc62af1b4"
 dependencies = [
  "bindgen 0.69.5",
  "cc",

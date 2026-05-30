@@ -48,4 +48,4 @@ wildcards = "warn"
 allow-wildcard-paths = true
 
 [sources]
-allow-git = ["https://github.com/DoctorDalek1963/rpi-ws281x-rust.git"]
+allow-git = ["https://github.com/DoctorDalek1963/rpi-ws281x-rust"]
